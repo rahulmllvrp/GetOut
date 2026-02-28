@@ -1,6 +1,15 @@
 {
+<<<<<<< Updated upstream
   "name": "getout",
   "version": "0.0.0",
   "private": true,
   "type": "module"
+=======
+  "scripts": {
+    "dev": "bunx serve -p 8000"
+  },
+  "dependencies": {
+    "@sparkjsdev/spark": "^0.1.10"
+  }
+>>>>>>> Stashed changes
 }
