@@ -8,7 +8,7 @@ async function main() {
     modelId: 'eleven_multilingual_v2',
   });
 
-  // option 1: play the streamed audio locally
+  // how to stream knowledge in!
   await stream(audioStream);
 }
 
