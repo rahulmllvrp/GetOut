@@ -10,7 +10,6 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "@elevenlabs/elevenlabs-js": "^2.37.0",
-    "install": "^0.13.0"
+    "@elevenlabs/elevenlabs-js": "^2.37.0"
   }
 }

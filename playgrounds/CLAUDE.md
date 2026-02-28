@@ -33,7 +33,7 @@ test("hello world", () => {
 
 ## Frontend
 
-Use HTML imports with `Bun.serve()`. Don't use `vite`. HTML imports fully support React, CSS, Tailwind.
+Use HTML imports with `Bun.serve()`. Don't use `vite`.
 
 Server:
 
@@ -68,7 +68,7 @@ Bun.serve({
 })
 ```
 
-HTML files can import .tsx, .jsx or .js files directly and Bun's bundler will transpile & bundle automatically. `<link>` tags can point to stylesheets and Bun's CSS bundler will bundle.
+HTML files can import `.ts`, `.js`, `.tsx`, or `.jsx` directly and Bun's bundler will transpile and bundle automatically. `<link>` tags can point to stylesheets and Bun's CSS bundler will bundle.
 
 ```html#index.html
 <html>
@@ -79,22 +79,13 @@ HTML files can import .tsx, .jsx or .js files directly and Bun's bundler will tr
 </html>
 ```
 
-With the following `frontend.tsx`:
+With the following `frontend.ts`:
 
-```tsx#frontend.tsx
-import React from "react";
-import { createRoot } from "react-dom/client";
-
-// import .css files directly and it works
-import './index.css';
-
-const root = createRoot(document.body);
-
-export default function Frontend() {
-  return <h1>Hello, world!</h1>;
+```ts#frontend.ts
+const mount = document.body;
+if (mount) {
+  mount.innerHTML = `<h1>Hello, world!</h1>`;
 }
-
-root.render(<Frontend />);
 ```
 
 Then, run index.ts
