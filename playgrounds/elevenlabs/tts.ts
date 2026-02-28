@@ -2,7 +2,7 @@ import { ElevenLabsClient, play } from '@elevenlabs/elevenlabs-js';
 import { createInterface } from 'readline';
 
 const elevenlabs = new ElevenLabsClient();
-const VOICE_ID = 'JBFqnCBsd6RMkjVDRZzb';
+const VOICE_ID = '8xUIoXhbwVdLFdpsGXe6';
 
 const rl = createInterface({ input: process.stdin, output: process.stdout });
 
