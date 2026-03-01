@@ -35,56 +35,72 @@ Reference Video
     │
     ├──► [3DGS Layer] ──► room.ply ──► Frontend 3D Viewer
     │
-    └──► [Mistral Large] ──► ~10 Terrestrial Images
+    └──► Frame Extraction ──► frame_descriptions.json
                                 │
-                                ├──► Image Descriptions (visible areas)
-                                └──► Hidden Descriptions (hidden/explorable areas, text only)
+                                ├──► Panoramic viewpoints (frame_*) — spatial context
+                                └──► Object locations (e.g. whiteboard, bookshelf) — interactable
                                 │
                                 ▼
                           [Game Master / Mistral Large]
-                          Inputs: terrestrial images + descriptions + hidden descriptions + location table
+                          Inputs: all frame descriptions + coordinates
                                 │
                                 ▼
-                          Game Tree (dynamic, LLM-generated)
+                          Game Tree (3-5 clue nodes, LLM-generated)
+                          + room description, win/lose conditions
                                 │
                                 ▼
                           [Gemini Flash] ──► Hidden POV Images
+                                │
+                                ▼
+                          gameState.json (persisted to disk)
 ```
 
 #### Step 1 — 3D Gaussian Splatting
 
 A reference video of the room is processed through a **3D Gaussian Splatting (3DGS)** layer. The output is a `.ply` file that the frontend renders as an interactive 3D scene using Three.js and `@sparkjsdev/spark` (`SplatMesh`).
 
-#### Step 2 — Terrestrial Image Extraction
+#### Step 2 — Frame Descriptions
 
-The same reference video is passed to **Mistral Large** (`mistral-large-latest`). The model extracts approximately **10 terrestrial images** — standard viewpoint frames representing what a person standing in the room would see looking in different directions.
+The room is described via a `frame_descriptions.json` file containing:
 
-#### Step 3 — Descriptions
+- A **common room description** — an overall summary of the space.
+- An array of **frames**, each with:
+  - `frame` — a unique ID (e.g., `"frame_1"`, `"whiteboard"`, `"bookshelf"`)
+  - `description` — what is visible at this location
+  - `pov` — the point-of-view text (what someone would see looking from here)
+  - `coordinates` — camera position (`pos: {x, y, z}`) and rotation (`rot: {x, y}`) for frontend rendering
+  - `image_filepath` — path to a reference image for this viewpoint
 
-For each terrestrial image, two types of descriptions are generated:
+Frames are categorized into two types:
 
-- **Visible descriptions** — what is plainly visible (furniture, doors, windows, objects).
-- **Hidden descriptions** — what is concealed or not immediately obvious (a loose floorboard, a compartment behind a painting, a vent cover that can be removed). These are **text-only** — no images of hidden areas exist yet at this stage.
+- **Panoramic viewpoints** (`frame_*`) — standard-perspective views of the room for spatial context. Clues cannot be attached to these.
+- **Object locations** (e.g., `whiteboard`, `bookshelf`, `laptop`) — interactable spots where clues can be placed.
 
-#### Step 4 — Location Table
+#### Step 3 — Game Tree Generation
 
-A **hardcoded location table** defines all the places in the room that Kyle can move to, each mapped to coordinates the frontend uses for camera/character movement. This table covers every navigable spot — both puzzle-relevant locations and purely environmental ones (e.g., a bookshelf with no riddle attached). The Game Master selects a subset of these locations when building the game tree.
+The **Game Master** (Mistral Large) receives all frame descriptions and generates structured JSON via constrained decoding (JSON schema). The output includes:
 
-#### Step 5 — Game Tree Generation
+- **roomDescription** — a 2-3 sentence atmospheric summary of the room
+- **winCondition** — what the player must do to escape
+- **loseCondition** — optional fail state (or null)
+- **gameTree** — an ordered sequence of 3-5 clue nodes, each containing:
+  - `frameId` — an object location ID from the frame descriptions (never a panoramic viewpoint)
+  - `clueId` — a unique short ID for this puzzle step
+  - `discovery` — what Kyle finds when arriving at the right time
+  - `premature_discovery` — what Kyle finds if the player visits before it's unlocked
+  - `riddle` — a puzzle to solve (null for the final exit node)
+  - `answer` — the expected keyword (null for the exit node)
+  - `hiddenAreaDescription` — a vivid text description used to generate the hidden POV image
 
-The **Game Master** (Mistral Large) receives the terrestrial images, their visible descriptions, the hidden descriptions (text only, no images), and the location table. From these inputs, the Game Master **dynamically generates a game tree** — an ordered sequence of nodes the player must progress through to escape. Each node in the tree includes:
+The game tree is generated once at session start and remains fixed for the duration of the game. Riddle answers are designed to guide the player to the next location naturally.
 
-- **location** — a location ID from the hardcoded location table
-- **discovery** — what Kyle finds when arriving at the right time
-- **premature_discovery** — what Kyle finds if the player visits this location before it's unlocked (e.g., a locked combination lock, a stuck panel)
-- **riddle** — a puzzle the player must solve to advance
-- **answer** — the expected keyword for the riddle solution
+#### Step 4 — Hidden POV Generation
 
-The game tree is generated once at the start of each session and remains fixed for the duration of the game.
+Once the game tree is finalized, images for the necessary **hidden POVs** are generated using **Gemini Flash** (`gemini-2.5-flash-image`). For each clue node, the corresponding frame's reference image and the `hiddenAreaDescription` are sent to Gemini, which produces a first-person POV image of the hidden discovery (e.g., inside a drawer, behind a painting). This step depends on the game tree being complete, since the tree determines which hidden POVs are needed.
 
-#### Step 6 — Hidden POV Generation
+#### Step 5 — GameState Persistence
 
-Once the game tree is finalized, images for the necessary **hidden POVs** are generated using **Gemini Flash** (`gemini-2.0-flash-exp`). These are the views the player sees when Kyle explores a hidden or concealed area (e.g., inside a drawer, behind a painting, under a rug). Generation is grounded using the terrestrial images as reference plus text prompts derived from the game tree's discovery descriptions. This step depends on the game tree being complete, since the tree determines which hidden POVs are needed.
+The full game state is assembled and saved to `gameState.json`. This includes all static data (game tree, all locations, room description, win/lose conditions) and mutable data (current location, visit history, conversation history, riddles solved). The game state is **persisted after every turn** during gameplay, allowing sessions to be resumed.
 
 ### Win Conditions
 
@@ -138,16 +154,15 @@ The Game Master decides which scenario(s) apply to a given room and encodes them
 
 1. **Player speaks** — The player records a voice message (WAV file).
 2. **Speech-to-Text** — The WAV file is sent to the **ElevenLabs STT API** (`scribe_v2` model) and transcribed to text.
-3. **Game Master processes** — The transcribed instruction is sent to the **Game Master** (Mistral Large with structured output). The Game Master:
-   - Determines what Kyle does in response to the instruction.
-   - Returns a `move_to` location ID (from the location table) if Kyle moves.
-   - Updates the current location in the game state.
-   - Tracks discovered items/locations.
-   - Checks win/lose conditions against the game tree.
-   - Returns Kyle's in-character dialogue.
-4. **Text-to-Speech** — Kyle's response text is sent to the **ElevenLabs TTS API** (`eleven_v3` model, voice ID configured for Kyle) and converted to audio.
-5. **Playback & UI update** — The audio is played back to the player. The frontend resolves the `move_to` location and updates accordingly (see Location Resolution below).
-6. **Repeat** until the player escapes (success) or gives up.
+3. **Game Master processes** — The transcribed instruction is sent to the **Game Master** (Mistral Large with structured output). The system prompt is rebuilt every turn with the current game state. The Game Master returns:
+   - `kyle_response` — Kyle's in-character dialogue
+   - `did_move` / `move_to` — whether Kyle moved and to which frame ID
+   - `clue_revealed` — whether a new discovery was delivered
+   - `riddle_solved` — whether the player solved the current riddle
+4. **State update** — The server updates the game state (location, visit history, clue index, riddles solved, game over) and **persists it to disk** so the session can be resumed.
+5. **Text-to-Speech** — Kyle's response text is sent to the **ElevenLabs TTS API** (`eleven_v3` model, voice ID configured for Kyle) and converted to audio.
+6. **Playback & UI update** — The audio is played back to the player. The frontend resolves the `move_to` frame ID to coordinates and updates the camera/character position. If `clue_revealed` is true, the corresponding hidden POV image is displayed.
+7. **Repeat** until the player escapes (success) or gives up.
 
 #### Location Resolution
 
@@ -169,7 +184,7 @@ When the player instructs Kyle to visit a location, the frontend first renders K
 | --------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | **Frontend**          | Next.js (React 19), Tailwind CSS v4, Three.js, `@sparkjsdev/spark` for Gaussian splatting                             |
 | **3D Scene**          | 3DGS pipeline producing `.ply` files, rendered via `SplatMesh`                                                        |
-| **Game Master / LLM** | Mistral Large (`mistral-large-latest`) via `mistralai` SDK, with function-calling tools                               |
+| **Game Master / LLM** | Mistral Large (`mistral-large-latest`) via `mistralai` SDK, with structured output (JSON schema constrained decoding) |
 | **Speech-to-Text**    | ElevenLabs STT API (`scribe_v2` model)                                                                                |
 | **Text-to-Speech**    | ElevenLabs TTS API (`eleven_v3` model) via `@elevenlabs/elevenlabs-js` SDK                                            |
 | **Image Generation**  | Gemini (`gemini-2.5-flash-image`) via `@google/genai` SDK — supports text-only and grounded (image + text) generation |
@@ -210,8 +225,8 @@ GetOut/
 
 ## Key Concepts
 
-- **Terrestrial Images** — ~10 standard-perspective frames of the room, representing what a person would see standing inside it and looking around.
-- **Hidden POVs** — AI-generated images showing what a player sees when they explore a hidden or concealed area (e.g., inside a drawer, behind a painting, under a rug).
-- **Location Table** — A hardcoded registry of all navigable locations in the room, each with an ID and coordinates. Covers both puzzle-relevant and purely environmental locations. The Game Master selects from this table when building the game tree; the frontend uses it to map location IDs to camera/character positions.
-- **Game Tree** — An ordered sequence of nodes dynamically generated by the Game Master at the start of each session. Each node references a location from the location table and includes a discovery, premature discovery, riddle, and answer. Defines the path the player must follow to escape.
+- **Frames** — Named viewpoints/locations in the room, defined in `frame_descriptions.json`. Split into **panoramic viewpoints** (`frame_*`) for spatial context and **object locations** (e.g., `whiteboard`, `bookshelf`) that can have clues attached. Each frame has coordinates, a description, and optionally a reference image.
+- **Hidden POVs** — AI-generated images showing what a player sees when they explore a hidden or concealed area (e.g., inside a drawer, behind a painting, under a rug). Generated by Gemini Flash using the frame's reference image + the game tree's `hiddenAreaDescription`.
+- **Game Tree** — An ordered sequence of 3-5 clue nodes dynamically generated by the Game Master at the start of each session. Each node references an object location by frame ID and includes a discovery, premature discovery, riddle, answer, and hidden area description. The last node is always the exit (riddle: null).
+- **GameState** — The full game state persisted to `gameState.json`. Includes static data (game tree, all locations, room description, win/lose conditions) and mutable data (current location, visit history, conversation history, riddles solved). Saved after every turn for session resumability.
 - **3DGS / Gaussian Splatting** — A technique for reconstructing 3D scenes from video, outputting `.ply` point clouds that can be rendered in real time on the web.
