@@ -111,7 +111,21 @@ export function useLocationNav({
     onNavigate(); // dismiss any open overlay before we start moving
     pendingCaptureLocationRef.current = key; // arm the arrival checker
     const location = locations[key];
-    if (!location || !cameraTargetRef.current || !rotationTargetRef.current) return;
+    if (!location || !cameraTargetRef.current || !rotationTargetRef.current) {
+      console.log(`[Navigation] Failed to move to "${key}":`, {
+        locationExists: !!location,
+        cameraTargetExists: !!cameraTargetRef.current,
+        rotationTargetExists: !!rotationTargetRef.current
+      });
+      return;
+    }
+
+    console.log(`[Navigation] Moving to "${key}":`, {
+      from: cameraPositionRef.current,
+      to: location.pos,
+      rotation: location.rot
+    });
+
     cameraTargetRef.current.set(location.pos.x, location.pos.y, location.pos.z);
     rotationTargetRef.current.x = location.rot.x ?? 0;
     rotationTargetRef.current.y = location.rot.y;

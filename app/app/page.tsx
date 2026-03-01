@@ -56,9 +56,11 @@ export default function Home() {
   // We also need to generate hidden POV when a clue is revealed.
   const handleMove = useCallback(
     (locationId: string) => {
+      // Always dismiss any existing overlay when moving to prevent wrong location images
+      dismissOverlay();
       moveTo(locationId);
     },
-    [moveTo],
+    [moveTo, dismissOverlay],
   );
 
   // Track the current clue-reveal description so we can generate the image

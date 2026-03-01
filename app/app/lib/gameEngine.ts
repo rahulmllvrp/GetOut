@@ -157,6 +157,66 @@ export async function saveGameState(state: GameState): Promise<void> {
 }
 
 // ---------------------------------------------------------------------------
+// Game State Logging - Append each decision/conversation to a log file
+// ---------------------------------------------------------------------------
+
+export async function logGameStateSnapshot(
+  state: GameState,
+  playerMessage: string,
+  aiResponse: any
+): Promise<void> {
+  try {
+    const logDir = path.join(process.cwd(), "game-logs");
+    if (!existsSync(logDir)) {
+      await mkdir(logDir, { recursive: true });
+    }
+
+    const timestamp = new Date().toISOString();
+    const sessionId = `session_${new Date().toISOString().split('T')[0]}_${Date.now()}`;
+    const logFile = path.join(logDir, `game-state-log.jsonl`);
+
+    const logEntry = {
+      timestamp,
+      sessionId,
+      turn: state.conversationHistory.length,
+      playerMessage,
+      aiResponse: {
+        kyle_response: aiResponse.kyle_response,
+        did_move: aiResponse.did_move,
+        move_to: aiResponse.move_to,
+        clue_revealed: aiResponse.clue_revealed,
+        riddle_solved: aiResponse.riddle_solved,
+      },
+      gameState: {
+        currentLocation: state.currentLocation,
+        riddlesSolved: state.riddlesSolved,
+        totalRiddles: state.gameTree.filter(n => n.clue?.answer).length,
+        currentClueIndex: state.currentClueIndex,
+        gameOver: state.gameOver,
+        visitHistory: state.visitHistory,
+      }
+    };
+
+    // Append to JSONL file (JSON Lines format for easy streaming/parsing)
+    const logLine = JSON.stringify(logEntry) + '\n';
+
+    // Check if file exists, if not create it
+    if (!existsSync(logFile)) {
+      await writeFile(logFile, logLine);
+    } else {
+      // Append to existing file
+      const { appendFile } = await import('fs/promises');
+      await appendFile(logFile, logLine);
+    }
+
+    console.log(`[GameLog] Turn ${state.conversationHistory.length} logged to ${logFile}`);
+  } catch (error) {
+    console.error('[GameLog] Failed to log game state:', error);
+    // Don't throw - logging shouldn't break the game
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Build system prompt (refreshed every turn)
 // ---------------------------------------------------------------------------
 
@@ -411,7 +471,7 @@ export async function chat(
   // Save state
   await saveGameState(state);
 
-  return {
+  const responseData = {
     kyle_response: parsed.kyle_response,
     did_move: parsed.did_move,
     move_to: parsed.move_to,
@@ -423,6 +483,11 @@ export async function chat(
     total_riddles: gameTree.filter((n) => n.clue?.answer).length,
     hidden_pov_description: hiddenPovDescription,
   };
+
+  // Log this conversation turn for analytics/debugging
+  await logGameStateSnapshot(state, playerMessage, parsed);
+
+  return responseData;
 }
 
 // ---------------------------------------------------------------------------

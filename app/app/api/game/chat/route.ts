@@ -30,9 +30,7 @@ export async function POST(req: Request) {
     });
   } catch (error: any) {
     console.error("[/api/game/chat]", error);
-    return NextResponse.json(
-      { error: error.message ?? "Chat failed" },
-      { status: 500 },
-    );
+    const message = error instanceof Error ? error.message : "Chat failed";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
