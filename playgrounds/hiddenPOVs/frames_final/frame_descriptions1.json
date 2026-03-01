@@ -1,0 +1,55 @@
+{
+  "commonRoomDescription": "A grand and richly decorated common room, reminiscent of a magical academy, with high ceilings, rugged stone walls, and intricate architecture. The walls are adorned with numerous framed paintings, ornate tapestries, and sections where climbing ivy or ancient murals are visible. Large arched windows on the left and center-right allow natural light to flood the space, creating warm, dappled glows. Majestic banners with heraldic crests, including a prominent blue and gold one with an 'H' (Hogwarts, likely Ravenclaw or similar) and another red and gold banner (Gryffindor colors), hang from the upper walls. The room is furnished with plush, upholstered armchairs and sofas in deep reds and browns, various wooden tables (coffee tables, dining tables), and tall sideboards or cabinets filled with decorative items like vases and statuettes. Intricate, patterned rugs in hues of red, gold, and brown cover the wooden floor. Decorative globes (terrestrial and celestial), floor lamps, and bowls of fruit are scattered throughout. A massive, carved stone fireplace with a roaring fire becomes visible on the far right in later frames, and grand archways lead to other parts of the castle, possibly staircases or hallways. Several students are casually dispersed throughout the room, engaged in conversation, reading, or studying, contributing to a bustling yet cozy and scholarly atmosphere.",
+  "frames": [
+    {
+      "frame": "frame_1.png",
+      "description": "The character stands with their back to the viewer, observing the bustling common room where sunlight streams in from tall windows, illuminating groups of students seated in plush furniture. A large globe and a tall floor lamp are prominent to the character's right, and the stone walls are covered in rich tapestries and framed paintings.",
+      "pov": "The camera is positioned directly behind the character, slightly to the left, offering a view primarily towards the right and center of the room. This angle emphasizes the immediate foreground elements to the character's right and gives a good sense of the depth of the room in that direction, while the far left of the room, including more of the large window, is less visible."
+    },
+    {
+      "frame": "frame_2.png",
+      "description": "The character remains in the grand common room, with students occupying various seating areas under the abundant natural light. The room's ornate details, including the patterned rugs, tapestries, and banners, are clearly visible. The large globe and floor lamp are still prominent to the character's right, and an arched doorway is visible in the distance on the right.",
+      "pov": "The camera has slightly shifted to the right, behind the character, and moved minimally forward. This provides a slightly wider view of the right side of the room, bringing the distant arched doorway more into perspective, while marginally reducing the visibility of the far left of the room compared to the previous frame."
+    },
+    {
+      "frame": "frame_3.png",
+      "description": "The character stands in the common room, observing the various activities of other students. The strong sunlight highlights the vibrant reds and golds of the decor and the detailed patterns of the rugs. The 'H' crest banner is now more centered in the upper frame, and a table with a fruit bowl starts to become more noticeable on the far right.",
+      "pov": "The camera has moved further to the right and slightly closer to the character, offering a more frontal view of the character's back. The overall perspective shifts more towards the center-right of the room, making the rightmost student group and the arched doorway more central, and further obscuring the far left of the room."
+    },
+    {
+      "frame": "frame_4.png",
+      "description": "The character is positioned more centrally in the frame, overlooking the common room where various groups of students are seated. The play of sunlight and shadow emphasizes the textures of the stone walls, the deep reds and golds of the decor, and the intricate rug patterns. A table with a bowl of green fruit is clearly visible on the right, with students gathered around it.",
+      "pov": "The camera has continued its subtle pan to the right and moved slightly forward, making the character appear a bit smaller as the room expands around them. This viewpoint reveals more of the deeper parts of the room on the right, including additional seating arrangements and a clearer view into the main archway in the distance, while the far left is further reduced."
+    },
+    {
+      "frame": "frame_5.png",
+      "description": "The character stands in the spacious common room, now with a wider view of the various student activities and the room's expansive layout. Sunlight illuminates the room from multiple windows, reflecting off the polished surfaces and emphasizing the rich, warm color palette of the tapestries and furniture. A table with a bowl of green fruit is prominent on the right, surrounded by seated students.",
+      "pov": "The camera has advanced further into the room and continued panning to the right, placing the character more to the left of the frame. This wider angle showcases more of the entire right side of the room, bringing a large seating area with a table and fruit bowl closer to the foreground on the right, while the leftmost details (like the tall cabinet) are now almost completely out of view."
+    },
+    {
+      "frame": "frame_6.png",
+      "description": "The character continues to observe the common room from a slightly more advanced position, allowing for a broader view of the bustling student life. The detailed patterns of the central rug are more pronounced, leading the eye towards the various student groups. The light conditions remain bright, highlighting the grand scale and detailed decor of the hall. Two distinct banners are now visible on the right wall.",
+      "pov": "The camera has moved slightly further forward and to the right, positioning the character slightly more off-center to the left. This perspective emphasizes the depth of the room and brings the table with the fruit bowl on the right into sharper focus, while also revealing more of the banners and paintings on the far right wall."
+    },
+    {
+      "frame": "frame_7.png",
+      "description": "The character stands deeper within the common room, offering an even broader panorama of the space and its occupants. The intricate details of the large central rug are now fully visible, stretching across the floor. The architectural elements, like the distant archways and the towering stone walls, are more prominent, showcasing the room's vastness and the scattered students.",
+      "pov": "The camera has moved further forward and to the right, giving a more expansive view of the room's depth. The character is now more to the left of the frame. This viewpoint brings more of the right wall and its multiple framed artworks and banners into the frame, and the main archway is more centrally located in the mid-ground, providing a greater sense of scale."
+    },
+    {
+      "frame": "frame_8.png",
+      "description": "The character is positioned as if entering the central area of the common room, offering a panoramic view that now includes a grand stone fireplace becoming visible on the far right. The warm light from the windows creates strong contrasts and highlights the antique furniture and vibrant tapestries, with students still gathered in various parts of the room.",
+      "pov": "The camera has moved significantly forward and to the right, now providing a broad, almost panoramic view of the room from a more central position. The character is quite far to the left of the frame. This shift brings the grand fireplace on the far right into clear view for the first time, and opens up the view into the far depths of the room, including a glimpse of a chandelier in the upper distance."
+    },
+    {
+      "frame": "frame_9.png",
+      "description": "The character stands well within the common room, presenting an expansive view that includes the grand fireplace on the right, complete with logs stacked and a subtle hint of a fire burning within. Sunlight still streams through the large windows, casting shadows and illuminating various seating groups and architectural features throughout the richly decorated hall.",
+      "pov": "The camera has advanced even further into the room and continued to pan right. The character is now very much on the left edge of the frame. This viewpoint fully showcases the massive fireplace on the right and allows for a clearer view of the distant windows and architectural details beyond the central seating areas, enhancing the sense of depth and grandeur."
+    },
+    {
+      "frame": "frame_10.png",
+      "description": "The character is now positioned quite deep in the common room, offering an almost full frontal view of the grand fireplace, which has a visible fire burning within, casting a warm glow. The room extends significantly to the left and right, filled with students, ornate furniture, and numerous decorative elements under the bright, natural light, emphasizing its vast and inviting nature.",
+      "pov": "The camera has moved to its furthest right and deepest point in this sequence, almost completely rotating around the character. The character is now a prominent figure on the left side of the frame, facing slightly right, and the view is almost entirely directed towards the right side of the room, giving the best and most encompassing view of the fireplace and the full width of the common room's depth."
+    }
+  ]
+}

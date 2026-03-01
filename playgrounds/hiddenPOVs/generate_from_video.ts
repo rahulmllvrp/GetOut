@@ -1,13 +1,21 @@
 /*
 """
 Purpose: This script reads final.mp4 from the project root, extracts 10 evenly spaced frames with ffmpeg, then sends those overlapping room frames to Google GenAI.
-It generates one shared, detailed room description plus per-frame descriptions that include a POV-specific angle/visibility note, and saves results to frame_descriptions.json.
+It generates per-frame scene descriptions and POV notes, then saves frame_descriptions.json as a list of FrameNode objects.
 """
 */
 
 import { GoogleGenAI } from "@google/genai";
 
 const ai = new GoogleGenAI({});
+
+type FrameNode = {
+  frame: string;
+  description: string;
+  pov: string;
+  coordinates: [number, number, number];
+  image_filepath: string;
+};
 
 function runCommand(cmd: string[], label: string) {
   const result = Bun.spawnSync(cmd, {
@@ -44,11 +52,6 @@ function videoNameFromPath(videoPath: string): string {
   return baseName.replace(/[^a-zA-Z0-9_-]/g, "_");
 }
 
-function getDirname(path: string): string {
-  const slashIndex = path.lastIndexOf("/");
-  return slashIndex >= 0 ? path.slice(0, slashIndex) : ".";
-}
-
 function mimeType(path: string): string {
   if (path.endsWith(".jpg") || path.endsWith(".jpeg")) return "image/jpeg";
   if (path.endsWith(".webp")) return "image/webp";
@@ -66,40 +69,58 @@ function extractJson(text: string): string {
   return trimmed;
 }
 
-type FrameDescription = {
-  frame: string;
-  description: string;
-  pov: string;
-};
-
-type FrameAnalysis = {
-  commonRoomDescription: string;
-  frames: FrameDescription[];
-};
-
-function isFrameAnalysis(value: unknown): value is FrameAnalysis {
+function isFrameNodeBase(
+  value: unknown,
+): value is Omit<FrameNode, "image_filepath" | "coordinates"> {
   if (typeof value !== "object" || value === null) return false;
 
-  const maybe = value as { commonRoomDescription?: unknown; frames?: unknown };
-  if (typeof maybe.commonRoomDescription !== "string") return false;
-  if (!Array.isArray(maybe.frames)) return false;
+  const item = value as {
+    frame?: unknown;
+    description?: unknown;
+    pov?: unknown;
+  };
 
-  return maybe.frames.every((frame) => {
-    if (typeof frame !== "object" || frame === null) return false;
-    const item = frame as {
-      frame?: unknown;
-      description?: unknown;
-      pov?: unknown;
-    };
-    return (
-      typeof item.frame === "string" &&
-      typeof item.description === "string" &&
-      typeof item.pov === "string"
-    );
-  });
+  return (
+    typeof item.frame === "string" &&
+    typeof item.description === "string" &&
+    typeof item.pov === "string"
+  );
 }
 
-async function describeFrames(framePaths: string[]): Promise<FrameAnalysis> {
+function normalizeFrameNodes(
+  value: unknown,
+  framePaths: string[],
+): FrameNode[] {
+  if (!Array.isArray(value)) {
+    throw new Error("Gemini response was not an array of frame nodes");
+  }
+
+  if (value.length !== framePaths.length) {
+    throw new Error(
+      `Gemini returned ${value.length} frame descriptions, expected ${framePaths.length}`,
+    );
+  }
+
+  const frameNodes: FrameNode[] = value.map((node, index) => {
+    if (!isFrameNodeBase(node)) {
+      throw new Error(
+        "Gemini response did not match expected FrameNode schema",
+      );
+    }
+
+    return {
+      frame: node.frame,
+      description: node.description,
+      pov: node.pov,
+      coordinates: [0, 0, 0],
+      image_filepath: framePaths[index]!,
+    };
+  });
+
+  return frameNodes;
+}
+
+async function describeFrames(framePaths: string[]): Promise<FrameNode[]> {
   const parts: Array<
     { text: string } | { inlineData: { mimeType: string; data: string } }
   > = [];
@@ -108,6 +129,7 @@ async function describeFrames(framePaths: string[]): Promise<FrameAnalysis> {
     parts.push({
       text: `Frame ${index + 1} (${framePath.split("/").pop() ?? framePath})`,
     });
+
     const bytes = await Bun.file(framePath).arrayBuffer();
     parts.push({
       inlineData: {
@@ -118,7 +140,7 @@ async function describeFrames(framePaths: string[]): Promise<FrameAnalysis> {
   }
 
   parts.push({
-    text: 'Analyze these 10 overlapping frames of the same room from nearby viewpoints. Return JSON only with this exact schema: {"commonRoomDescription": string, "frames": [{"frame": string, "description": string, "pov": string}]}. Requirements: commonRoomDescription should be a rich, detailed description shared across all frames. For each frame, keep description consistent with the same room while allowing small visual differences. For pov, explain that specific frame\'s camera angle/position and what becomes more/less visible from that viewpoint. Use frame values frame_1 to frame_10 in order.',
+    text: 'Analyze these 10 overlapping frames of the same room from nearby viewpoints. Return JSON only as an array where each item has this schema: {"frame": string, "description": string, "pov": string}. Keep descriptions consistent as the same room while allowing small visual differences per frame. The pov field must describe that frame\'s camera angle/position and what becomes more or less visible from that viewpoint. Use frame values frame_1 to frame_10 in order.',
   });
 
   const response = await ai.models.generateContent({
@@ -138,19 +160,7 @@ async function describeFrames(framePaths: string[]): Promise<FrameAnalysis> {
   }
 
   const parsed = JSON.parse(extractJson(text)) as unknown;
-  if (!isFrameAnalysis(parsed)) {
-    throw new Error(
-      "Gemini response did not match expected frame description schema",
-    );
-  }
-
-  if (parsed.frames.length !== framePaths.length) {
-    throw new Error(
-      `Gemini returned ${parsed.frames.length} frame descriptions, expected ${framePaths.length}`,
-    );
-  }
-
-  return parsed;
+  return normalizeFrameNodes(parsed, framePaths);
 }
 
 async function extractTenFrames(
@@ -230,16 +240,16 @@ async function main() {
     }
 
     console.log("  [describing frames with Gemini...]");
-    const analysis = await describeFrames(frames);
+    const frameNodes = await describeFrames(frames);
     const descriptionsPath = `${outputDir}/frame_descriptions.json`;
-    await Bun.write(descriptionsPath, JSON.stringify(analysis, null, 2));
+    await Bun.write(descriptionsPath, JSON.stringify(frameNodes, null, 2));
     console.log(`  [done] saved descriptions: ${descriptionsPath}`);
 
     console.log("  [summary]");
+    console.log(`   - frame nodes: ${frameNodes.length}`);
     console.log(
-      `   - shared room description length: ${analysis.commonRoomDescription.length} chars`,
+      `   - first node image path: ${frameNodes[0]?.image_filepath ?? "n/a"}`,
     );
-    console.log(`   - frame POV descriptions: ${analysis.frames.length}`);
   } catch (error) {
     console.error("  [error]", error);
   }

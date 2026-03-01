@@ -1,55 +1,112 @@
-{
-  "commonRoomDescription": "A grand and richly decorated common room, reminiscent of a magical academy, with high ceilings, rugged stone walls, and intricate architecture. The walls are adorned with numerous framed paintings, ornate tapestries, and sections where climbing ivy or ancient murals are visible. Large arched windows on the left and center-right allow natural light to flood the space, creating warm, dappled glows. Majestic banners with heraldic crests, including a prominent blue and gold one with an 'H' (Hogwarts, likely Ravenclaw or similar) and another red and gold banner (Gryffindor colors), hang from the upper walls. The room is furnished with plush, upholstered armchairs and sofas in deep reds and browns, various wooden tables (coffee tables, dining tables), and tall sideboards or cabinets filled with decorative items like vases and statuettes. Intricate, patterned rugs in hues of red, gold, and brown cover the wooden floor. Decorative globes (terrestrial and celestial), floor lamps, and bowls of fruit are scattered throughout. A massive, carved stone fireplace with a roaring fire becomes visible on the far right in later frames, and grand archways lead to other parts of the castle, possibly staircases or hallways. Several students are casually dispersed throughout the room, engaged in conversation, reading, or studying, contributing to a bustling yet cozy and scholarly atmosphere.",
-  "frames": [
-    {
-      "frame": "frame_1.png",
-      "description": "The character stands with their back to the viewer, observing the bustling common room where sunlight streams in from tall windows, illuminating groups of students seated in plush furniture. A large globe and a tall floor lamp are prominent to the character's right, and the stone walls are covered in rich tapestries and framed paintings.",
-      "pov": "The camera is positioned directly behind the character, slightly to the left, offering a view primarily towards the right and center of the room. This angle emphasizes the immediate foreground elements to the character's right and gives a good sense of the depth of the room in that direction, while the far left of the room, including more of the large window, is less visible."
-    },
-    {
-      "frame": "frame_2.png",
-      "description": "The character remains in the grand common room, with students occupying various seating areas under the abundant natural light. The room's ornate details, including the patterned rugs, tapestries, and banners, are clearly visible. The large globe and floor lamp are still prominent to the character's right, and an arched doorway is visible in the distance on the right.",
-      "pov": "The camera has slightly shifted to the right, behind the character, and moved minimally forward. This provides a slightly wider view of the right side of the room, bringing the distant arched doorway more into perspective, while marginally reducing the visibility of the far left of the room compared to the previous frame."
-    },
-    {
-      "frame": "frame_3.png",
-      "description": "The character stands in the common room, observing the various activities of other students. The strong sunlight highlights the vibrant reds and golds of the decor and the detailed patterns of the rugs. The 'H' crest banner is now more centered in the upper frame, and a table with a fruit bowl starts to become more noticeable on the far right.",
-      "pov": "The camera has moved further to the right and slightly closer to the character, offering a more frontal view of the character's back. The overall perspective shifts more towards the center-right of the room, making the rightmost student group and the arched doorway more central, and further obscuring the far left of the room."
-    },
-    {
-      "frame": "frame_4.png",
-      "description": "The character is positioned more centrally in the frame, overlooking the common room where various groups of students are seated. The play of sunlight and shadow emphasizes the textures of the stone walls, the deep reds and golds of the decor, and the intricate rug patterns. A table with a bowl of green fruit is clearly visible on the right, with students gathered around it.",
-      "pov": "The camera has continued its subtle pan to the right and moved slightly forward, making the character appear a bit smaller as the room expands around them. This viewpoint reveals more of the deeper parts of the room on the right, including additional seating arrangements and a clearer view into the main archway in the distance, while the far left is further reduced."
-    },
-    {
-      "frame": "frame_5.png",
-      "description": "The character stands in the spacious common room, now with a wider view of the various student activities and the room's expansive layout. Sunlight illuminates the room from multiple windows, reflecting off the polished surfaces and emphasizing the rich, warm color palette of the tapestries and furniture. A table with a bowl of green fruit is prominent on the right, surrounded by seated students.",
-      "pov": "The camera has advanced further into the room and continued panning to the right, placing the character more to the left of the frame. This wider angle showcases more of the entire right side of the room, bringing a large seating area with a table and fruit bowl closer to the foreground on the right, while the leftmost details (like the tall cabinet) are now almost completely out of view."
-    },
-    {
-      "frame": "frame_6.png",
-      "description": "The character continues to observe the common room from a slightly more advanced position, allowing for a broader view of the bustling student life. The detailed patterns of the central rug are more pronounced, leading the eye towards the various student groups. The light conditions remain bright, highlighting the grand scale and detailed decor of the hall. Two distinct banners are now visible on the right wall.",
-      "pov": "The camera has moved slightly further forward and to the right, positioning the character slightly more off-center to the left. This perspective emphasizes the depth of the room and brings the table with the fruit bowl on the right into sharper focus, while also revealing more of the banners and paintings on the far right wall."
-    },
-    {
-      "frame": "frame_7.png",
-      "description": "The character stands deeper within the common room, offering an even broader panorama of the space and its occupants. The intricate details of the large central rug are now fully visible, stretching across the floor. The architectural elements, like the distant archways and the towering stone walls, are more prominent, showcasing the room's vastness and the scattered students.",
-      "pov": "The camera has moved further forward and to the right, giving a more expansive view of the room's depth. The character is now more to the left of the frame. This viewpoint brings more of the right wall and its multiple framed artworks and banners into the frame, and the main archway is more centrally located in the mid-ground, providing a greater sense of scale."
-    },
-    {
-      "frame": "frame_8.png",
-      "description": "The character is positioned as if entering the central area of the common room, offering a panoramic view that now includes a grand stone fireplace becoming visible on the far right. The warm light from the windows creates strong contrasts and highlights the antique furniture and vibrant tapestries, with students still gathered in various parts of the room.",
-      "pov": "The camera has moved significantly forward and to the right, now providing a broad, almost panoramic view of the room from a more central position. The character is quite far to the left of the frame. This shift brings the grand fireplace on the far right into clear view for the first time, and opens up the view into the far depths of the room, including a glimpse of a chandelier in the upper distance."
-    },
-    {
-      "frame": "frame_9.png",
-      "description": "The character stands well within the common room, presenting an expansive view that includes the grand fireplace on the right, complete with logs stacked and a subtle hint of a fire burning within. Sunlight still streams through the large windows, casting shadows and illuminating various seating groups and architectural features throughout the richly decorated hall.",
-      "pov": "The camera has advanced even further into the room and continued to pan right. The character is now very much on the left edge of the frame. This viewpoint fully showcases the massive fireplace on the right and allows for a clearer view of the distant windows and architectural details beyond the central seating areas, enhancing the sense of depth and grandeur."
-    },
-    {
-      "frame": "frame_10.png",
-      "description": "The character is now positioned quite deep in the common room, offering an almost full frontal view of the grand fireplace, which has a visible fire burning within, casting a warm glow. The room extends significantly to the left and right, filled with students, ornate furniture, and numerous decorative elements under the bright, natural light, emphasizing its vast and inviting nature.",
-      "pov": "The camera has moved to its furthest right and deepest point in this sequence, almost completely rotating around the character. The character is now a prominent figure on the left side of the frame, facing slightly right, and the view is almost entirely directed towards the right side of the room, giving the best and most encompassing view of the fireplace and the full width of the common room's depth."
-    }
-  ]
-}
+[
+  {
+    "frame": "frame_1.png",
+    "description": "A grand, high-ceilinged common room, likely within a magical castle, featuring ornate reddish-orange wall coverings with vine motifs, and numerous framed portraits. Sunlight streams through tall arched windows on the left and back, illuminating intricate patterns on large, dark red rugs and antique wooden furniture. Several individuals are present, some engaged in conversation at tables or seated in armchairs. In the foreground, a person in a dark and red academic robe stands with their back mostly to the camera, observing the room. A large wooden cabinet filled with artifacts is prominent on the far left wall, next to a tall stained-glass window.",
+    "pov": "The camera is positioned behind and slightly to the left of the foreground character, offering a view of the room that focuses on the left-center. The grand cabinet and a stained-glass window are clearly visible on the far left, while the far right side of the room is mostly obscured.",
+    "coordinates": [
+      0,
+      0,
+      0
+    ],
+    "image_filepath": "/Users/navasfarhan/repos/GetOut/playgrounds/hiddenPOVs/frames_final/frame_1.png"
+  },
+  {
+    "frame": "frame_2.png",
+    "description": "A grand, high-ceilinged common room, likely within a magical castle, featuring ornate reddish-orange wall coverings with vine motifs, and numerous framed portraits. Sunlight streams through tall arched windows on the left and back, illuminating intricate patterns on large, dark red rugs and antique wooden furniture. Several individuals are present, some engaged in conversation at tables or seated in armchairs. In the foreground, a person in a dark and red academic robe stands with their back mostly to the camera, observing the room. The large wooden cabinet on the left wall remains prominent, though slightly less central. Hints of a table with a fruit bowl appear on the right side of the main seating area.",
+    "pov": "The camera has shifted slightly to the right, maintaining the foreground character's position within the frame. This slight shift begins to reveal more of the mid-right section of the room, including new details like a table arrangement, while the leftmost edge starts to recede.",
+    "coordinates": [
+      0,
+      0,
+      0
+    ],
+    "image_filepath": "/Users/navasfarhan/repos/GetOut/playgrounds/hiddenPOVs/frames_final/frame_2.png"
+  },
+  {
+    "frame": "frame_3.png",
+    "description": "A grand, high-ceilinged common room, likely within a magical castle, featuring ornate reddish-orange wall coverings with vine motifs, and numerous framed portraits. Sunlight streams through tall arched windows on the left and back, illuminating intricate patterns on large, dark red rugs and antique wooden furniture. Several individuals are present, some engaged in conversation at tables or seated in armchairs. In the foreground, a person in a dark and red academic robe stands with their back mostly to the camera, observing the room. The cabinet on the far left is still visible but is less emphasized, as more of the room's central and right elements come into view. A large, ornate archway is becoming clearer on the middle-right wall.",
+    "pov": "The camera continues its steady shift to the right, widening the view of the central and right portions of the common room. The archway on the right becomes more discernible, and the overall perspective slightly broadens towards the right side, making the left side less prominent.",
+    "coordinates": [
+      0,
+      0,
+      0
+    ],
+    "image_filepath": "/Users/navasfarhan/repos/GetOut/playgrounds/hiddenPOVs/frames_final/frame_3.png"
+  },
+  {
+    "frame": "frame_4.png",
+    "description": "A grand, high-ceilinged common room, likely within a magical castle, featuring ornate reddish-orange wall coverings with vine motifs, and numerous framed portraits. Sunlight streams through tall arched windows on the left and back, illuminating intricate patterns on large, dark red rugs and antique wooden furniture. Several individuals are present, some engaged in conversation at tables or seated in armchairs. In the foreground, a person in a dark and red academic robe stands with their back mostly to the camera, observing the room. The archway on the middle-right wall is now more clearly defined, showing a glimpse of stairs beyond it. The leftmost cabinet and window are now less prominent in the frame.",
+    "pov": "Further panning to the right, the camera now offers a better view into the archway on the right, revealing more depth. The overall scene increasingly emphasizes the right side of the room, drawing attention away from the far left elements which are now closer to the frame's edge.",
+    "coordinates": [
+      0,
+      0,
+      0
+    ],
+    "image_filepath": "/Users/navasfarhan/repos/GetOut/playgrounds/hiddenPOVs/frames_final/frame_4.png"
+  },
+  {
+    "frame": "frame_5.png",
+    "description": "A grand, high-ceilinged common room, likely within a magical castle, featuring ornate reddish-orange wall coverings with vine motifs, and numerous framed portraits. Sunlight streams through tall arched windows on the left and back, illuminating intricate patterns on large, dark red rugs and antique wooden furniture. Several individuals are present, some engaged in conversation at tables or seated in armchairs. In the foreground, a person in a dark and red academic robe stands with their back mostly to the camera, observing the room. The archway on the right is now well-defined, leading into another section of the room. A group of individuals gathered around a table with a fruit bowl on the right is now more central to the mid-ground.",
+    "pov": "The camera has moved further right, providing an expansive view of the right-hand side of the room. The areas beyond the right archway are more visible, showcasing additional architectural details and seating arrangements. The left-most parts of the room are now barely in frame.",
+    "coordinates": [
+      0,
+      0,
+      0
+    ],
+    "image_filepath": "/Users/navasfarhan/repos/GetOut/playgrounds/hiddenPOVs/frames_final/frame_5.png"
+  },
+  {
+    "frame": "frame_6.png",
+    "description": "A grand, high-ceilinged common room, likely within a magical castle, featuring ornate reddish-orange wall coverings with vine motifs, and numerous framed portraits. Sunlight streams through tall arched windows on the left and back, illuminating intricate patterns on large, dark red rugs and antique wooden furniture. Several individuals are present, some engaged in conversation at tables or seated in armchairs. In the foreground, a person in a dark and red academic robe stands with their back mostly to the camera, observing the room. The right archway fully reveals a connecting hallway or section. A large, stone fireplace structure, previously unseen, begins to appear on the far right wall of the main room.",
+    "pov": "The camera has continued its rightward shift, now prominently featuring the archway and beginning to reveal the substantial stone fireplace on the far right. This viewpoint significantly expands the visible area to the right of the foreground character, minimizing the left side of the room.",
+    "coordinates": [
+      0,
+      0,
+      0
+    ],
+    "image_filepath": "/Users/navasfarhan/repos/GetOut/playgrounds/hiddenPOVs/frames_final/frame_6.png"
+  },
+  {
+    "frame": "frame_7.png",
+    "description": "A grand, high-ceilinged common room, likely within a magical castle, featuring ornate reddish-orange wall coverings with vine motifs, and numerous framed portraits. Sunlight streams through tall arched windows on the left and back, illuminating intricate patterns on large, dark red rugs and antique wooden furniture. Several individuals are present, some engaged in conversation at tables or seated in armchairs. In the foreground, a person in a dark and red academic robe stands with their back mostly to the camera, observing the room. The grand stone fireplace is now clearly visible on the right side of the room, adding a significant architectural feature. The left side of the room, including the cabinet, is now almost completely out of frame.",
+    "pov": "The camera is now significantly to the right of its starting position, with the majestic fireplace becoming a dominant feature on the right side of the frame. This angle dramatically shifts the focus to the right half of the room, with only a narrow strip of the leftmost elements remaining visible.",
+    "coordinates": [
+      0,
+      0,
+      0
+    ],
+    "image_filepath": "/Users/navasfarhan/repos/GetOut/playgrounds/hiddenPOVs/frames_final/frame_7.png"
+  },
+  {
+    "frame": "frame_8.png",
+    "description": "A grand, high-ceilinged common room, likely within a magical castle, featuring ornate reddish-orange wall coverings with vine motifs, and numerous framed portraits. Sunlight streams through tall arched windows on the left and back, illuminating intricate patterns on large, dark red rugs and antique wooden furniture. Several individuals are present, some engaged in conversation at tables or seated in armchairs. In the foreground, a person in a dark and red academic robe stands with their back mostly to the camera, observing the room. The entire grand stone fireplace on the right is now in full view, complete with logs and a glowing fire within its hearth. Further details of the room's rightmost seating areas and inhabitants are revealed.",
+    "pov": "This viewpoint showcases the full expanse of the magnificent fireplace on the right, providing a warm and inviting focal point. The camera's position to the far right maximizes the visibility of this section of the room, almost entirely omitting the original leftmost elements.",
+    "coordinates": [
+      0,
+      0,
+      0
+    ],
+    "image_filepath": "/Users/navasfarhan/repos/GetOut/playgrounds/hiddenPOVs/frames_final/frame_8.png"
+  },
+  {
+    "frame": "frame_9.png",
+    "description": "A grand, high-ceilinged common room, likely within a magical castle, featuring ornate reddish-orange wall coverings with vine motifs, and numerous framed portraits. Sunlight streams through tall arched windows on the left and back, illuminating intricate patterns on large, dark red rugs and antique wooden furniture. Several individuals are present, some engaged in conversation at tables or seated in armchairs. In the foreground, a person in a dark and red academic robe stands with their back mostly to the camera, observing the room. The prominent stone fireplace continues to dominate the right side of the room, with its intricate details and the warmth of the fire clearly visible. The overall depth and breadth of the room to the right are now fully realized.",
+    "pov": "At one of its furthest right positions, the camera provides a comprehensive panorama of the right half of the common room. The fireplace and its surroundings are highly detailed, giving a sense of the room's full grandeur from this perspective.",
+    "coordinates": [
+      0,
+      0,
+      0
+    ],
+    "image_filepath": "/Users/navasfarhan/repos/GetOut/playgrounds/hiddenPOVs/frames_final/frame_9.png"
+  },
+  {
+    "frame": "frame_10.png",
+    "description": "A grand, high-ceilinged common room, likely within a magical castle, featuring ornate reddish-orange wall coverings with vine motifs, and numerous framed portraits. Sunlight streams through tall arched windows on the left and back, illuminating intricate patterns on large, dark red rugs and antique wooden furniture. Several individuals are present, some engaged in conversation at tables or seated in armchairs. In the foreground, a person in a dark and red academic robe stands with their back mostly to the camera, observing the room. The impressive stone fireplace, complete with a burning fire, anchors the right side of the room. The natural light from the large windows on the far right is now more accentuated, highlighting the textures of the stone and tapestries.",
+    "pov": "The camera has reached its rightmost and slightly most distant point, offering the widest possible view of the right side of the room. This final viewpoint accentuates the expansive architecture and the lively activity within this section, with the character in the foreground still maintaining their fixed position in the frame.",
+    "coordinates": [
+      0,
+      0,
+      0
+    ],
+    "image_filepath": "/Users/navasfarhan/repos/GetOut/playgrounds/hiddenPOVs/frames_final/frame_10.png"
+  }
+]
