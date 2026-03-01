@@ -101,9 +101,15 @@ const mistral = new Mistral({ apiKey: process.env.MISTRAL_API_KEY });
 const MODEL = "mistral-large-latest";
 
 // ---------------------------------------------------------------------------
-// State file path
+// State file paths
 // ---------------------------------------------------------------------------
 
+/** Pristine initial state — never modified at runtime */
+function getInitGameStatePath(): string {
+  return path.join(process.cwd(), "data", "initGameState.json");
+}
+
+/** Live save file — written to every turn */
 function getGameStatePath(): string {
   return path.join(process.cwd(), "data", "gameState.json");
 }
@@ -112,11 +118,19 @@ function getGameStatePath(): string {
 // Load game state from disk
 // ---------------------------------------------------------------------------
 
+/**
+ * Loads the live gameState.json if it exists, otherwise falls back to
+ * initGameState.json (first run / after a reset where the save was deleted).
+ */
 export async function loadGameState(): Promise<GameState> {
-  const filePath = getGameStatePath();
+  const livePath = getGameStatePath();
+  const initPath = getInitGameStatePath();
+
+  const filePath = existsSync(livePath) ? livePath : initPath;
+
   if (!existsSync(filePath)) {
     throw new Error(
-      "No gameState.json found. Run the init pipeline first (playgrounds/mistral/initGameState.ts)."
+      "No initGameState.json found. Run the init pipeline first (playgrounds/mistral/initGameState.ts).",
     );
   }
   const raw = await readFile(filePath, "utf-8");
@@ -234,7 +248,7 @@ const MAX_HISTORY_MESSAGES = 8; // 4 turn-pairs (user + assistant)
  *  The system message (index 0) is always preserved.
  */
 function compressContext(
-  messages: Array<{ role: string; content: string }>
+  messages: Array<{ role: string; content: string }>,
 ): Array<{ role: string; content: string }> {
   const system = messages[0];
   const history = messages.slice(1);
@@ -279,7 +293,7 @@ type GameMasterResponse = z.infer<ReturnType<typeof buildResponseSchema>>;
 
 export async function chat(
   playerMessage: string,
-  state: GameState
+  state: GameState,
 ): Promise<ChatResponse> {
   // Rebuild conversation messages array from state
   const messages: Array<{ role: string; content: string }> =
@@ -448,11 +462,23 @@ export function toClientState(state: GameState): ClientGameState {
 }
 
 // ---------------------------------------------------------------------------
-// Reset game state (start fresh)
+// Reset game state (start fresh from initGameState.json)
 // ---------------------------------------------------------------------------
 
+/**
+ * Reads the pristine initGameState.json, resets all mutable fields,
+ * and writes it out as gameState.json (the live save).
+ */
 export async function resetGameState(): Promise<GameState> {
-  const state = await loadGameState();
+  const initPath = getInitGameStatePath();
+  if (!existsSync(initPath)) {
+    throw new Error(
+      "No initGameState.json found. Run the init pipeline first.",
+    );
+  }
+  const raw = await readFile(initPath, "utf-8");
+  const state = JSON.parse(raw) as GameState;
+
   state.currentLocation = state.allLocations[0]?.frame.frame ?? "frame_1";
   state.currentClueIndex = 0;
   state.visitHistory = [];
@@ -460,6 +486,7 @@ export async function resetGameState(): Promise<GameState> {
   state.conversationHistory = [];
   state.gameOver = false;
   state.gameMasterPrompt = "";
+
   await saveGameState(state);
   return state;
 }
