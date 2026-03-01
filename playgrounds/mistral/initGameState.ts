@@ -1,7 +1,7 @@
 /**
  * initGameState.ts
  *
- * Generates the full initial GameState from frame_descriptions1.json + .ply.
+ * Generates the full initial GameState from frame_descriptions.json + .ply.
  *
  * Pipeline:
  *   1. Load frame descriptions (Gemini output from generate_from_video)
@@ -85,12 +85,14 @@ type FrameDescriptionsFile = {
     frame: string;
     description: string;
     pov: string;
+    coordinates: [number, number, number];
+    image_filepath: string;
   }>;
 };
 
 /**
- * Loads frame_descriptions1.json (the richer format with commonRoomDescription)
- * and merges it with the coordinate/filepath data from frame_descriptions.json.
+ * Loads frame_descriptions.json which contains commonRoomDescription + frames
+ * with coordinates and image_filepath already embedded.
  */
 async function loadFrameDescriptions(): Promise<{
   commonRoomDescription: string;
@@ -98,33 +100,19 @@ async function loadFrameDescriptions(): Promise<{
 }> {
   const descriptionsDir = `${import.meta.dir}/../hiddenPOVs/frames_final`;
 
-  // Load the richer descriptions (with commonRoomDescription)
-  const richFile: FrameDescriptionsFile = await Bun.file(
-    `${descriptionsDir}/frame_descriptions1.json`,
-  ).json();
-
-  // Load the coordinate/filepath data
-  const coordFile: FrameNode[] = await Bun.file(
+  const file: FrameDescriptionsFile = await Bun.file(
     `${descriptionsDir}/frame_descriptions.json`,
   ).json();
 
-  // Build a lookup by frame name for coordinate data
-  const coordMap = new Map(coordFile.map((f) => [f.frame, f]));
+  const frames: FrameNode[] = file.frames.map((f) => ({
+    frame: f.frame,
+    description: f.description,
+    pov: f.pov,
+    coordinates: f.coordinates ?? [0, 0, 0],
+    image_filepath: f.image_filepath ?? `${descriptionsDir}/${f.frame}`,
+  }));
 
-  // Merge: use the richer descriptions with the coordinates/filepaths
-  const frames: FrameNode[] = richFile.frames.map((rich) => {
-    const coord = coordMap.get(rich.frame);
-    return {
-      frame: rich.frame,
-      description: rich.description,
-      pov: rich.pov,
-      coordinates: coord?.coordinates ?? [0, 0, 0],
-      image_filepath:
-        coord?.image_filepath ?? `${descriptionsDir}/${rich.frame}`,
-    };
-  });
-
-  return { commonRoomDescription: richFile.commonRoomDescription, frames };
+  return { commonRoomDescription: file.commonRoomDescription, frames };
 }
 
 // ---------------------------------------------------------------------------
