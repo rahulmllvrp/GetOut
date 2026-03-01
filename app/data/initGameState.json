@@ -24,6 +24,37 @@
       },
       "clue": {
         "id": "clue_1",
+        "discovery": "Kyle notices a faint, half-erased diagram on the whiteboard—a series of arrows pointing toward the picture next to it. Beneath the scribbles, a single word stands out in red marker: 'BEGIN'.",
+        "premature_discovery": "The whiteboard is covered in dry-erase scribbles, but nothing seems to stand out. Kyle tries to wipe away some of the marks, but the surface is too smudged to reveal anything useful.",
+        "riddle": "I hang where ideas take flight, yet I’m not the board. Look beside me to find your next reward. What am I?",
+        "answer": "picture",
+        "hiddenAreaDescription": "Behind the whiteboard, partially obscured by a loose corner of the board, is a small magnetic tray holding a single sticky note with a riddle written in bold marker.",
+        "hiddenPovImagePath": "/enhanced-cache/pov-whiteboard.png"
+      }
+    },
+    {
+      "frame": {
+        "frame": "picture",
+        "description": "This is the picture, a framed artwork or photograph hanging on the dark wall adjacent to the whiteboard. Its details are partially obscured by the room's moody lighting, but it adds a subtle decorative touch to the otherwise utilitarian workspace.",
+        "pov": "Facing the framed picture on the wall at roughly eye level, with the surrounding dark wall texture visible and the faint glow of Edison bulbs reflecting off the glass surface.",
+        "coordinates": {
+          "pos": {
+            "x": -1.311,
+            "y": 0.445,
+            "z": -1.455
+          },
+          "rot": {
+            "x": 0.117,
+            "y": 3.125
+          }
+        },
+        "image_filepath": null
+      },
+      "clue": {
+        "id": "clue_2",
+        "discovery": "Kyle tilts the framed picture slightly and hears a faint *click*. The back of the frame is loose, and inside, a small envelope is taped to the backing. It contains a riddle and a tiny, folded note with the word 'STUDIO' scrawled on it.",
+        "premature_discovery": "The picture is firmly mounted to the wall, and no matter how Kyle tugs, it won’t budge. The glass is smudged, but there’s nothing unusual about the frame itself.",
+        "riddle": "I stand tall where light is made, my head adjusts to cast no shade. Seek me where the shadows fade. What am I?",
         "discovery": "Kyle notices a small, half-erased equation at the bottom of the whiteboard: '7x + 3 = 31'. Beneath it, in barely legible marker, is the word 'ROOT'. A sticky note nearby reads, 'Check the brightest light in the room.'",
         "premature_discovery": "The whiteboard is covered in scribbles, but the bottom corner is smudged and unreadable, as if someone tried to erase something in a hurry. Kyle can’t make out any details.",
         "riddle": "I stand tall but do not walk, I shine bright but do not talk. Solve for x where seven times plus three equals thirty-one, and my name you’ll soon see. What am I?",
@@ -134,7 +165,7 @@
             "y": 4.52
           }
         },
-        "image_filepath": "/Users/navasfarhan/repos/GetOut/playgrounds/hiddenPOVs/frames_final/frame_1.png"
+        "image_filepath": "/enhanced-cache/frame_1.png"
       },
       "clue": null
     },
@@ -154,7 +185,7 @@
             "y": 3.989
           }
         },
-        "image_filepath": "/Users/navasfarhan/repos/GetOut/playgrounds/hiddenPOVs/frames_final/frame_2.png"
+        "image_filepath": "/enhanced-cache/frame_2.png"
       },
       "clue": null
     },
@@ -174,7 +205,7 @@
             "y": 2.19
           }
         },
-        "image_filepath": "/Users/navasfarhan/repos/GetOut/playgrounds/hiddenPOVs/frames_final/frame_3.png"
+        "image_filepath": "/enhanced-cache/frame_3.png"
       },
       "clue": null
     },
@@ -194,7 +225,7 @@
             "y": 0.835
           }
         },
-        "image_filepath": "/Users/navasfarhan/repos/GetOut/playgrounds/hiddenPOVs/frames_final/frame_4.png"
+        "image_filepath": "/enhanced-cache/frame_4.png"
       },
       "clue": null
     },
@@ -214,7 +245,7 @@
             "y": -0.245
           }
         },
-        "image_filepath": "/Users/navasfarhan/repos/GetOut/playgrounds/hiddenPOVs/frames_final/frame_5.png"
+        "image_filepath": "/enhanced-cache/frame_5.png"
       },
       "clue": null
     },

@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import { readFile } from "fs/promises";
+import { existsSync } from "fs";
 import { join } from "path";
+
+/** Resolve a web path like /enhanced-cache/foo.png to an absolute disk path. */
+function webPathToDisk(webPath: string): string {
+  return join(process.cwd(), "public", webPath);
+}
 
 type LocationEntry = {
   frame: {
@@ -31,14 +37,28 @@ export async function GET() {
       seen.add(key);
       return true;
     })
-    .map((entry) => ({
-      key: entry.frame.frame,
-      pos: entry.frame.coordinates.pos,
-      rot: entry.frame.coordinates.rot,
-      imageFilepath: entry.frame.image_filepath,
-      hiddenAreaDescription: entry.clue?.hiddenAreaDescription ?? null,
-      hiddenPovImagePath: entry.clue?.hiddenPovImagePath ?? null,
-    }));
+    .map((entry) => {
+      const rawImagePath = entry.frame.image_filepath;
+      const imageFilepath =
+        rawImagePath && existsSync(webPathToDisk(rawImagePath))
+          ? rawImagePath
+          : null;
+
+      const rawPovPath = entry.clue?.hiddenPovImagePath ?? null;
+      const hiddenPovImagePath =
+        rawPovPath && existsSync(webPathToDisk(rawPovPath))
+          ? rawPovPath
+          : null;
+
+      return {
+        key: entry.frame.frame,
+        pos: entry.frame.coordinates.pos,
+        rot: entry.frame.coordinates.rot,
+        imageFilepath,
+        hiddenAreaDescription: entry.clue?.hiddenAreaDescription ?? null,
+        hiddenPovImagePath,
+      };
+    });
 
   return NextResponse.json(locations);
 }
