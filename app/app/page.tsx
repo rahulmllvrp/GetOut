@@ -19,10 +19,98 @@
  *   dismissOverlay                      ──► useLocationNav (onNavigate callback)
  */
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useThreeScene } from "./hooks/useThreeScene";
 import { useImageEnhancer } from "./hooks/useImageEnhancer";
 import { useLocationNav } from "./hooks/useLocationNav";
+
+function easeOutCubic(t: number) {
+  return 1 - Math.pow(1 - t, 3);
+}
+
+// Reveals an image by expanding ink-splotch blobs — like paper dropped in water.
+// Blurry expanding ellipses form a soft mask; the image shows only where they cover.
+function SplotchReveal({ src, visible }: { src: string; visible: boolean }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animRef = useRef<number>(0);
+
+  useEffect(() => {
+    if (!visible) return;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const dpr = window.devicePixelRatio || 1;
+    const W = canvas.clientWidth;
+    const H = canvas.clientHeight;
+    if (W === 0 || H === 0) return;
+
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    ctx.scale(dpr, dpr);
+
+    const maxDim = Math.max(W, H);
+    const splotches = Array.from({ length: 18 }, () => ({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      rx: 0.75 + Math.random() * 0.5,
+      ry: 0.75 + Math.random() * 0.5,
+      angle: Math.random() * Math.PI,
+      maxR: maxDim * (0.22 + Math.random() * 0.38),
+      delay: Math.random() * 0.45,
+      dur: 0.55 + Math.random() * 0.7,
+    }));
+
+    const img = new Image();
+    img.onload = () => {
+      const start = Date.now();
+      const scale = Math.max(W / img.naturalWidth, H / img.naturalHeight);
+      const iw = img.naturalWidth * scale;
+      const ih = img.naturalHeight * scale;
+      const ix = (W - iw) / 2;
+      const iy = (H - ih) / 2;
+
+      const frame = () => {
+        const elapsed = (Date.now() - start) / 1000;
+        ctx.clearRect(0, 0, W, H);
+
+        // Draw blurry splotches as a white mask
+        ctx.globalCompositeOperation = "source-over";
+        ctx.filter = "blur(14px)";
+        ctx.fillStyle = "white";
+        let done = true;
+        for (const s of splotches) {
+          const t = Math.max(0, Math.min(1, (elapsed - s.delay) / s.dur));
+          if (t < 1) done = false;
+          const r = easeOutCubic(t) * s.maxR;
+          ctx.beginPath();
+          ctx.ellipse(s.x, s.y, r * s.rx, r * s.ry, s.angle, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.filter = "none";
+
+        // Clip image to wherever splotches exist
+        ctx.globalCompositeOperation = "source-in";
+        ctx.drawImage(img, ix, iy, iw, ih);
+
+        if (!done) animRef.current = requestAnimationFrame(frame);
+      };
+      animRef.current = requestAnimationFrame(frame);
+    };
+    img.src = src;
+
+    return () => cancelAnimationFrame(animRef.current);
+  }, [src, visible]);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className={`pointer-events-none absolute inset-0 z-[1] h-full w-full transition-opacity duration-300 ${visible ? "opacity-100" : "opacity-0"}`}
+    />
+  );
+}
 
 export default function Home() {
   // X/Y/Z inputs — used by the manual "Move Camera" and "Move Object" buttons.
@@ -145,15 +233,11 @@ export default function Home() {
       {/* Three.js mounts its <canvas> into this div */}
       <div ref={containerRef} className="h-full w-full" />
 
-      {/* Enhanced image overlay — fades in/out via CSS transition on opacity.
-          The <img> is only in the DOM while enhancedImageUrl is set, which
+      {/* Enhanced image overlay — revealed via ink-splotch canvas animation.
+          The canvas is only in the DOM while enhancedImageUrl is set, which
           prevents a flash of the previous image during navigation. */}
       {enhancedImageUrl && (
-        <img
-          src={enhancedImageUrl}
-          alt="Enhanced view"
-          className={`pointer-events-none absolute inset-0 z-[1] h-full w-full object-cover transition-opacity duration-500 ${overlayVisible ? "opacity-100" : "opacity-0"}`}
-        />
+        <SplotchReveal src={enhancedImageUrl} visible={overlayVisible} />
       )}
     </main>
   );

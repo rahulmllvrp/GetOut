@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# enhanced image cache (generated at runtime)
+/public/enhanced-cache/*.png

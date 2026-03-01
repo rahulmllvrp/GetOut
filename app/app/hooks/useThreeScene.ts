@@ -168,10 +168,10 @@ export function useThreeScene() {
       // lower = smoother/slower, higher = snappier/faster.
       renderer.setAnimationLoop(() => {
         // Smoothly walk the camera toward its target position and rotation.
-        camera.position.lerp(cameraTarget, 0.02);
-        camera.rotation.x = THREE.MathUtils.lerp(camera.rotation.x, rotationTargetRef.current!.x, 0.02);
-        camera.rotation.y = THREE.MathUtils.lerp(camera.rotation.y, rotationTargetRef.current!.y, 0.02);
-        camera.rotation.z = THREE.MathUtils.lerp(camera.rotation.z, rotationTargetRef.current!.z, 0.02);
+        camera.position.lerp(cameraTarget, 0.03);
+        camera.rotation.x = THREE.MathUtils.lerp(camera.rotation.x, rotationTargetRef.current!.x, 0.03);
+        camera.rotation.y = THREE.MathUtils.lerp(camera.rotation.y, rotationTargetRef.current!.y, 0.03);
+        camera.rotation.z = THREE.MathUtils.lerp(camera.rotation.z, rotationTargetRef.current!.z, 0.03);
 
         // Smoothly move the splat mesh toward its target position.
         splatMesh.position.lerp(objectTargetRef.current, 0.05);
