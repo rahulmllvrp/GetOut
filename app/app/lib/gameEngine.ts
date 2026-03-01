@@ -43,7 +43,10 @@ export type GameNode = {
   clue: ClueNode | null;
 };
 
+export type GameMode = "normal" | "brainrot" | "nsfw";
+
 export type GameState = {
+  gameMode: GameMode;
   roomDescription: string;
   gameMasterPrompt: string;
   winCondition: string;
@@ -130,12 +133,13 @@ export async function loadGameState(): Promise<GameState> {
 
   if (!existsSync(filePath)) {
     throw new Error(
-      "No initGameState.json found. Run the init pipeline first (playgrounds/mistral/initGameState.ts).",
+      "No initGameState.json found. Run the init pipeline first (playgrounds/mistral/initGameState.ts)."
     );
   }
   const raw = await readFile(filePath, "utf-8");
   const saved = JSON.parse(raw);
   saved.gameMasterPrompt = "";
+  if (!saved.gameMode) saved.gameMode = "normal";
   return saved as GameState;
 }
 
@@ -163,7 +167,7 @@ export async function saveGameState(state: GameState): Promise<void> {
 export async function logGameStateSnapshot(
   state: GameState,
   playerMessage: string,
-  aiResponse: any,
+  aiResponse: any
 ): Promise<void> {
   try {
     const logDir = path.join(process.cwd(), "game-logs");
@@ -172,7 +176,9 @@ export async function logGameStateSnapshot(
     }
 
     const timestamp = new Date().toISOString();
-    const sessionId = `session_${new Date().toISOString().split("T")[0]}_${Date.now()}`;
+    const sessionId = `session_${
+      new Date().toISOString().split("T")[0]
+    }_${Date.now()}`;
     const logFile = path.join(logDir, `game-state-log.jsonl`);
 
     const logEntry = {
@@ -210,7 +216,7 @@ export async function logGameStateSnapshot(
     }
 
     console.log(
-      `[GameLog] Turn ${state.conversationHistory.length} logged to ${logFile}`,
+      `[GameLog] Turn ${state.conversationHistory.length} logged to ${logFile}`
     );
   } catch (error) {
     console.error("[GameLog] Failed to log game state:", error);
@@ -234,7 +240,7 @@ async function logGameFlow(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   rawResponse: any,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  parsed: any,
+  parsed: any
 ): Promise<void> {
   try {
     const dataDir = path.join(process.cwd(), "data");
@@ -264,13 +270,32 @@ async function logGameFlow(
     entries.push(entry);
     await writeFile(GAME_FLOW_PATH, JSON.stringify(entries, null, 2));
     console.log(
-      `[GameFlow] Logged turn ${entries.length} to ${GAME_FLOW_PATH}`,
+      `[GameFlow] Logged turn ${entries.length} to ${GAME_FLOW_PATH}`
     );
   } catch (error) {
     console.error("[GameFlow] Failed to log game flow:", error);
     // Don't throw - logging shouldn't break the game
   }
 }
+
+// ---------------------------------------------------------------------------
+// Mode-specific character blocks (hardcoded)
+// ---------------------------------------------------------------------------
+
+const KYLE_CHARACTER: Record<GameMode, string> = {
+  normal: `## Kyle's Character
+Kyle is panicking, scared, follows instructions. Discovers clues and reads riddles aloud naturally.`,
+
+  brainrot: `## Kyle's Character
+Kyle is panicking and scared BUT speaks EXCLUSIVELY in Gen-Z brainrot internet slang. Every single line must be drenched in terms like: skibidi, rizz, sigma, gyatt, no cap, bussin, fr fr, on god, ohio, fanum tax, beta, alpha, mewing, aura, slay, its giving, lowkey, highkey, ate that, dead, bruh, ong, W, L, ratio, sus, vibe check, rent free, understood the assignment, main character energy.
+Kyle replaces normal words with brainrot equivalents wherever possible. He still follows instructions and is terrified, but expresses fear through brainrot language.
+IMPORTANT: When delivering riddles and clues, you MUST creatively rephrase them using brainrot terminology and meme references. The puzzle content itself should feel brainrot-themed. For example, instead of "What has keys but no locks?" say something like "Yo no cap, what's got sigma-level rizz with keys but zero locks? That's lowkey sus fr fr."`,
+
+  nsfw: `## Kyle's Character
+Kyle is panicking and scared BUT speaks with HEAVY profanity, vulgar language, crude humor, and sexual innuendo. Every line should include swearing (fuck, shit, damn, ass, hell, etc.) and raunchy observations. Kyle expresses his terror through profanity and crude remarks about his surroundings.
+He makes dirty jokes, sexual puns, and inappropriate comments even while terrified. Think of a foul-mouthed, horny person trapped in a room.
+IMPORTANT: When delivering riddles and clues, you MUST creatively rephrase them with NSFW content — dirty puns, sexual double entendres, raunchy wordplay, and explicit humor woven into the actual puzzle text. For example, instead of "What has a head and a tail but no body?" say something like "What the fuck has a head you can't give and a tail you can't ride, but no goddamn body to have fun with?"`,
+};
 
 // ---------------------------------------------------------------------------
 // Build system prompt (refreshed every turn)
@@ -313,8 +338,7 @@ ${state.roomDescription}
 ${state.winCondition}
 ${state.loseCondition ? `\n## Lose Condition\n${state.loseCondition}` : ""}
 
-## Kyle's Character
-Kyle is panicking, scared, follows instructions. Discovers clues and reads riddles aloud naturally.
+${KYLE_CHARACTER[state.gameMode ?? "normal"]}
 
 ## Current Game State
 - Location: ${state.currentLocation}
@@ -370,7 +394,7 @@ Example response:
  *  The system message (index 0) is always preserved.
  */
 function compressContext(
-  messages: Array<{ role: string; content: string }>,
+  messages: Array<{ role: string; content: string }>
 ): Array<{ role: string; content: string }> {
   const system = messages[0];
   const history = messages.slice(1);
@@ -414,7 +438,7 @@ type GameMasterResponse = z.infer<ReturnType<typeof buildResponseSchema>>;
 
 export async function chat(
   playerMessage: string,
-  state: GameState,
+  state: GameState
 ): Promise<ChatResponse> {
   // Rebuild conversation messages array from state
   const messages: Array<{ role: string; content: string }> =
@@ -467,7 +491,7 @@ export async function chat(
         maxTokens: 1024,
       },
       response,
-      parsedResult,
+      parsedResult
     );
 
   // Fallback: manually extract JSON if structured output parsing failed
@@ -628,11 +652,11 @@ export function toClientState(state: GameState): ClientGameState {
  * Reads the pristine initGameState.json, resets all mutable fields,
  * and writes it out as gameState.json (the live save).
  */
-export async function resetGameState(): Promise<GameState> {
+export async function resetGameState(mode?: GameMode): Promise<GameState> {
   const initPath = getInitGameStatePath();
   if (!existsSync(initPath)) {
     throw new Error(
-      "No initGameState.json found. Run the init pipeline first.",
+      "No initGameState.json found. Run the init pipeline first."
     );
   }
   const raw = await readFile(initPath, "utf-8");
@@ -645,6 +669,7 @@ export async function resetGameState(): Promise<GameState> {
   state.conversationHistory = [];
   state.gameOver = false;
   state.gameMasterPrompt = "";
+  state.gameMode = mode ?? "normal";
 
   await saveGameState(state);
   return state;

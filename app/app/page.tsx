@@ -14,7 +14,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useThreeScene } from "./hooks/useThreeScene";
 import { useImageEnhancer } from "./hooks/useImageEnhancer";
 import { useLocationNav } from "./hooks/useLocationNav";
-import { useGameSession } from "./hooks/useGameSession";
+import { useGameSession, type GameMode } from "./hooks/useGameSession";
 import { Win98Intro } from "./components/Win98Intro";
 import { usePrewarm } from "./hooks/usePrewarm";
 import { ChatSidebar } from "./components/ChatSidebar";
@@ -97,7 +97,7 @@ function SplotchReveal({
           a: Math.random() * Math.PI * 2,
           len: 0.65 + Math.random() * 1.0,
           w: 0.05 + Math.random() * 0.09,
-        }),
+        })
       ),
     }));
 
@@ -141,7 +141,7 @@ function SplotchReveal({
               s.y + Math.sin(sat.a) * r * sat.d,
               r * sat.r,
               0,
-              Math.PI * 2,
+              Math.PI * 2
             );
             ctx.fill();
           }
@@ -150,11 +150,11 @@ function SplotchReveal({
             ctx.beginPath();
             ctx.moveTo(
               s.x + Math.cos(td.a) * r * 0.25,
-              s.y + Math.sin(td.a) * r * 0.25,
+              s.y + Math.sin(td.a) * r * 0.25
             );
             ctx.lineTo(
               s.x + Math.cos(td.a) * r * td.len,
-              s.y + Math.sin(td.a) * r * td.len,
+              s.y + Math.sin(td.a) * r * td.len
             );
             ctx.lineWidth = r * td.w;
             ctx.stroke();
@@ -186,7 +186,7 @@ function SplotchReveal({
           H * 0.12,
           W / 2,
           H / 2,
-          H * 0.88,
+          H * 0.88
         );
         vg.addColorStop(0, "rgba(0,0,0,0)");
         vg.addColorStop(1, "rgba(0,6,0,0.62)");
@@ -271,7 +271,7 @@ export default function Home() {
       dismissOverlay();
       moveTo(locationId);
     },
-    [moveTo, dismissOverlay],
+    [moveTo, dismissOverlay]
   );
 
   // Track the current clue-reveal description so we can generate the image
@@ -295,7 +295,7 @@ export default function Home() {
         }
       }, 2000); // wait 2s for camera to arrive
     },
-    [showHiddenPov],
+    [showHiddenPov]
   );
 
   const handleGameOver = useCallback(() => {
@@ -377,14 +377,14 @@ export default function Home() {
   const statusText = isRecording
     ? "🎙️ Recording..."
     : isTranscribing
-      ? "📝 Transcribing..."
-      : isLoading
-        ? "🤔 Kyle is thinking..."
-        : isSpeaking
-          ? "🔊 Kyle is speaking..."
-          : isEnhancing
-            ? "🔍 Generating view..."
-            : null;
+    ? "📝 Transcribing..."
+    : isLoading
+    ? "🤔 Kyle is thinking..."
+    : isSpeaking
+    ? "🔊 Kyle is speaking..."
+    : isEnhancing
+    ? "🔍 Generating view..."
+    : null;
 
   return (
     <main className="relative h-screen w-screen overflow-hidden bg-black">
@@ -404,9 +404,11 @@ export default function Home() {
       {shouldShowIntro && gameState && (
         <Win98Intro
           roomDescription={gameState.roomDescription}
-          onStart={() => {
-            setShowIntro(false);
-            playIntro();
+          onStart={(mode: GameMode) => {
+            resetGame(mode).then(() => {
+              setShowIntro(false);
+              playIntro();
+            });
           }}
           onGenerate={async () => {
             await generateNewGame();

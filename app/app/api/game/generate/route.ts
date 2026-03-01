@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { generateAndSaveGameState } from "@/app/lib/generateGameState";
-import { toClientState } from "@/app/lib/gameEngine";
+import { toClientState, type GameMode } from "@/app/lib/gameEngine";
 
 /**
  * POST /api/game/generate
@@ -14,12 +14,15 @@ import { toClientState } from "@/app/lib/gameEngine";
  *
  * Takes ~10-20s depending on Mistral latency.
  */
-export async function POST() {
+export async function POST(req: Request) {
   try {
+    const body = await req.json().catch(() => ({}));
+    const mode = (body?.mode as GameMode) ?? "normal";
+
     console.log("[/api/game/generate] Starting game generation...");
     const t0 = performance.now();
 
-    const state = await generateAndSaveGameState();
+    const state = await generateAndSaveGameState(mode);
     const clientState = toClientState(state);
 
     const elapsed = Math.round(performance.now() - t0);
@@ -37,7 +40,7 @@ export async function POST() {
             ? error.message
             : "Failed to generate game state",
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
