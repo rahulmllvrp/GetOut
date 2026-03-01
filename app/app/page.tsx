@@ -282,11 +282,11 @@ export default function Home() {
   const pendingPovLocationRef = useRef<string | null>(null);
 
   const handleClueRevealed = useCallback(
-    (description: string) => {
+    (description: string, locationKey: string) => {
       // Store description — we'll generate the image after a short delay
       // to let the camera settle at the new location
       pendingPovDescriptionRef.current = description;
-      pendingPovLocationRef.current = description; // use description as cache key
+      pendingPovLocationRef.current = locationKey;
       setTimeout(() => {
         const desc = pendingPovDescriptionRef.current;
         const key = pendingPovLocationRef.current;

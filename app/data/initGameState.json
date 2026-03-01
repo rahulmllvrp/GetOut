@@ -20,7 +20,7 @@
             "y": 2.055
           }
         },
-        "image_filepath": null
+        "image_filepath": "/enhanced-cache/whiteboard.png"
       },
       "clue": {
         "id": "clue_1",
@@ -48,7 +48,7 @@
             "y": -0.285
           }
         },
-        "image_filepath": null
+        "image_filepath": "/enhanced-cache/studio_light.png"
       },
       "clue": {
         "id": "clue_2",
@@ -76,7 +76,7 @@
             "y": 7.05
           }
         },
-        "image_filepath": null
+        "image_filepath": "/enhanced-cache/drums.png"
       },
       "clue": {
         "id": "clue_3",
@@ -104,7 +104,7 @@
             "y": 7.42
           }
         },
-        "image_filepath": null
+        "image_filepath": "/enhanced-cache/chair_near_curtain.png"
       },
       "clue": {
         "id": "clue_4",
@@ -234,7 +234,7 @@
             "y": 2.055
           }
         },
-        "image_filepath": null
+        "image_filepath": "/enhanced-cache/whiteboard.png"
       },
       "clue": {
         "id": "clue_1",
@@ -262,7 +262,7 @@
             "y": 3.125
           }
         },
-        "image_filepath": null
+        "image_filepath": "/enhanced-cache/picture.png"
       },
       "clue": null
     },
@@ -282,7 +282,7 @@
             "y": 3.775
           }
         },
-        "image_filepath": null
+        "image_filepath": "/enhanced-cache/fire_extinguisher.png"
       },
       "clue": null
     },
@@ -302,7 +302,7 @@
             "y": 0.61
           }
         },
-        "image_filepath": null
+        "image_filepath": "/enhanced-cache/laptop.png"
       },
       "clue": null
     },
@@ -322,7 +322,7 @@
             "y": 0.985
           }
         },
-        "image_filepath": null
+        "image_filepath": "/enhanced-cache/dorrito_packet.png"
       },
       "clue": null
     },
@@ -342,7 +342,7 @@
             "y": -0.285
           }
         },
-        "image_filepath": null
+        "image_filepath": "/enhanced-cache/studio_light.png"
       },
       "clue": {
         "id": "clue_2",
@@ -370,7 +370,7 @@
             "y": -0.939
           }
         },
-        "image_filepath": null
+        "image_filepath": "/enhanced-cache/bookshelf.png"
       },
       "clue": null
     },
@@ -390,7 +390,7 @@
             "y": -2.148
           }
         },
-        "image_filepath": null
+        "image_filepath": "/enhanced-cache/window.png"
       },
       "clue": null
     },
@@ -410,7 +410,7 @@
             "y": 7.05
           }
         },
-        "image_filepath": null
+        "image_filepath": "/enhanced-cache/drums.png"
       },
       "clue": {
         "id": "clue_3",
@@ -438,7 +438,7 @@
             "y": 4.245
           }
         },
-        "image_filepath": null
+        "image_filepath": "/enhanced-cache/chair_with_jacket.png"
       },
       "clue": null
     },
@@ -458,7 +458,7 @@
             "y": 7.42
           }
         },
-        "image_filepath": null
+        "image_filepath": "/enhanced-cache/chair_near_curtain.png"
       },
       "clue": {
         "id": "clue_4",

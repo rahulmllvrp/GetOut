@@ -26,3 +26,4 @@ dist-ssr
 .env
 *.png
 !app/public/enhanced-cache/*.png
+app/public/enhanced-cache/pov-*.png
