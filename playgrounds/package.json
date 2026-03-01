@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@elevenlabs/elevenlabs-js": "^2.37.0",
-    "@google/genai": "latest"
+    "@google/genai": "latest",
+    "@mistralai/mistralai": "latest",
+    "zod": "latest"
   }
 }

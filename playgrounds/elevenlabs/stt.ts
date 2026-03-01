@@ -1,9 +1,9 @@
+import { ElevenLabsClient } from '@elevenlabs/elevenlabs-js';
 import { createInterface } from 'readline';
 import { join } from 'path';
 import { tmpdir } from 'os';
 
-const API_KEY = process.env.ELEVENLABS_API_KEY;
-if (!API_KEY) throw new Error('ELEVENLABS_API_KEY not set');
+const elevenlabs = new ElevenLabsClient();
 
 const rl = createInterface({ input: process.stdin, output: process.stdout });
 
@@ -12,19 +12,11 @@ function waitForEnter(prompt: string): Promise<void> {
 }
 
 async function transcribe(filePath: string): Promise<string> {
-  const form = new FormData();
-  form.append('file', Bun.file(filePath), 'recording.wav');
-  form.append('model_id', 'scribe_v2');
-
-  const res = await fetch('https://api.elevenlabs.io/v1/speech-to-text', {
-    method: 'POST',
-    headers: { 'xi-api-key': API_KEY! },
-    body: form,
+  const result = await elevenlabs.speechToText.convert({
+    file: Bun.file(filePath),
+    modelId: 'scribe_v2',
   });
-
-  if (!res.ok) throw new Error(`${res.status}: ${await res.text()}`);
-  const data = await res.json() as { text: string };
-  return data.text;
+  return result.text;
 }
 
 async function main() {
