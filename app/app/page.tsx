@@ -254,32 +254,38 @@ export default function Home() {
     dismissOverlay,
   } = useImageEnhancer(captureCanvas);
 
+  // Track pending hidden POV — declared here so handleArrival can read it.
+  const pendingPovDescriptionRef = useRef<string | null>(null);
+  const pendingPovLocationRef = useRef<string | null>(null);
+
+  // Arrival handler — skip location enhance entirely when a hidden POV is queued.
+  // This prevents Mode 1 (enhance) from flashing before Mode 2 (hidden POV) takes over.
+  const handleArrival = useCallback(
+    (locationKey: string) => {
+      if (pendingPovDescriptionRef.current) return;
+      enhanceForLocation(locationKey);
+    },
+    [enhanceForLocation],
+  );
+
   // ---- Location navigation ----
   const { moveTo } = useLocationNav({
     cameraTargetRef,
     cameraPositionRef,
     rotationTargetRef,
     frameCallbackRef,
-    onArrival: enhanceForLocation,
+    onArrival: handleArrival,
     onNavigate: dismissOverlay,
   });
 
   // ---- Game session ----
-  // We need to define the `onMove` callback that moveTo's the camera.
-  // We also need to generate hidden POV when a clue is revealed.
   const handleMove = useCallback(
     (locationId: string) => {
-      // Always dismiss any existing overlay when moving to prevent wrong location images
       dismissOverlay();
       moveTo(locationId);
     },
     [moveTo, dismissOverlay],
   );
-
-  // Track the current clue-reveal description so we can generate the image
-  // after the camera arrives. We use a ref so the arrival callback reads the latest value.
-  const pendingPovDescriptionRef = useRef<string | null>(null);
-  const pendingPovLocationRef = useRef<string | null>(null);
 
   const handleClueRevealed = useCallback(
     (description: string, locationKey: string) => {

@@ -18,6 +18,8 @@ type LocationEntry = {
     image_filepath: string | null;
   };
   clue?: {
+    discovery?: string | null;
+    riddle?: string | null;
     hiddenAreaDescription?: string | null;
     hiddenPovImagePath?: string | null;
   } | null;
@@ -56,6 +58,8 @@ export async function GET() {
         rot: entry.frame.coordinates.rot,
         imageFilepath,
         hiddenAreaDescription: entry.clue?.hiddenAreaDescription ?? null,
+        clueDiscovery: entry.clue?.discovery ?? null,
+        clueRiddle: entry.clue?.riddle ?? null,
         hiddenPovImagePath,
       };
     });

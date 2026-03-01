@@ -28,6 +28,8 @@ interface LocationData {
   rot: { x: number; y: number; z?: number };
   imageFilepath: string | null;
   hiddenAreaDescription: string | null;
+  clueDiscovery: string | null;
+  clueRiddle: string | null;
   hiddenPovImagePath: string | null;
 }
 
@@ -144,6 +146,8 @@ export function usePrewarm({
               imageDataUrl: enhancedUrl,
               locationKey: loc.key,
               hiddenPovDescription: loc.hiddenAreaDescription,
+              clueDiscovery: loc.clueDiscovery,
+              clueRiddle: loc.clueRiddle,
             }),
           });
           console.log(`[prewarm] hidden POV: /enhanced-cache/pov-${loc.key}.png`);
@@ -172,6 +176,8 @@ export function usePrewarm({
             imageDataUrl: enhancedUrl,
             locationKey: loc.key,
             hiddenPovDescription: loc.hiddenAreaDescription,
+            clueDiscovery: loc.clueDiscovery,
+            clueRiddle: loc.clueRiddle,
           }),
         });
         console.log(`[prewarm] hidden POV: /enhanced-cache/pov-${loc.key}.png`);

@@ -363,14 +363,14 @@ ${currentNode?.clue?.hiddenAreaDescription ? `- Hidden Area Description: "${curr
 
 ## Instructions
 1. Speak ONLY as Kyle in first person. Never break character.
-2. clue_revealed=true ONLY first time Kyle arrives at [CURRENT] node and delivers discovery.
+2. clue_revealed=true in the SAME response that Kyle first arrives at the [CURRENT] node. Arrival and discovery happen together — do NOT wait for the player to ask Kyle to look around.
 3. riddle_solved=true ONLY when player's message matches answer keyword ("${
     currentNode?.clue?.answer ?? "N/A"
   }"). Accept variations.
 4. did_move=true + move_to when Kyle moves. Valid move_to values: any location listed above.
-5. After solving riddle, Kyle reacts excitedly and moves toward next clue.
+5. When riddle_solved=true: in that SAME response Kyle also moves to the first [UPCOMING] node (did_move=true, move_to=<that frameId>) AND delivers its discovery (clue_revealed=true). One response covers riddle solved + move + new discovery. Do NOT split this across two turns.
 6. Exit node (riddle=null): deliver discovery, escape. clue_revealed=true.
-7. Premature visits ([UPCOMING] node): go (did_move=true), deliver premature hint. clue_revealed=false, riddle_solved=false.
+7. Premature visits ([UPCOMING] node that is NOT next after a solved riddle): go (did_move=true), deliver premature hint. clue_revealed=false, riddle_solved=false.
 8. Non-game-tree locations: go (did_move=true), nothing useful found.
 9. Invalid locations (not in list): don't move (did_move=false). Kyle doesn't see that place.
 10. Revisits: acknowledge been here. [COMPLETED] node: repeat clue, no re-solving.
