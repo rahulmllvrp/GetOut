@@ -104,6 +104,7 @@ export default function Home() {
     stopRecording,
     stopSpeaking,
     resetGame,
+    playIntro,
   } = useGameSession({
     onMove: handleMove,
     onClueRevealed: handleClueRevealed,
@@ -187,7 +188,10 @@ export default function Home() {
               Kyle is trapped in this room. Talk to him — help him escape.
             </p>
             <button
-              onClick={() => setShowIntro(false)}
+              onClick={() => {
+                setShowIntro(false);
+                playIntro();
+              }}
               className="rounded-lg bg-red-600 px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-red-500"
             >
               Start

@@ -163,7 +163,7 @@ export async function saveGameState(state: GameState): Promise<void> {
 export async function logGameStateSnapshot(
   state: GameState,
   playerMessage: string,
-  aiResponse: any
+  aiResponse: any,
 ): Promise<void> {
   try {
     const logDir = path.join(process.cwd(), "game-logs");
@@ -172,7 +172,7 @@ export async function logGameStateSnapshot(
     }
 
     const timestamp = new Date().toISOString();
-    const sessionId = `session_${new Date().toISOString().split('T')[0]}_${Date.now()}`;
+    const sessionId = `session_${new Date().toISOString().split("T")[0]}_${Date.now()}`;
     const logFile = path.join(logDir, `game-state-log.jsonl`);
 
     const logEntry = {
@@ -190,28 +190,84 @@ export async function logGameStateSnapshot(
       gameState: {
         currentLocation: state.currentLocation,
         riddlesSolved: state.riddlesSolved,
-        totalRiddles: state.gameTree.filter(n => n.clue?.answer).length,
+        totalRiddles: state.gameTree.filter((n) => n.clue?.answer).length,
         currentClueIndex: state.currentClueIndex,
         gameOver: state.gameOver,
         visitHistory: state.visitHistory,
-      }
+      },
     };
 
     // Append to JSONL file (JSON Lines format for easy streaming/parsing)
-    const logLine = JSON.stringify(logEntry) + '\n';
+    const logLine = JSON.stringify(logEntry) + "\n";
 
     // Check if file exists, if not create it
     if (!existsSync(logFile)) {
       await writeFile(logFile, logLine);
     } else {
       // Append to existing file
-      const { appendFile } = await import('fs/promises');
+      const { appendFile } = await import("fs/promises");
       await appendFile(logFile, logLine);
     }
 
-    console.log(`[GameLog] Turn ${state.conversationHistory.length} logged to ${logFile}`);
+    console.log(
+      `[GameLog] Turn ${state.conversationHistory.length} logged to ${logFile}`,
+    );
   } catch (error) {
-    console.error('[GameLog] Failed to log game state:', error);
+    console.error("[GameLog] Failed to log game state:", error);
+    // Don't throw - logging shouldn't break the game
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Game Flow Logger - Raw Mistral API inputs + outputs → data/gameFlow.json
+// ---------------------------------------------------------------------------
+
+const GAME_FLOW_PATH = path.join(process.cwd(), "data", "gameFlow.json");
+
+async function logGameFlow(
+  input: {
+    model: string;
+    messages: Array<{ role: string; content: string }>;
+    temperature: number;
+    maxTokens: number;
+  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  rawResponse: any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  parsed: any,
+): Promise<void> {
+  try {
+    const dataDir = path.join(process.cwd(), "data");
+    if (!existsSync(dataDir)) {
+      await mkdir(dataDir, { recursive: true });
+    }
+
+    const entry = {
+      timestamp: new Date().toISOString(),
+      input,
+      rawResponse,
+      parsed,
+    };
+
+    // Read existing entries or start fresh
+    let entries: unknown[] = [];
+    if (existsSync(GAME_FLOW_PATH)) {
+      try {
+        const existing = await readFile(GAME_FLOW_PATH, "utf-8");
+        entries = JSON.parse(existing);
+        if (!Array.isArray(entries)) entries = [];
+      } catch {
+        entries = [];
+      }
+    }
+
+    entries.push(entry);
+    await writeFile(GAME_FLOW_PATH, JSON.stringify(entries, null, 2));
+    console.log(
+      `[GameFlow] Logged turn ${entries.length} to ${GAME_FLOW_PATH}`,
+    );
+  } catch (error) {
+    console.error("[GameFlow] Failed to log game flow:", error);
     // Don't throw - logging shouldn't break the game
   }
 }
@@ -292,6 +348,13 @@ ${treeLines}
 8. Non-game-tree locations: go (did_move=true), nothing useful found.
 9. Invalid locations (not in list): don't move (did_move=false). Kyle doesn't see that place.
 10. Revisits: acknowledge been here. [COMPLETED] node: repeat clue, no re-solving.
+
+## STRICT OUTPUT FORMAT
+You MUST respond with valid JSON matching this EXACT schema. No prose, no markdown, no code blocks — only raw JSON.
+{"kyle_response": "<Kyle's dialogue here>", "did_move": <true|false>, "move_to": <"location_id"|null>, "clue_revealed": <true|false>, "riddle_solved": <true|false>}
+
+Example response:
+{"kyle_response": "Oh man, I see something on the wall over here... it looks like some kind of riddle!", "did_move": false, "move_to": null, "clue_revealed": true, "riddle_solved": false}
 `.trim();
 }
 
@@ -299,12 +362,9 @@ ${treeLines}
 // Compress context before sending to Mistral
 // ---------------------------------------------------------------------------
 
-const MAX_HISTORY_MESSAGES = 8; // 4 turn-pairs (user + assistant)
-
 /**
  * Reduces the messages array sent to Mistral each turn:
- *  1. Strips structural JSON from assistant messages, keeping only kyle_response text.
- *  2. Applies a sliding window so only the last N user/assistant messages are kept.
+ *  Strips structural JSON from assistant messages, keeping only kyle_response text.
  *  The system message (index 0) is always preserved.
  */
 function compressContext(
@@ -325,8 +385,7 @@ function compressContext(
     }
   });
 
-  const recent = cleaned.slice(-MAX_HISTORY_MESSAGES);
-  return [system, ...recent];
+  return [system, ...cleaned];
 }
 
 // ---------------------------------------------------------------------------
@@ -369,6 +428,14 @@ export async function chat(
   messages[0] = { role: "system", content: state.gameMasterPrompt };
 
   const compressed = compressContext(messages);
+
+  // Format reminder as the last message (recency bias helps adherence)
+  compressed.push({
+    role: "user",
+    content:
+      "[SYSTEM: Respond ONLY with valid JSON matching the required schema. Keys: kyle_response, did_move, move_to, clue_revealed, riddle_solved. No other text.]",
+  });
+
   const responseSchema = buildResponseSchema(state);
 
   const response = await mistral.chat.parse({
@@ -377,7 +444,7 @@ export async function chat(
     messages: compressed as any,
     responseFormat: responseSchema,
     temperature: 0.7,
-    maxTokens: 2048,
+    maxTokens: 1024,
   });
 
   const raw = response.choices?.[0]?.message;
@@ -388,6 +455,19 @@ export async function chat(
 
   const rawContent = typeof raw.content === "string" ? raw.content : null;
 
+  // Helper to log every turn (success or failure) before we throw
+  const logTurn = (parsedResult: unknown) =>
+    logGameFlow(
+      {
+        model: MODEL,
+        messages: compressed,
+        temperature: 0.7,
+        maxTokens: 1024,
+      },
+      response,
+      parsedResult,
+    );
+
   // Fallback: manually extract JSON if structured output parsing failed
   if (!parsed && rawContent) {
     const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
@@ -395,7 +475,12 @@ export async function chat(
       try {
         const obj = JSON.parse(jsonMatch[0]);
         if (!obj.kyle_response) {
-          const alt = obj.message ?? obj.response ?? obj.output ?? obj.error;
+          const alt =
+            obj.kyle_speech ??
+            obj.message ??
+            obj.response ??
+            obj.output ??
+            obj.error;
           if (alt) obj.kyle_response = alt;
         }
         if (!obj.move_to && obj.move_to_location) {
@@ -407,15 +492,22 @@ export async function chat(
         if (obj.riddle_solved === undefined) obj.riddle_solved = false;
         parsed = responseSchema.parse(obj);
       } catch {
+        await logTurn({ error: "unparseable_json", raw: rawContent });
         throw new Error(`Model returned unparseable content:\n${rawContent}`);
       }
     } else {
+      await logTurn({ error: "no_json", raw: rawContent });
       throw new Error(`Model returned no JSON:\n${rawContent}`);
     }
   }
 
-  if (!parsed)
+  if (!parsed) {
+    await logTurn({ error: "null_parsed", raw: rawContent });
     throw new Error("Model returned null parsed response with no content.");
+  }
+
+  // Log successful turn
+  await logTurn(parsed);
 
   // --- Update game state ---
 

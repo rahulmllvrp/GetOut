@@ -52,6 +52,15 @@ export type ChatMessage = {
 };
 
 // ---------------------------------------------------------------------------
+// Kyle intro line (hardcoded — warms up TTS route on game start)
+// ---------------------------------------------------------------------------
+
+const KYLE_INTRO =
+  "Hello? Can anyone hear me? I... I think I'm locked in some kind of room. " +
+  "It's dark in here, smells like stale coffee and there's this weird ticking sound. " +
+  "Please, if you can hear me, what do i do!";
+
+// ---------------------------------------------------------------------------
 // Hook
 // ---------------------------------------------------------------------------
 
@@ -66,12 +75,6 @@ interface UseGameSessionOptions {
 
 export function useGameSession(options: UseGameSessionOptions = {}) {
   const { onMove, onClueRevealed, onGameOver } = options;
-
-  // ---- Kyle intro line (hardcoded — warms up TTS route on game start) ----
-  const KYLE_INTRO =
-    "Hello? Can anyone hear me? I... I think I'm locked in some kind of room. " +
-    "It's dark in here, smells like stale coffee and there's this weird ticking sound. " +
-    "Please, if you can hear me, what do i do!";
 
   // ---- Game state ----
   const [gameState, setGameState] = useState<ClientGameState | null>(null);
@@ -103,7 +106,7 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
       fillerAudioRef.current = audio;
       audio.play().catch(() => {});
       fillerTimeoutRef.current = null;
-    }, 1500);
+    }, 500);
   }, []);
 
   const stopFiller = useCallback(() => {
@@ -146,17 +149,11 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
       setGameState(data);
       setMessages(data.conversationHistory);
       setLastResponse(null);
-
-      // Play Kyle's intro line (ambient — warms up TTS route + sets the mood)
-      if (data.conversationHistory.length === 0) {
-        playTTS(KYLE_INTRO);
-      }
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Unknown error");
     } finally {
       setIsLoading(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Load game on mount
@@ -303,6 +300,10 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
             URL.revokeObjectURL(url);
             resolve();
           };
+          audio.onpause = () => {
+            URL.revokeObjectURL(url);
+            resolve();
+          };
           audio.play().catch(() => resolve());
         });
         const playbackMs = Math.round(performance.now() - t1);
@@ -317,6 +318,14 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
     },
     [stopFiller],
   );
+
+  // ------------------------------------------------------------------
+  // Play Kyle's intro line (must be called from a user gesture)
+  // ------------------------------------------------------------------
+
+  const playIntro = useCallback(() => {
+    playTTS(KYLE_INTRO);
+  }, [playTTS]);
 
   // ------------------------------------------------------------------
   // Stop TTS playback
@@ -454,6 +463,7 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
     stopRecording,
     stopSpeaking,
     resetGame,
+    playIntro,
     initGame,
   };
 }
