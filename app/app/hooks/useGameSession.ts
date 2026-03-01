@@ -54,13 +54,27 @@ export type ChatMessage = {
 };
 
 // ---------------------------------------------------------------------------
-// Kyle intro line (hardcoded — warms up TTS route on game start)
+// Kyle intro lines per game mode (hardcoded — warms up TTS route on game start)
 // ---------------------------------------------------------------------------
 
-const KYLE_INTRO =
-  "Hello? Can anyone hear me? I... I think I'm locked in some kind of room. " +
-  "It's dark in here, smells like stale coffee and there's this weird ticking sound. " +
-  "Please, if you can hear me, what do i do!";
+const KYLE_INTROS: Record<GameMode, string> = {
+  normal:
+    "Hello? Can anyone hear me? I... I think I'm locked in some kind of room. " +
+    "It's dark in here, smells like stale coffee and there's this weird ticking sound. " +
+    "Please, if you can hear me, what do i do!",
+
+  brainrot:
+    "Yo? Yoooo? Can anyone hear me fr fr? I'm lowkey locked in some room and it's giving " +
+    "straight-up ohio energy no cap. It's mad dark in here, smells like expired sigma grindset, " +
+    "and there's this sus ticking sound that's NOT bussin. Bruh I'm cooked. " +
+    "Please, if you got any rizz at all, tell me what to do ong!",
+
+  nsfw:
+    "Hello?! Can anyone fucking hear me?! I... I think I'm locked in some shithole of a room. " +
+    "It's dark as hell in here, smells like ass and stale coffee, and there's this goddamn ticking sound " +
+    "that's driving me absolutely batshit. I swear this place looks like where bad decisions go to die. " +
+    "Please, if you can hear me, tell me what the fuck to do!",
+};
 
 // ---------------------------------------------------------------------------
 // Hook
@@ -326,9 +340,12 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
   // Play Kyle's intro line (must be called from a user gesture)
   // ------------------------------------------------------------------
 
-  const playIntro = useCallback(() => {
-    playTTS(KYLE_INTRO);
-  }, [playTTS]);
+  const playIntro = useCallback(
+    (mode: GameMode = "normal") => {
+      playTTS(KYLE_INTROS[mode]);
+    },
+    [playTTS]
+  );
 
   // ------------------------------------------------------------------
   // Stop TTS playback

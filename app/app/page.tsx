@@ -346,32 +346,34 @@ export default function Home() {
   // Spacebar to speak
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.code === 'Space' && !e.repeat) {
+      if (e.code === "Space" && !e.repeat) {
         // Prevent spacebar from scrolling or clicking buttons
         e.preventDefault();
         // Check if an input field is focused
         const activeElement = document.activeElement;
-        if (activeElement?.tagName !== 'INPUT' && activeElement?.tagName !== 'TEXTAREA') {
+        if (
+          activeElement?.tagName !== "INPUT" &&
+          activeElement?.tagName !== "TEXTAREA"
+        ) {
           startRecording();
         }
       }
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
-      if (e.code === 'Space') {
+      if (e.code === "Space") {
         stopRecording();
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
 
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
     };
   }, [startRecording, stopRecording]);
-
 
   // Status text for the badge
   const statusText = isRecording
@@ -407,13 +409,13 @@ export default function Home() {
           onStart={(mode: GameMode) => {
             resetGame(mode).then(() => {
               setShowIntro(false);
-              playIntro();
+              playIntro(mode);
             });
           }}
-          onGenerate={async () => {
-            await generateNewGame();
+          onGenerate={async (mode: GameMode) => {
+            await generateNewGame(mode);
             setShowIntro(false);
-            playIntro();
+            playIntro(mode);
           }}
           isGenerating={isGenerating}
         />
@@ -475,7 +477,7 @@ export default function Home() {
 
       {/* Chat sidebar */}
       {!shouldShowIntro && (
-         <>
+        <>
           <button
             onClick={() => setChatOpen(true)}
             className="absolute top-3 right-3 z-10 rounded-lg bg-black/70 px-3 py-2 text-xs text-white/70 backdrop-blur-sm transition-colors hover:bg-black/80 hover:text-white/80"
