@@ -11,10 +11,8 @@ const mistral = new Mistral({ apiKey: process.env.MISTRAL_API_KEY });
 const MODEL = "mistral-large-latest";
 
 const rl = createInterface({ input: process.stdin, output: process.stdout });
-const ask = (q: string) =>
-  new Promise<string>((resolve) => rl.question(q, resolve));
-const waitForEnter = (q: string) =>
-  new Promise<void>((resolve) => rl.question(q, () => resolve()));
+const ask = (q: string) => new Promise<string>((resolve) => rl.question(q, resolve));
+const waitForEnter = (q: string) => new Promise<void>((resolve) => rl.question(q, () => resolve()));
 
 // ---------------------------------------------------------------------------
 // Room locations (all places Kyle can move to)
