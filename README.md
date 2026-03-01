@@ -1,3 +1,3 @@
 # Get out
 
-A dangerous room, lies a world thats unfamamiliar and endlessly hostile. Fear is in the air as you talk to our protagonist Kyle. Locked in this world, you have to work with and instruct kyle through 
+A dangerous room, lies a world thats unfamamiliar and endlessly hostile. Fear is in the air as you talk to our protagonist Kyle. Locked inside, held against your wishes, you have to work with and instruct kyle through escaping. There's no set storyline or ending, as the world and game generate continously as you make choices. Tell kyle to look for clues under the mat? Or ask him to hide in the cabinet. The outcomes build up on the fly as the world is controlled by a model, dictating the storyline, generating the visuals as you see them, one decision at a time. Will you get out? Acutally, can you get out? Try to. Guide kyle and save him. No story, no plot armour, every playthrough is different.
