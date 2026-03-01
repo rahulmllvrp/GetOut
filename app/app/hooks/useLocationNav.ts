@@ -96,7 +96,7 @@ export function useLocationNav({
       // 0.05 units is close enough to consider "arrived" — small enough to be
       // imperceptible to the player but large enough to trigger reliably given
       // the 0.02 lerp alpha (camera never reaches exact target with lerp).
-      if (Math.sqrt(dx * dx + dy * dy + dz * dz) < 0.05) {
+      if (Math.sqrt(dx * dx + dy * dy + dz * dz) < 0.15) {
         const key = pendingCaptureLocationRef.current;
         pendingCaptureLocationRef.current = null; // stop watching
         onArrivalRef.current(key);

@@ -36,7 +36,8 @@ export function useImageEnhancer(captureCanvas: () => string) {
     setTimeout(() => setEnhancedImageUrl(null), 500);
   };
 
-  // Mode 1: Capture canvas → Gemini enhance (original flow)
+  // Mode 1: Capture canvas → Gemini enhance (location arrival flow).
+  // Three cache layers: L1 in-memory → L2 disk → L3 Gemini API.
   const enhanceForLocation = async (locationKey: string) => {
     if (isEnhancingRef.current) return;
 
@@ -44,12 +45,24 @@ export function useImageEnhancer(captureCanvas: () => string) {
     setOverlayVisible(false);
     setEnhancedImageUrl(null);
 
+    // L1 — in-memory cache: instant, no network.
     if (imageCache.current.has(locationKey)) {
       setEnhancedImageUrl(imageCache.current.get(locationKey)!);
       requestAnimationFrame(() => setOverlayVisible(true));
       return;
     }
 
+    // L2 — disk cache: survives server restarts.
+    const diskUrl = `/enhanced-cache/${locationKey}.png`;
+    const diskCheck = await fetch(diskUrl, { method: "HEAD" });
+    if (diskCheck.ok) {
+      imageCache.current.set(locationKey, diskUrl);
+      setEnhancedImageUrl(diskUrl);
+      requestAnimationFrame(() => setOverlayVisible(true));
+      return;
+    }
+
+    // L3 — full miss: capture frame, call Gemini, route persists to disk.
     const dataUrl = captureCanvas();
     if (!dataUrl) return;
 
@@ -59,7 +72,7 @@ export function useImageEnhancer(captureCanvas: () => string) {
       const res = await fetch("/api/enhance-image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageDataUrl: dataUrl }),
+        body: JSON.stringify({ imageDataUrl: dataUrl, locationKey }),
       });
       const { imageDataUrl } = await res.json();
       imageCache.current.set(locationKey, imageDataUrl);
