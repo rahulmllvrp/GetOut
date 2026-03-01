@@ -15,58 +15,175 @@ const ask = (q: string) => new Promise<string>((resolve) => rl.question(q, resol
 const waitForEnter = (q: string) => new Promise<void>((resolve) => rl.question(q, () => resolve()));
 
 // ---------------------------------------------------------------------------
+// GameTree
+// ---------------------------------------------------------------------------
+
+type ClueNode = {
+  id: string;
+  location: string;
+  discovery: string;      // what Kyle finds/says when arriving
+  riddle: string | null;
+  answer: string | null;  // keyword to match in player response
+  next: string | null;    // next node id, null = game over
+};
+
+const gameTree: ClueNode[] = [
+  { id: 'desk',  location: 'desk',  discovery: 'Kyle opens the desk drawer and finds a crumpled note', riddle: 'What has hands but cannot clap?', answer: 'clock', next: 'clock' },
+  { id: 'clock', location: 'clock', discovery: 'Behind the old clock, Kyle finds a folded piece of paper', riddle: 'What asks no questions but must be answered?', answer: 'phone', next: 'phone' },
+  { id: 'phone', location: 'phone', discovery: 'Under the rotary phone, Kyle finds a note with a 4-digit code', riddle: 'I have cities but no houses, mountains but no trees. What am I?', answer: 'map', next: 'exit' },
+  { id: 'exit',  location: 'door',  discovery: 'The code works! The door clicks open. Kyle escapes!', riddle: null, answer: null, next: null },
+];
+
+// ---------------------------------------------------------------------------
 // Structured output schema
 // ---------------------------------------------------------------------------
 
-const KyleResponse = z.object({
+const GameMasterResponse = z.object({
   kyle_response: z.string(),
   did_move: z.boolean(),
   move_to_location: z.string().nullable(),
+  clue_revealed: z.boolean(),   // true only first time Kyle delivers discovery at this node
+  riddle_solved: z.boolean(),   // true only when player's answer matches current riddle
 });
 
-type KyleResponse = z.infer<typeof KyleResponse>;
+type GameMasterResponse = z.infer<typeof GameMasterResponse>;
 
 // ---------------------------------------------------------------------------
 // Game state
 // ---------------------------------------------------------------------------
 
-const state = { current_location: 'center of the room', discovered: [] as string[] };
+const state = {
+  current_location: 'center of the room',
+  discovered: [] as string[],
+  current_clue_index: 0,
+  riddles_solved: 0,
+  game_over: false,
+};
 
-const systemPrompt = `
-You are Kyle, a terrified co-worker trapped in an escape room.
-The player is watching through your body-cam and giving you instructions.
-Stay in character: panicking, breathing hard, hesitant.
+// ---------------------------------------------------------------------------
+// System prompt (rebuilt each turn)
+// ---------------------------------------------------------------------------
 
-For every player message, respond with:
-- kyle_response: your in-character spoken response
-- did_move: true if you moved to a new location, false otherwise
-- move_to_location: the location you moved to, or null if you didn't move
-`;
+function buildSystemPrompt(): string {
+  const currentNode = gameTree[state.current_clue_index]!;
+
+  const treeLines = gameTree.map((node, i) => {
+    let label: string;
+    if (i < state.current_clue_index) label = '[COMPLETED]';
+    else if (i === state.current_clue_index) label = '[CURRENT]';
+    else label = '[UPCOMING]';
+    return `  ${label} ${node.id} (${node.location}): ${node.riddle ?? 'final escape'}`;
+  }).join('\n');
+
+  return `
+You are the GameMaster of an escape room. You secretly control Kyle, a terrified co-worker trapped in the room.
+The player is watching through Kyle's body-cam and giving instructions. The player believes they are talking directly to Kyle.
+You must NEVER reveal that you are the GameMaster. You must ALWAYS speak as Kyle in first person.
+
+## Kyle's Character
+Kyle is panicking, breathing hard, hesitant. He follows the player's instructions but is scared.
+Kyle discovers clues and reads riddles aloud as if finding them naturally.
+
+## Current Game State
+- Kyle's current location: ${state.current_location}
+- Riddles solved so far: ${state.riddles_solved}
+- Discovered locations: ${state.discovered.length > 0 ? state.discovered.join(', ') : 'none yet'}
+
+## GameTree (your secret navigation map)
+${treeLines}
+
+## Current Node: ${currentNode.id}
+- Discovery message: "${currentNode.discovery}"
+- Riddle to deliver: ${currentNode.riddle ?? 'none — this is the exit node'}
+- Expected answer keyword: ${currentNode.answer ?? 'none'}
+
+## Your Instructions
+1. Speak ONLY as Kyle in first person. Never break character.
+2. Set clue_revealed: true ONLY the first time Kyle arrives at this node and delivers the discovery message. Set it false for all subsequent turns unless moving to a new node.
+3. Set riddle_solved: true ONLY when the player's message semantically matches the expected answer keyword ("${currentNode.answer ?? 'N/A'}"). Accept variations like "I think it's a clock" or "clock?" as matching "clock". Set it false otherwise.
+4. Set did_move: true and move_to_location to the location name when Kyle physically moves somewhere new.
+5. After solving the riddle, Kyle should react excitedly and naturally start moving toward the next clue location — but do NOT skip delivering discoveries; those happen on the next turn when Kyle arrives.
+6. On the exit node (riddle is null), Kyle delivers the discovery message and escapes. Set clue_revealed: true on that turn.
+`.trim();
+}
 
 // ---------------------------------------------------------------------------
 // Chat
 // ---------------------------------------------------------------------------
 
-async function chat(messages: any[]): Promise<KyleResponse> {
+async function chat(messages: any[]): Promise<GameMasterResponse> {
+  // Refresh system prompt every turn so model always knows current node
+  messages[0] = { role: 'system', content: buildSystemPrompt() };
+
+  process.stdout.write('  [mistral] thinking...');
   const response = await mistral.chat.parse({
     model: MODEL,
     messages,
-    responseFormat: KyleResponse,
+    responseFormat: GameMasterResponse,
   });
+  process.stdout.write(' done\n');
 
-  const parsed = response.choices![0].message.parsed!;
+  const raw = response.choices![0].message;
+  let parsed: GameMasterResponse | null = (raw.parsed as GameMasterResponse) ?? null;
 
-  // Update state from structured output
-  if (parsed.did_move && parsed.move_to_location) {
-    state.current_location = parsed.move_to_location;
-    if (!state.discovered.includes(parsed.move_to_location)) {
-      state.discovered.push(parsed.move_to_location);
+  // Fallback: manually extract JSON if structured output parsing silently failed
+  if (!parsed && raw.content) {
+    console.log('  [warn] structured parse failed, falling back to manual JSON extract');
+    const jsonMatch = raw.content.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      try {
+        const obj = JSON.parse(jsonMatch[0]);
+        // Model sometimes returns 'message' instead of 'kyle_response'
+        if (!obj.kyle_response && obj.message) {
+          console.log('  [warn] normalising field: message → kyle_response');
+          obj.kyle_response = obj.message;
+        }
+        parsed = GameMasterResponse.parse(obj);
+        console.log('  [warn] fallback parse succeeded');
+      } catch (e) {
+        throw new Error(`Model returned unparseable content:\n${raw.content}`);
+      }
+    } else {
+      throw new Error(`Model returned no JSON:\n${raw.content}`);
     }
   }
 
-  // Append assistant message to history as JSON so model has full context
-  messages.push({ role: 'assistant', content: response.choices![0].message.content });
+  if (!parsed) throw new Error('Model returned null parsed response with no content.');
 
+  // Update location
+  if (parsed.did_move && parsed.move_to_location) {
+    const prev = state.current_location;
+    state.current_location = parsed.move_to_location;
+    if (!state.discovered.includes(parsed.move_to_location)) {
+      state.discovered.push(parsed.move_to_location);
+      console.log(`  [move] ${prev} → ${state.current_location} (new)`);
+    } else {
+      console.log(`  [move] ${prev} → ${state.current_location}`);
+    }
+  }
+
+  // Advance GameTree when riddle solved (host-authoritative)
+  const currentNode = gameTree[state.current_clue_index]!;
+  if (parsed.riddle_solved && currentNode.answer !== null) {
+    state.riddles_solved += 1;
+    const nextIndex = gameTree.findIndex(n => n.id === currentNode.next);
+    if (nextIndex !== -1) {
+      state.current_clue_index = nextIndex;
+      console.log(`  [tree] riddle solved ✓  advancing to node: ${gameTree[state.current_clue_index]!.id}`);
+    } else {
+      state.game_over = true;
+      console.log('  [tree] riddle solved ✓  no next node — game over');
+    }
+  }
+
+  // Set game_over when exit node discovery fires
+  const newNode = gameTree[state.current_clue_index]!;
+  if (newNode.riddle === null && parsed.clue_revealed) {
+    state.game_over = true;
+    console.log('  [tree] exit node revealed — game over');
+  }
+
+  messages.push({ role: 'assistant', content: raw.content });
   return parsed;
 }
 
@@ -75,11 +192,14 @@ async function chat(messages: any[]): Promise<KyleResponse> {
 // ---------------------------------------------------------------------------
 
 async function main() {
-  console.log('=== Escape Room Body-Cam ===');
-  console.log(`Starting location: ${state.current_location}`);
-  console.log("Press ENTER to speak. Type 'text' to switch to keyboard. Type 'quit' to exit.\n");
+  console.log('╔══════════════════════════════╗');
+  console.log('║   ESCAPE ROOM  — body-cam    ║');
+  console.log('╚══════════════════════════════╝');
+  console.log(`nodes : ${gameTree.map(n => n.id).join(' → ')}`);
+  console.log(`start : ${state.current_location}`);
+  console.log(`mode  : voice (type 'text' to switch, 'quit' to exit)\n`);
 
-  const messages: any[] = [{ role: 'system', content: systemPrompt }];
+  const messages: any[] = [{ role: 'system', content: buildSystemPrompt() }];
   let voiceMode = true;
 
   while (true) {
@@ -111,11 +231,13 @@ async function main() {
     }
 
     messages.push({ role: 'user', content: playerInput });
+    console.log();
     const result = await chat(messages);
 
-    console.log('\n[Agent Response]', JSON.stringify(result, null, 2));
-    console.log(`[did_move] ${result.did_move} | [move_to_location] ${result.move_to_location ?? 'none'}`);
-    console.log(`[State] Location: ${state.current_location} | Discovered: ${JSON.stringify(state.discovered)}\n`);
+    const node = gameTree[state.current_clue_index]!;
+    console.log(`  [flags]  clue_revealed=${result.clue_revealed}  riddle_solved=${result.riddle_solved}  did_move=${result.did_move}`);
+    console.log(`  [state]  loc="${state.current_location}"  node=${node.id}  riddles=${state.riddles_solved}/${gameTree.filter(n => n.answer).length}`);
+    console.log(`\nKyle: ${result.kyle_response}\n`);
 
     console.log('  [speaking...]');
     try {
@@ -123,6 +245,8 @@ async function main() {
     } catch (e) {
       console.error(`  [TTS error] ${e}`);
     }
+
+    if (state.game_over) break;
   }
 
   console.log('Transmission ended.');
