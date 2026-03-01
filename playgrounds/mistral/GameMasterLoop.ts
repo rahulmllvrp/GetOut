@@ -17,17 +17,35 @@ const waitForEnter = (q: string) =>
   new Promise<void>((resolve) => rl.question(q, () => resolve()));
 
 // ---------------------------------------------------------------------------
+// Room locations (all places Kyle can move to)
+// ---------------------------------------------------------------------------
+
+const ROOM_LOCATIONS = [
+  "center",
+  "desk",
+  "clock",
+  "phone",
+  "door",
+  "sofa",
+  "table",
+  "window",
+  // TODO: add remaining room locations (bookshelf, window, etc.)
+] as const;
+
+type RoomLocation = (typeof ROOM_LOCATIONS)[number];
+
+// ---------------------------------------------------------------------------
 // GameTree
 // ---------------------------------------------------------------------------
 
 type ClueNode = {
   id: string;
-  location: string;
-  discovery: string; // what Kyle finds/says when arriving at the right time
-  premature_discovery: string | null; // what Kyle finds if arriving before this node is active
+  location: RoomLocation;
+  discovery: string;
+  premature_discovery: string | null;
   riddle: string | null;
-  answer: string | null; // keyword to match in player response
-  next: string | null; // next node id, null = game over
+  answer: string | null;
+  next: string | null;
 };
 
 const gameTree: ClueNode[] = [
@@ -79,9 +97,9 @@ const gameTree: ClueNode[] = [
 const GameMasterResponse = z.object({
   kyle_response: z.string(),
   did_move: z.boolean(),
-  move_to_location: z.string().nullable(),
-  clue_revealed: z.boolean(), // true only first time Kyle delivers discovery at this node
-  riddle_solved: z.boolean(), // true only when player's answer matches current riddle
+  move_to: z.enum(ROOM_LOCATIONS).nullable(),
+  clue_revealed: z.boolean(),
+  riddle_solved: z.boolean(),
 });
 
 type GameMasterResponse = z.infer<typeof GameMasterResponse>;
@@ -91,8 +109,8 @@ type GameMasterResponse = z.infer<typeof GameMasterResponse>;
 // ---------------------------------------------------------------------------
 
 const state = {
-  current_location: "center of the room",
-  discovered: [] as string[],
+  current_location: "center" as RoomLocation,
+  visit_history: [] as RoomLocation[],
   current_clue_index: 0,
   riddles_solved: 0,
   game_over: false,
@@ -105,7 +123,6 @@ const state = {
 function buildSystemPrompt(): string {
   const currentNode = gameTree[state.current_clue_index]!;
 
-  //HARDCODED
   const treeLines = gameTree
     .map((node, i) => {
       let label: string;
@@ -133,8 +150,18 @@ Kyle discovers clues and reads riddles aloud as if finding them naturally.
 ## Current Game State
 - Kyle's current location: ${state.current_location}
 - Riddles solved so far: ${state.riddles_solved}
-- Discovered locations: ${
-    state.discovered.length > 0 ? state.discovered.join(", ") : "none yet"
+- Visit history: ${
+    state.visit_history.length > 0 ? state.visit_history.join(", ") : "none yet"
+  }
+
+## Room Locations (all valid places in the room)
+${ROOM_LOCATIONS.map((l) => `  - "${l}"`).join("\n")}
+
+Game tree locations: ${gameTree.map((n) => `"${n.location}"`).join(", ")}
+Non-game-tree locations: ${
+    ROOM_LOCATIONS.filter((l) => !gameTree.some((n) => n.location === l))
+      .map((l) => `"${l}"`)
+      .join(", ") || "none"
   }
 
 ## GameTree (your secret navigation map)
@@ -147,14 +174,19 @@ ${treeLines}
 
 ## Your Instructions
 1. Speak ONLY as Kyle in first person. Never break character.
-2. Set clue_revealed: true ONLY the first time Kyle arrives at this node and delivers the discovery message. Set it false for all subsequent turns unless moving to a new node.
+2. Set clue_revealed: true ONLY the first time Kyle arrives at the [CURRENT] node and delivers the discovery message. Set it false for all subsequent turns unless moving to a new [CURRENT] node.
 3. Set riddle_solved: true ONLY when the player's message semantically matches the expected answer keyword ("${
     currentNode.answer ?? "N/A"
   }"). Accept variations like "I think it's a clock" or "clock?" as matching "clock". Set it false otherwise.
-4. Set did_move: true and move_to_location to the location name when Kyle physically moves somewhere new.
+4. Set did_move: true and move_to when Kyle physically moves somewhere new. Valid values for move_to: ${ROOM_LOCATIONS.map(
+    (l) => `"${l}"`
+  ).join(", ")}. Use "center" if Kyle returns to the center of the room.
 5. After solving the riddle, Kyle should react excitedly and naturally start moving toward the next clue location — but do NOT skip delivering discoveries; those happen on the next turn when Kyle arrives.
 6. On the exit node (riddle is null), Kyle delivers the discovery message and escapes. Set clue_revealed: true on that turn.
 7. **Premature visits**: If the player directs Kyle to a location that belongs to an [UPCOMING] node (not the [CURRENT] one), Kyle SHOULD go there (set did_move: true), but instead of delivering the real discovery/riddle, deliver the premature hint shown in the game tree for that node. Keep clue_revealed: false and riddle_solved: false. Kyle should convey in-character that something is there but he can't access it yet — like it's locked, stuck, or missing a piece. This should feel natural, not like a game mechanic blocking progress.
+8. **Non-game-tree locations**: If the player directs Kyle to a location that is in the room locations list but NOT in the game tree, Kyle SHOULD go there (set did_move: true), but find nothing useful. Kyle should search around in-character and report that there's nothing significant — e.g., "I checked everywhere around here, but there's nothing... just dust." Keep clue_revealed: false and riddle_solved: false.
+9. **Invalid locations**: If the player directs Kyle to a location that does NOT exist in the room locations list, Kyle must NOT move (set did_move: false, move_to: null). Kyle should say in-character that he doesn't see that place — e.g., "I don't see anything like that in here..." Do not invent new locations.
+10. **Revisits**: If a location appears in the visit history, Kyle should acknowledge in-character that he's already been here. If the location is a [COMPLETED] game tree node, Kyle should immediately repeat the clue or hint he found there previously without requiring the player to solve it again. Keep clue_revealed: false and riddle_solved: false on revisits.
 `.trim();
 }
 
@@ -187,10 +219,23 @@ async function chat(messages: any[]): Promise<GameMasterResponse> {
     if (jsonMatch) {
       try {
         const obj = JSON.parse(jsonMatch[0]);
-        // Model sometimes returns 'message' instead of 'kyle_response'
-        if (!obj.kyle_response && obj.message) {
-          console.log("  [warn] normalising field: message → kyle_response");
-          obj.kyle_response = obj.message;
+        if (!obj.kyle_response) {
+          const alt = obj.message ?? obj.response ?? obj.output;
+          if (alt) {
+            const srcField = obj.message
+              ? "message"
+              : obj.response
+              ? "response"
+              : "output";
+            console.log(
+              `  [warn] normalising field: ${srcField} → kyle_response`
+            );
+            obj.kyle_response = alt;
+          }
+        }
+        if (!obj.move_to && obj.move_to_location) {
+          console.log("  [warn] normalising field: move_to_location → move_to");
+          obj.move_to = obj.move_to_location;
         }
         parsed = GameMasterResponse.parse(obj);
         console.log("  [warn] fallback parse succeeded");
@@ -205,15 +250,16 @@ async function chat(messages: any[]): Promise<GameMasterResponse> {
   if (!parsed)
     throw new Error("Model returned null parsed response with no content.");
 
-  // Update location
-  if (parsed.did_move && parsed.move_to_location) {
+  // Update location and visit history
+  if (parsed.did_move && parsed.move_to) {
     const prev = state.current_location;
-    state.current_location = parsed.move_to_location;
-    if (!state.discovered.includes(parsed.move_to_location)) {
-      state.discovered.push(parsed.move_to_location);
-      console.log(`  [move] ${prev} → ${state.current_location} (new)`);
+    state.current_location = parsed.move_to;
+    const isRevisit = state.visit_history.includes(parsed.move_to);
+    if (!isRevisit) {
+      state.visit_history.push(parsed.move_to);
+      console.log(`  [move] ${prev} → ${state.current_location} (first visit)`);
     } else {
-      console.log(`  [move] ${prev} → ${state.current_location}`);
+      console.log(`  [move] ${prev} → ${state.current_location} (revisit)`);
     }
   }
 
@@ -307,7 +353,7 @@ async function main() {
 
     const node = gameTree[state.current_clue_index]!;
     console.log(
-      `  [flags]  clue_revealed=${result.clue_revealed}  riddle_solved=${result.riddle_solved}  did_move=${result.did_move}`
+      `  [flags]  clue_revealed=${result.clue_revealed}  riddle_solved=${result.riddle_solved}  did_move=${result.did_move}  move_to=${result.move_to}`
     );
     console.log(
       `  [state]  loc="${state.current_location}"  node=${node.id}  riddles=${
