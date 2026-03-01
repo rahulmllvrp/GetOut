@@ -107,7 +107,7 @@ async function loadFrameDescriptions(): Promise<{
   const descriptionsDir = `${import.meta.dir}/../hiddenPOVs/frames_final`;
 
   const file: FrameDescriptionsFile = await Bun.file(
-    `${descriptionsDir}/frame_descriptions.json`,
+    `${descriptionsDir}/frame_descriptions.json`
   ).json();
 
   const frames: FrameNode[] = file.frames.map((f) => ({
@@ -132,18 +132,18 @@ const MistralGameTreeSchema = z.object({
   roomDescription: z
     .string()
     .describe(
-      "A concise 2-3 sentence summary of the room, suitable as a game intro.",
+      "A concise 2-3 sentence summary of the room, suitable as a game intro."
     ),
   winCondition: z
     .string()
     .describe(
-      "A description of what the player must do to win, e.g. 'Find the hidden key behind the fireplace and use it on the locked archway to escape.'",
+      "A description of what the player must do to win, e.g. 'Find the hidden key behind the fireplace and use it on the locked archway to escape.'"
     ),
   loseCondition: z
     .string()
     .nullable()
     .describe(
-      "Optional lose condition, e.g. 'Kyle panics and collapses after 20 failed attempts.' or null if no lose state.",
+      "Optional lose condition, e.g. 'Kyle panics and collapses after 20 failed attempts.' or null if no lose state."
     ),
   gameTree: z
     .array(
@@ -151,40 +151,40 @@ const MistralGameTreeSchema = z.object({
         frameId: z
           .string()
           .describe(
-            "The object location ID this clue is attached to (e.g. 'whiteboard', 'bookshelf', 'laptop'). Must be one of the provided object locations — NOT a panoramic frame (frame_*).",
+            "The object location ID this clue is attached to (e.g. 'whiteboard', 'bookshelf', 'laptop'). Must be one of the provided object locations — NOT a panoramic frame (frame_*)."
           ),
         clueId: z.string().describe("A unique short ID for this clue node."),
         discovery: z
           .string()
           .describe(
-            "What Kyle finds when the player arrives at this location at the right time. Written in third person as narration.",
+            "What Kyle finds when the player arrives at this location at the right time. Written in third person as narration."
           ),
         premature_discovery: z
           .string()
           .describe(
-            "What Kyle finds if the player visits this location before solving the previous clue. Should feel natural — something is locked, stuck, or incomplete.",
+            "What Kyle finds if the player visits this location before solving the previous clue. Should feel natural — something is locked, stuck, or incomplete."
           ),
         riddle: z
           .string()
           .nullable()
           .describe(
-            "The riddle the player must solve. null for the final exit node.",
+            "The riddle the player must solve. null for the final exit node."
           ),
         answer: z
           .string()
           .nullable()
           .describe(
-            "The keyword answer to the riddle. null for the final exit node.",
+            "The keyword answer to the riddle. null for the final exit node."
           ),
         hiddenAreaDescription: z
           .string()
           .describe(
-            "A vivid description of the hidden area that Kyle discovers (e.g. 'inside a dusty drawer with a crumpled note among old quills'). Used to generate a POV image later.",
+            "A vivid description of the hidden area that Kyle discovers (e.g. 'inside a dusty drawer with a crumpled note among old quills'). Used to generate a POV image later."
           ),
-      }),
+      })
     )
     .describe(
-      "Ordered array of 3-5 clue nodes forming the puzzle chain. The last node must be the exit (riddle: null, answer: null).",
+      "Ordered array of 3-5 clue nodes forming the puzzle chain. The last node must be the exit (riddle: null, answer: null)."
     ),
 });
 
@@ -192,7 +192,7 @@ type MistralGameTreeResponse = z.infer<typeof MistralGameTreeSchema>;
 
 function buildInitPrompt(
   commonRoomDescription: string,
-  frames: FrameNode[],
+  frames: FrameNode[]
 ): string {
   const objectFrames = frames.filter((f) => !f.frame.startsWith("frame_"));
   const panoramicFrames = frames.filter((f) => f.frame.startsWith("frame_"));
@@ -200,14 +200,18 @@ function buildInitPrompt(
   const objectDescriptions = objectFrames
     .map(
       (f, i) =>
-        `Object ${i + 1} — "${f.frame}":\n  Description: ${f.description}\n  POV: ${f.pov}`,
+        `Object ${i + 1} — "${f.frame}":\n  Description: ${
+          f.description
+        }\n  POV: ${f.pov}`
     )
     .join("\n\n");
 
   const panoramicDescriptions = panoramicFrames
     .map(
       (f, i) =>
-        `Viewpoint ${i + 1} — "${f.frame}":\n  Description: ${f.description}\n  POV: ${f.pov}`,
+        `Viewpoint ${i + 1} — "${f.frame}":\n  Description: ${
+          f.description
+        }\n  POV: ${f.pov}`
     )
     .join("\n\n");
 
@@ -220,7 +224,9 @@ ${commonRoomDescription}
 ## Interactable Objects (${objectFrames.length} — clue nodes MUST use these)
 ${objectDescriptions}
 
-## Panoramic Viewpoints (${panoramicFrames.length} — for context only, do NOT attach clues to these)
+## Panoramic Viewpoints (${
+    panoramicFrames.length
+  } — for context only, do NOT attach clues to these)
 ${panoramicDescriptions}
 
 ## Your Task
@@ -236,8 +242,12 @@ Design a compelling escape room scenario using these locations. You must:
 
 3. **Lose Condition**: Optionally define a lose condition (e.g. Kyle panics after too many wrong answers), or set null.
 
-4. **Game Tree**: Select 3-5 of the ${objectFrames.length} object locations as puzzle locations and create an ordered chain of clue nodes:
-   - **IMPORTANT: You MUST only use object locations** (${objectFrames.map((f) => `"${f.frame}"`).join(", ")}). Do NOT use panoramic viewpoints (frame_*).
+4. **Game Tree**: Select 3-5 of the ${
+    objectFrames.length
+  } object locations as puzzle locations and create an ordered chain of clue nodes:
+   - **IMPORTANT: You MUST only use object locations** (${objectFrames
+     .map((f) => `"${f.frame}"`)
+     .join(", ")}). Do NOT use panoramic viewpoints (frame_*).
    - Each node is attached to a specific object by its ID (e.g. "whiteboard", "bookshelf", "laptop").
    - Each node has a discovery (what Kyle finds), a premature_discovery (what he finds if he goes too early), a riddle, an answer keyword, and a hiddenAreaDescription for generating a visual.
    - **The riddles must be solvable.** Each riddle answer should be a single word or short phrase that can be spoken aloud.
@@ -335,7 +345,7 @@ const GAME_TREE_JSON_SCHEMA = {
 
 async function generateGameTree(
   commonRoomDescription: string,
-  frames: FrameNode[],
+  frames: FrameNode[]
 ): Promise<MistralGameTreeResponse> {
   const prompt = buildInitPrompt(commonRoomDescription, frames);
 
@@ -369,7 +379,7 @@ async function generateGameTree(
   }
 
   console.log(
-    `  [debug] Raw content (first 300 chars): ${rawContent.slice(0, 300)}`,
+    `  [debug] Raw content (first 300 chars): ${rawContent.slice(0, 300)}`
   );
 
   // Parse — the JSON schema enforcement means this should just work
@@ -380,17 +390,23 @@ async function generateGameTree(
   // Validate that all frameIds reference actual object locations
   const validFrameIds = new Set(frames.map((f) => f.frame));
   const objectOnlyIds = new Set(
-    frames.filter((f) => !f.frame.startsWith("frame_")).map((f) => f.frame),
+    frames.filter((f) => !f.frame.startsWith("frame_")).map((f) => f.frame)
   );
   for (const node of parsed.gameTree) {
     if (!validFrameIds.has(node.frameId)) {
       throw new Error(
-        `Game tree references unknown location "${node.frameId}". Valid locations: ${[...validFrameIds].join(", ")}`,
+        `Game tree references unknown location "${
+          node.frameId
+        }". Valid locations: ${[...validFrameIds].join(", ")}`
       );
     }
     if (node.frameId.startsWith("frame_")) {
       throw new Error(
-        `Game tree node "${node.clueId}" is attached to panoramic viewpoint "${node.frameId}", but clues can only be attached to object locations: ${[...objectOnlyIds].join(", ")}`,
+        `Game tree node "${node.clueId}" is attached to panoramic viewpoint "${
+          node.frameId
+        }", but clues can only be attached to object locations: ${[
+          ...objectOnlyIds,
+        ].join(", ")}`
       );
     }
   }
@@ -411,7 +427,7 @@ function mimeType(path: string): string {
 async function generateHiddenPovImage(
   referenceFramePath: string,
   hiddenAreaDescription: string,
-  outputPath: string,
+  outputPath: string
 ): Promise<string> {
   const buffer = await Bun.file(referenceFramePath).arrayBuffer();
   const base64 = Buffer.from(buffer).toString("base64");
@@ -444,7 +460,7 @@ async function generateHiddenPovImage(
   }
 
   throw new Error(
-    `Gemini did not return an image for hidden area: ${hiddenAreaDescription}`,
+    `Gemini did not return an image for hidden area: ${hiddenAreaDescription}`
   );
 }
 
@@ -455,21 +471,25 @@ async function generateHiddenPovImage(
 function buildGameMasterPrompt(state: GameState): string {
   const allFrameIds = state.allLocations.map((n) => n.frame.frame);
   const treeFrameIds = state.gameTree.map((n) => n.frame.frame);
-  const nonTreeFrameIds = allFrameIds.filter((f) => !treeFrameIds.includes(f));
 
   const currentNode = state.gameTree[state.currentClueIndex];
 
   const treeLines = state.gameTree
     .map((node, i) => {
       const clue = node.clue!;
-      let label: string;
-      if (i < state.currentClueIndex) label = "[COMPLETED]";
-      else if (i === state.currentClueIndex) label = "[CURRENT]";
-      else label = "[UPCOMING]";
-      const premature = clue.premature_discovery
-        ? ` | premature hint: "${clue.premature_discovery}"`
-        : "";
-      return `  ${label} ${clue.id} (${node.frame.frame}): ${clue.riddle ?? "final escape"}${premature}`;
+      if (i < state.currentClueIndex) {
+        return `  [COMPLETED] ${clue.id} (${node.frame.frame})`;
+      } else if (i === state.currentClueIndex) {
+        return `  [CURRENT] ${clue.id} (${node.frame.frame}): ${
+          clue.riddle ?? "final escape"
+        } | premature: "${clue.premature_discovery}"`;
+      } else {
+        return `  [UPCOMING] ${clue.id} (${node.frame.frame})${
+          clue.premature_discovery
+            ? ` | premature hint: "${clue.premature_discovery}"`
+            : ""
+        }`;
+      }
     })
     .join("\n");
 
@@ -478,7 +498,7 @@ You are the GameMaster of an escape room. You secretly control Kyle, a terrified
 The player is watching through Kyle's body-cam and giving instructions. The player believes they are talking directly to Kyle.
 You must NEVER reveal that you are the GameMaster. You must ALWAYS speak as Kyle in first person.
 
-## Room Description
+## Room
 ${state.roomDescription}
 
 ## Win Condition
@@ -486,39 +506,40 @@ ${state.winCondition}
 ${state.loseCondition ? `\n## Lose Condition\n${state.loseCondition}` : ""}
 
 ## Kyle's Character
-Kyle is panicking, breathing hard, hesitant. He follows the player's instructions but is scared.
-Kyle discovers clues and reads riddles aloud as if finding them naturally.
+Kyle is panicking, scared, follows instructions. Discovers clues and reads riddles aloud naturally.
 
 ## Current Game State
-- Kyle's current location: ${state.currentLocation}
-- Riddles solved so far: ${state.riddlesSolved}
-- Visit history: ${state.visitHistory.length > 0 ? state.visitHistory.join(", ") : "none yet"}
+- Location: ${state.currentLocation}
+- Riddles solved: ${state.riddlesSolved}
+- Visited: ${
+    state.visitHistory.length > 0 ? state.visitHistory.join(", ") : "none yet"
+  }
 
-## All Locations (valid places Kyle can go)
-${allFrameIds.map((f) => `  - "${f}"`).join("\n")}
+## Locations
+Valid: ${allFrameIds.map((f) => `"${f}"`).join(", ")}
+Game tree: ${treeFrameIds.map((f) => `"${f}"`).join(", ")}
 
-Game tree locations: ${treeFrameIds.map((f) => `"${f}"`).join(", ")}
-Non-game-tree locations: ${nonTreeFrameIds.length > 0 ? nonTreeFrameIds.map((f) => `"${f}"`).join(", ") : "none"}
-
-## GameTree (your secret navigation map)
+## GameTree (secret map)
 ${treeLines}
 
 ## Current Node: ${currentNode?.clue?.id ?? "none"}
-- Discovery message: "${currentNode?.clue?.discovery ?? "N/A"}"
-- Riddle to deliver: ${currentNode?.clue?.riddle ?? "none — this is the exit node"}
-- Expected answer keyword: ${currentNode?.clue?.answer ?? "none"}
+- Discovery: "${currentNode?.clue?.discovery ?? "N/A"}"
+- Riddle: ${currentNode?.clue?.riddle ?? "none — exit node"}
+- Answer keyword: ${currentNode?.clue?.answer ?? "none"}
 
-## Your Instructions
+## Instructions
 1. Speak ONLY as Kyle in first person. Never break character.
-2. Set clue_revealed: true ONLY the first time Kyle arrives at the [CURRENT] node and delivers the discovery message.
-3. Set riddle_solved: true ONLY when the player's message semantically matches the expected answer keyword ("${currentNode?.clue?.answer ?? "N/A"}"). Accept variations.
-4. Set did_move: true and move_to when Kyle physically moves. Valid values: ${allFrameIds.map((f) => `"${f}"`).join(", ")}.
-5. After solving the riddle, Kyle should react excitedly and naturally start moving toward the next clue location.
-6. On the exit node (riddle is null), Kyle delivers the discovery message and escapes. Set clue_revealed: true.
-7. **Premature visits**: If directed to an [UPCOMING] node, Kyle SHOULD go (did_move: true) but delivers the premature hint. Keep clue_revealed: false and riddle_solved: false.
-8. **Non-game-tree locations**: If directed to a location NOT in the game tree, Kyle SHOULD go (did_move: true) but finds nothing useful.
-9. **Invalid locations**: If directed to a location NOT in the locations list, Kyle must NOT move (did_move: false). Say he doesn't see that place.
-10. **Revisits**: If a location is in visit history, Kyle acknowledges he's been here. If it's a [COMPLETED] node, repeat the clue without requiring re-solving.
+2. clue_revealed=true ONLY first time Kyle arrives at [CURRENT] node and delivers discovery.
+3. riddle_solved=true ONLY when player's message matches answer keyword ("${
+    currentNode?.clue?.answer ?? "N/A"
+  }"). Accept variations.
+4. did_move=true + move_to when Kyle moves. Valid move_to values: any location listed above.
+5. After solving riddle, Kyle reacts excitedly and moves toward next clue.
+6. Exit node (riddle=null): deliver discovery, escape. clue_revealed=true.
+7. Premature visits ([UPCOMING] node): go (did_move=true), deliver premature hint. clue_revealed=false, riddle_solved=false.
+8. Non-game-tree locations: go (did_move=true), nothing useful found.
+9. Invalid locations (not in list): don't move (did_move=false). Kyle doesn't see that place.
+10. Revisits: acknowledge been here. [COMPLETED] node: repeat clue, no re-solving.
 `.trim();
 }
 
@@ -541,14 +562,14 @@ export async function initGameState(): Promise<GameState> {
   console.log("[Stage 2] Generating game tree with Mistral...");
   const mistralResult = await generateGameTree(commonRoomDescription, frames);
   console.log(
-    `  Room description: ${mistralResult.roomDescription.slice(0, 80)}...`,
+    `  Room description: ${mistralResult.roomDescription.slice(0, 80)}...`
   );
   console.log(`  Win condition: ${mistralResult.winCondition}`);
   console.log(`  Lose condition: ${mistralResult.loseCondition ?? "none"}`);
   console.log(`  Game tree nodes: ${mistralResult.gameTree.length}`);
   for (const node of mistralResult.gameTree) {
     console.log(
-      `    - ${node.clueId} @ ${node.frameId}: ${node.riddle ?? "[EXIT]"}`,
+      `    - ${node.clueId} @ ${node.frameId}: ${node.riddle ?? "[EXIT]"}`
     );
   }
   console.log();
@@ -576,7 +597,7 @@ export async function initGameState(): Promise<GameState> {
   // ── Build allLocations (all frames/objects, with clue attached if applicable) ──
   const clueFrameIds = new Set(mistralResult.gameTree.map((n) => n.frameId));
   const clueByFrameId = new Map(
-    mistralResult.gameTree.map((n, i) => [n.frameId, clueNodes[i]]),
+    mistralResult.gameTree.map((n, i) => [n.frameId, clueNodes[i]])
   );
 
   const allLocations: GameNode[] = frames.map((frame) => ({
@@ -616,11 +637,15 @@ export async function initGameState(): Promise<GameState> {
   await Bun.write(outputPath, JSON.stringify(serializable, null, 2));
   console.log(`[Done] GameState saved to ${outputPath}`);
   console.log(
-    `  Game tree: ${gameTree.map((n) => `${n.clue!.id}(${n.frame.frame})`).join(" → ")}`,
+    `  Game tree: ${gameTree
+      .map((n) => `${n.clue!.id}(${n.frame.frame})`)
+      .join(" → ")}`
   );
   console.log(`  All locations: ${allLocations.length} frames`);
   console.log(
-    `  Puzzle locations: ${gameTree.length} | Environmental: ${allLocations.length - gameTree.length}`,
+    `  Puzzle locations: ${gameTree.length} | Environmental: ${
+      allLocations.length - gameTree.length
+    }`
   );
 
   return state;

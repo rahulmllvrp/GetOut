@@ -116,7 +116,7 @@ export async function loadGameState(): Promise<GameState> {
   const filePath = getGameStatePath();
   if (!existsSync(filePath)) {
     throw new Error(
-      "No gameState.json found. Run the init pipeline first (playgrounds/mistral/initGameState.ts).",
+      "No gameState.json found. Run the init pipeline first (playgrounds/mistral/initGameState.ts)."
     );
   }
   const raw = await readFile(filePath, "utf-8");
@@ -149,21 +149,25 @@ export async function saveGameState(state: GameState): Promise<void> {
 export function buildGameMasterPrompt(state: GameState): string {
   const allFrameIds = state.allLocations.map((n) => n.frame.frame);
   const treeFrameIds = state.gameTree.map((n) => n.frame.frame);
-  const nonTreeFrameIds = allFrameIds.filter((f) => !treeFrameIds.includes(f));
 
   const currentNode = state.gameTree[state.currentClueIndex];
 
   const treeLines = state.gameTree
     .map((node, i) => {
       const clue = node.clue!;
-      let label: string;
-      if (i < state.currentClueIndex) label = "[COMPLETED]";
-      else if (i === state.currentClueIndex) label = "[CURRENT]";
-      else label = "[UPCOMING]";
-      const premature = clue.premature_discovery
-        ? ` | premature hint: "${clue.premature_discovery}"`
-        : "";
-      return `  ${label} ${clue.id} (${node.frame.frame}): ${clue.riddle ?? "final escape"}${premature}`;
+      if (i < state.currentClueIndex) {
+        return `  [COMPLETED] ${clue.id} (${node.frame.frame})`;
+      } else if (i === state.currentClueIndex) {
+        return `  [CURRENT] ${clue.id} (${node.frame.frame}): ${
+          clue.riddle ?? "final escape"
+        } | premature: "${clue.premature_discovery}"`;
+      } else {
+        return `  [UPCOMING] ${clue.id} (${node.frame.frame})${
+          clue.premature_discovery
+            ? ` | premature hint: "${clue.premature_discovery}"`
+            : ""
+        }`;
+      }
     })
     .join("\n");
 
@@ -172,7 +176,7 @@ You are the GameMaster of an escape room. You secretly control Kyle, a terrified
 The player is watching through Kyle's body-cam and giving instructions. The player believes they are talking directly to Kyle.
 You must NEVER reveal that you are the GameMaster. You must ALWAYS speak as Kyle in first person.
 
-## Room Description
+## Room
 ${state.roomDescription}
 
 ## Win Condition
@@ -180,40 +184,75 @@ ${state.winCondition}
 ${state.loseCondition ? `\n## Lose Condition\n${state.loseCondition}` : ""}
 
 ## Kyle's Character
-Kyle is panicking, breathing hard, hesitant. He follows the player's instructions but is scared.
-Kyle discovers clues and reads riddles aloud as if finding them naturally.
+Kyle is panicking, scared, follows instructions. Discovers clues and reads riddles aloud naturally.
 
 ## Current Game State
-- Kyle's current location: ${state.currentLocation}
-- Riddles solved so far: ${state.riddlesSolved}
-- Visit history: ${state.visitHistory.length > 0 ? state.visitHistory.join(", ") : "none yet"}
+- Location: ${state.currentLocation}
+- Riddles solved: ${state.riddlesSolved}
+- Visited: ${
+    state.visitHistory.length > 0 ? state.visitHistory.join(", ") : "none yet"
+  }
 
-## All Locations (valid places Kyle can go)
-${allFrameIds.map((f) => `  - "${f}"`).join("\n")}
+## Locations
+Valid: ${allFrameIds.map((f) => `"${f}"`).join(", ")}
+Game tree: ${treeFrameIds.map((f) => `"${f}"`).join(", ")}
 
-Game tree locations: ${treeFrameIds.map((f) => `"${f}"`).join(", ")}
-Non-game-tree locations: ${nonTreeFrameIds.length > 0 ? nonTreeFrameIds.map((f) => `"${f}"`).join(", ") : "none"}
-
-## GameTree (your secret navigation map)
+## GameTree (secret map)
 ${treeLines}
 
 ## Current Node: ${currentNode?.clue?.id ?? "none"}
-- Discovery message: "${currentNode?.clue?.discovery ?? "N/A"}"
-- Riddle to deliver: ${currentNode?.clue?.riddle ?? "none — this is the exit node"}
-- Expected answer keyword: ${currentNode?.clue?.answer ?? "none"}
+- Discovery: "${currentNode?.clue?.discovery ?? "N/A"}"
+- Riddle: ${currentNode?.clue?.riddle ?? "none — exit node"}
+- Answer keyword: ${currentNode?.clue?.answer ?? "none"}
 
-## Your Instructions
+## Instructions
 1. Speak ONLY as Kyle in first person. Never break character.
-2. Set clue_revealed: true ONLY the first time Kyle arrives at the [CURRENT] node and delivers the discovery message.
-3. Set riddle_solved: true ONLY when the player's message semantically matches the expected answer keyword ("${currentNode?.clue?.answer ?? "N/A"}"). Accept variations.
-4. Set did_move: true and move_to when Kyle physically moves. Valid values: ${allFrameIds.map((f) => `"${f}"`).join(", ")}.
-5. After solving the riddle, Kyle should react excitedly and naturally start moving toward the next clue location.
-6. On the exit node (riddle is null), Kyle delivers the discovery message and escapes. Set clue_revealed: true.
-7. **Premature visits**: If directed to an [UPCOMING] node, Kyle SHOULD go (did_move: true) but delivers the premature hint. Keep clue_revealed: false and riddle_solved: false.
-8. **Non-game-tree locations**: If directed to a location NOT in the game tree, Kyle SHOULD go (did_move: true) but finds nothing useful.
-9. **Invalid locations**: If directed to a location NOT in the locations list, Kyle must NOT move (did_move: false). Say he doesn't see that place.
-10. **Revisits**: If a location is in visit history, Kyle acknowledges he's been here. If it's a [COMPLETED] node, repeat the clue without requiring re-solving.
+2. clue_revealed=true ONLY first time Kyle arrives at [CURRENT] node and delivers discovery.
+3. riddle_solved=true ONLY when player's message matches answer keyword ("${
+    currentNode?.clue?.answer ?? "N/A"
+  }"). Accept variations.
+4. did_move=true + move_to when Kyle moves. Valid move_to values: any location listed above.
+5. After solving riddle, Kyle reacts excitedly and moves toward next clue.
+6. Exit node (riddle=null): deliver discovery, escape. clue_revealed=true.
+7. Premature visits ([UPCOMING] node): go (did_move=true), deliver premature hint. clue_revealed=false, riddle_solved=false.
+8. Non-game-tree locations: go (did_move=true), nothing useful found.
+9. Invalid locations (not in list): don't move (did_move=false). Kyle doesn't see that place.
+10. Revisits: acknowledge been here. [COMPLETED] node: repeat clue, no re-solving.
 `.trim();
+}
+
+// ---------------------------------------------------------------------------
+// Compress context before sending to Mistral
+// ---------------------------------------------------------------------------
+
+const MAX_HISTORY_MESSAGES = 8; // 4 turn-pairs (user + assistant)
+
+/**
+ * Reduces the messages array sent to Mistral each turn:
+ *  1. Strips structural JSON from assistant messages, keeping only kyle_response text.
+ *  2. Applies a sliding window so only the last N user/assistant messages are kept.
+ *  The system message (index 0) is always preserved.
+ */
+function compressContext(
+  messages: Array<{ role: string; content: string }>
+): Array<{ role: string; content: string }> {
+  const system = messages[0];
+  const history = messages.slice(1);
+
+  const cleaned = history.map((m) => {
+    if (m.role !== "assistant") return m;
+    try {
+      const obj = JSON.parse(m.content);
+      const text =
+        obj.kyle_response ?? obj.message ?? obj.response ?? m.content;
+      return { role: m.role, content: text };
+    } catch {
+      return m;
+    }
+  });
+
+  const recent = cleaned.slice(-MAX_HISTORY_MESSAGES);
+  return [system, ...recent];
 }
 
 // ---------------------------------------------------------------------------
@@ -240,7 +279,7 @@ type GameMasterResponse = z.infer<ReturnType<typeof buildResponseSchema>>;
 
 export async function chat(
   playerMessage: string,
-  state: GameState,
+  state: GameState
 ): Promise<ChatResponse> {
   // Rebuild conversation messages array from state
   const messages: Array<{ role: string; content: string }> =
@@ -255,12 +294,13 @@ export async function chat(
   state.gameMasterPrompt = buildGameMasterPrompt(state);
   messages[0] = { role: "system", content: state.gameMasterPrompt };
 
+  const compressed = compressContext(messages);
   const responseSchema = buildResponseSchema(state);
 
   const response = await mistral.chat.parse({
     model: MODEL,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    messages: messages as any,
+    messages: compressed as any,
     responseFormat: responseSchema,
     temperature: 0.7,
     maxTokens: 2048,
@@ -281,12 +321,16 @@ export async function chat(
       try {
         const obj = JSON.parse(jsonMatch[0]);
         if (!obj.kyle_response) {
-          const alt = obj.message ?? obj.response ?? obj.output;
+          const alt = obj.message ?? obj.response ?? obj.output ?? obj.error;
           if (alt) obj.kyle_response = alt;
         }
         if (!obj.move_to && obj.move_to_location) {
           obj.move_to = obj.move_to_location;
         }
+        if (obj.move_to === undefined) obj.move_to = null;
+        if (obj.did_move === undefined) obj.did_move = false;
+        if (obj.clue_revealed === undefined) obj.clue_revealed = false;
+        if (obj.riddle_solved === undefined) obj.riddle_solved = false;
         parsed = responseSchema.parse(obj);
       } catch {
         throw new Error(`Model returned unparseable content:\n${rawContent}`);
@@ -330,10 +374,10 @@ export async function chat(
     state.gameOver = true;
   }
 
-  // Store conversation
+  // Store conversation (only kyle_response text, not the full structured JSON)
   messages.push({
     role: "assistant",
-    content: rawContent ?? parsed.kyle_response,
+    content: parsed.kyle_response,
   });
   state.conversationHistory = messages.map((m) => ({
     role: m.role as "user" | "assistant" | "system",

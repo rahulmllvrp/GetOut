@@ -75,23 +75,50 @@ function buildResponseSchema(state: GameState) {
 type GameMasterResponse = z.infer<ReturnType<typeof buildResponseSchema>>;
 
 // ---------------------------------------------------------------------------
+// Compress context before sending to Mistral
+// ---------------------------------------------------------------------------
+
+const MAX_HISTORY_MESSAGES = 8;
+
+function compressContext(messages: any[]): any[] {
+  const system = messages[0];
+  const history = messages.slice(1);
+
+  const cleaned = history.map((m: any) => {
+    if (m.role !== "assistant") return m;
+    try {
+      const obj = JSON.parse(m.content);
+      const text =
+        obj.kyle_response ?? obj.message ?? obj.response ?? m.content;
+      return { role: m.role, content: text };
+    } catch {
+      return m;
+    }
+  });
+
+  const recent = cleaned.slice(-MAX_HISTORY_MESSAGES);
+  return [system, ...recent];
+}
+
+// ---------------------------------------------------------------------------
 // Chat
 // ---------------------------------------------------------------------------
 
 async function chat(
   messages: any[],
-  state: GameState,
+  state: GameState
 ): Promise<GameMasterResponse> {
   // Refresh system prompt every turn so model always knows current state
   state.gameMasterPrompt = buildGameMasterPrompt(state);
   messages[0] = { role: "system", content: state.gameMasterPrompt };
 
+  const compressed = compressContext(messages);
   const responseSchema = buildResponseSchema(state);
 
   process.stdout.write("  [mistral] thinking...");
   const response = await mistral.chat.parse({
     model: MODEL,
-    messages,
+    messages: compressed,
     responseFormat: responseSchema,
     temperature: 0.7,
     maxTokens: 2048,
@@ -108,7 +135,7 @@ async function chat(
   const rawContent = typeof raw.content === "string" ? raw.content : null;
   if (!parsed && rawContent) {
     console.log(
-      "  [warn] structured parse failed, falling back to manual JSON extract",
+      "  [warn] structured parse failed, falling back to manual JSON extract"
     );
     const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
@@ -160,7 +187,9 @@ async function chat(
     if (nextIndex < gameTree.length) {
       state.currentClueIndex = nextIndex;
       console.log(
-        `  [tree] riddle solved ✓  advancing to node: ${gameTree[state.currentClueIndex]!.clue!.id}`,
+        `  [tree] riddle solved ✓  advancing to node: ${
+          gameTree[state.currentClueIndex]!.clue!.id
+        }`
       );
     } else {
       state.gameOver = true;
@@ -175,10 +204,10 @@ async function chat(
     console.log("  [tree] exit node revealed — game over");
   }
 
-  // Store conversation
+  // Store conversation (only kyle_response text, not the full structured JSON)
   messages.push({
     role: "assistant",
-    content: rawContent ?? parsed.kyle_response,
+    content: parsed.kyle_response,
   });
   state.conversationHistory = messages.map((m: any) => ({
     role: m.role,
@@ -274,10 +303,12 @@ async function main() {
 
     const node = state.gameTree[state.currentClueIndex];
     console.log(
-      `  [flags]  clue_revealed=${result.clue_revealed}  riddle_solved=${result.riddle_solved}  did_move=${result.did_move}  move_to=${result.move_to}`,
+      `  [flags]  clue_revealed=${result.clue_revealed}  riddle_solved=${result.riddle_solved}  did_move=${result.did_move}  move_to=${result.move_to}`
     );
     console.log(
-      `  [state]  loc="${state.currentLocation}"  node=${node?.clue?.id ?? "?"}  riddles=${state.riddlesSolved}/${getTotalRiddles(state)}`,
+      `  [state]  loc="${state.currentLocation}"  node=${
+        node?.clue?.id ?? "?"
+      }  riddles=${state.riddlesSolved}/${getTotalRiddles(state)}`
     );
 
     // Show hidden POV path when a clue is revealed (frontend would display this image)
