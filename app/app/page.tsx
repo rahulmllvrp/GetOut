@@ -9,11 +9,15 @@ export default function Home() {
   const [x, setX] = useState("0");
   const [y, setY] = useState("0");
   const [z, setZ] = useState("-3");
+  const [isEnhancing, setIsEnhancing] = useState(false);
+  const [enhancedImageUrl, setEnhancedImageUrl] = useState<string | null>(null);
+  const [overlayVisible, setOverlayVisible] = useState(false);
   const [locations, setLocations] = useState<Record<string, {
     pos: { x: number; y: number; z: number };
     rot: { x?: number; y: number; z?: number }
   }>>({});
   const cameraRef = useRef<any>(null);
+  const rendererRef = useRef<import("three").WebGLRenderer | null>(null);
   const rotationTargetRef = useRef<any>(null);
   const cameraTargetRef = useRef<{
     set: (x: number, y: number, z: number) => void;
@@ -37,7 +41,8 @@ export default function Home() {
         1000,
       );
 
-      const renderer = new THREE.WebGLRenderer();
+      const renderer = new THREE.WebGLRenderer({ preserveDrawingBuffer: true });
+      rendererRef.current = renderer;
       renderer.setSize(window.innerWidth, window.innerHeight);
 
       const mount = containerRef.current;
@@ -164,7 +169,13 @@ export default function Home() {
     z: Number.parseFloat(z) || 0,
   });
 
+  const dismissEnhanced = () => {
+    setOverlayVisible(false);
+    setTimeout(() => setEnhancedImageUrl(null), 500);
+  };
+
   const moveCamera = () => {
+    dismissEnhanced();
     const v = currentVector();
     cameraTargetRef.current?.set(v.x, v.y, v.z);
   };
@@ -174,8 +185,28 @@ export default function Home() {
     objectTargetRef.current?.set(v.x, v.y, v.z);
   };
 
+  const captureView = async () => {
+    if (!rendererRef.current || isEnhancing) return;
+    setIsEnhancing(true);
+    try {
+      const dataUrl = rendererRef.current.domElement.toDataURL("image/png");
+      const res = await fetch("/api/enhance-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageDataUrl: dataUrl }),
+      });
+      const { imageDataUrl } = await res.json();
+      setEnhancedImageUrl(imageDataUrl);
+      // Trigger fade-in on next tick so the transition fires
+      requestAnimationFrame(() => setOverlayVisible(true));
+    } finally {
+      setIsEnhancing(false);
+    }
+  };
+
   // Walking moveTo function
   const moveTo = (key: string) => {
+    dismissEnhanced();
     const location = locations[key];
     if (!location || !cameraTargetRef.current || !rotationTargetRef.current) return;
 
@@ -238,6 +269,13 @@ export default function Home() {
         >
           Move Object
         </button>
+        <button
+          onClick={captureView}
+          disabled={isEnhancing}
+          className="ml-1.5 rounded border border-white/30 bg-green-600/20 px-2 py-1 disabled:opacity-50"
+        >
+          {isEnhancing ? "Enhancing..." : "Capture 2D View"}
+        </button>
         <div className="mt-2">
           {Object.keys(locations).map((key) => (
             <button
@@ -251,6 +289,13 @@ export default function Home() {
         </div>
       </div>
       <div ref={containerRef} className="h-full w-full" />
+      {enhancedImageUrl && (
+        <img
+          src={enhancedImageUrl}
+          alt="Enhanced view"
+          className={`pointer-events-none absolute inset-0 z-[1] h-full w-full object-cover transition-opacity duration-500 ${overlayVisible ? "opacity-100" : "opacity-0"}`}
+        />
+      )}
     </main>
   );
 }
