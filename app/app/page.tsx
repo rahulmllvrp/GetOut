@@ -16,6 +16,7 @@ import { useImageEnhancer } from "./hooks/useImageEnhancer";
 import { useLocationNav } from "./hooks/useLocationNav";
 import { useGameSession } from "./hooks/useGameSession";
 import { Win98Intro } from "./components/Win98Intro";
+import { usePrewarm } from "./hooks/usePrewarm";
 
 // easeOutQuart: fast initial burst then dramatically slows — ink hitting paper.
 function easeOutQuart(t: number) {
@@ -226,6 +227,19 @@ export default function Home() {
     frameCallbackRef,
     cameraPositionRef,
   } = useThreeScene();
+
+  // ---- Pre-warm image cache in background during Win98 intro ----
+  const { startPrewarm } = usePrewarm({
+    cameraTargetRef,
+    cameraPositionRef,
+    rotationTargetRef,
+    captureCanvas,
+  });
+
+  useEffect(() => {
+    const id = setTimeout(startPrewarm, 2000);
+    return () => clearTimeout(id);
+  }, [startPrewarm]);
 
   // ---- Image enhancer (hidden POV overlays) ----
   const {
