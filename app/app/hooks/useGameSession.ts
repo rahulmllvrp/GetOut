@@ -83,6 +83,7 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
 
   // ---- Loading / status flags ----
   const [isLoading, setIsLoading] = useState(false); // waiting for Mistral
+  const [isGenerating, setIsGenerating] = useState(false); // generating new game
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -434,6 +435,36 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
   }, [sendMessage, playFiller]);
 
   // ------------------------------------------------------------------
+  // Generate a brand-new game (calls Mistral to create new puzzles)
+  // ------------------------------------------------------------------
+
+  const generateNewGame = useCallback(async () => {
+    stopSpeaking();
+    setIsGenerating(true);
+    setError(null);
+    setMessages([]);
+    setLastResponse(null);
+    try {
+      const res = await fetch("/api/game/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error ?? "Game generation failed");
+      }
+      const data: ClientGameState = await res.json();
+      setGameState(data);
+      setMessages(data.conversationHistory);
+      setLastResponse(null);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Unknown error");
+    } finally {
+      setIsGenerating(false);
+    }
+  }, [stopSpeaking]);
+
+  // ------------------------------------------------------------------
   // Reset game
   // ------------------------------------------------------------------
 
@@ -452,6 +483,7 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
 
     // Status
     isLoading,
+    isGenerating,
     isRecording,
     isTranscribing,
     isSpeaking,
@@ -463,6 +495,7 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
     stopRecording,
     stopSpeaking,
     resetGame,
+    generateNewGame,
     playIntro,
     initGame,
   };

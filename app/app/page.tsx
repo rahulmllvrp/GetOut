@@ -33,7 +33,7 @@ function getNoiseCanvas(): HTMLCanvasElement {
   const id = nctx.createImageData(256, 256);
   for (let i = 0; i < id.data.length; i += 4) {
     const v = (Math.random() * 210) | 0;
-    id.data[i]     = (v * 0.72) | 0;
+    id.data[i] = (v * 0.72) | 0;
     id.data[i + 1] = v;
     id.data[i + 2] = (v * 0.55) | 0;
     id.data[i + 3] = (Math.random() * 65 + 8) | 0;
@@ -89,11 +89,14 @@ function SplotchReveal({
         d: 0.4 + Math.random() * 0.75,
         r: 0.18 + Math.random() * 0.42,
       })),
-      tendrils: Array.from({ length: 2 + Math.floor(Math.random() * 4) }, () => ({
-        a: Math.random() * Math.PI * 2,
-        len: 0.65 + Math.random() * 1.0,
-        w: 0.05 + Math.random() * 0.09,
-      })),
+      tendrils: Array.from(
+        { length: 2 + Math.floor(Math.random() * 4) },
+        () => ({
+          a: Math.random() * Math.PI * 2,
+          len: 0.65 + Math.random() * 1.0,
+          w: 0.05 + Math.random() * 0.09,
+        }),
+      ),
     }));
 
     const noise = getNoiseCanvas();
@@ -136,15 +139,21 @@ function SplotchReveal({
               s.y + Math.sin(sat.a) * r * sat.d,
               r * sat.r,
               0,
-              Math.PI * 2
+              Math.PI * 2,
             );
             ctx.fill();
           }
 
           for (const td of s.tendrils) {
             ctx.beginPath();
-            ctx.moveTo(s.x + Math.cos(td.a) * r * 0.25, s.y + Math.sin(td.a) * r * 0.25);
-            ctx.lineTo(s.x + Math.cos(td.a) * r * td.len, s.y + Math.sin(td.a) * r * td.len);
+            ctx.moveTo(
+              s.x + Math.cos(td.a) * r * 0.25,
+              s.y + Math.sin(td.a) * r * 0.25,
+            );
+            ctx.lineTo(
+              s.x + Math.cos(td.a) * r * td.len,
+              s.y + Math.sin(td.a) * r * td.len,
+            );
             ctx.lineWidth = r * td.w;
             ctx.stroke();
           }
@@ -169,7 +178,14 @@ function SplotchReveal({
 
         // Step 5: Dark vignette — edges choke to near-black for unease.
         ctx.globalCompositeOperation = "source-atop";
-        const vg = ctx.createRadialGradient(W / 2, H / 2, H * 0.12, W / 2, H / 2, H * 0.88);
+        const vg = ctx.createRadialGradient(
+          W / 2,
+          H / 2,
+          H * 0.12,
+          W / 2,
+          H / 2,
+          H * 0.88,
+        );
         vg.addColorStop(0, "rgba(0,0,0,0)");
         vg.addColorStop(1, "rgba(0,6,0,0.62)");
         ctx.fillStyle = vg;
@@ -275,6 +291,7 @@ export default function Home() {
     gameState,
     messages,
     isLoading,
+    isGenerating,
     isRecording,
     isTranscribing,
     isSpeaking,
@@ -284,6 +301,7 @@ export default function Home() {
     stopRecording,
     stopSpeaking,
     resetGame,
+    generateNewGame,
     playIntro,
   } = useGameSession({
     onMove: handleMove,
@@ -358,6 +376,8 @@ export default function Home() {
             setShowIntro(false);
             playIntro();
           }}
+          onGenerate={generateNewGame}
+          isGenerating={isGenerating}
         />
       )}
 

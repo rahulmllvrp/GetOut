@@ -109,7 +109,12 @@ function Clock() {
   const [t, setT] = useState("");
   useEffect(() => {
     const tick = () =>
-      setT(new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }));
+      setT(
+        new Date().toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      );
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
@@ -117,14 +122,93 @@ function Clock() {
   return <>{t}</>;
 }
 
+// ─── Win98 progress bar ───────────────────────────────────────────────────────
+
+function Win98ProgressBar({ label }: { label: string }) {
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    // Simulated progress: fast start, slows in the middle, never reaches 100
+    // (the component unmounts when generation completes)
+    const interval = setInterval(() => {
+      setProgress((p) => {
+        if (p < 30) return p + 2.5;
+        if (p < 60) return p + 1.2;
+        if (p < 85) return p + 0.4;
+        if (p < 95) return p + 0.1;
+        return p;
+      });
+    }, 200);
+    return () => clearInterval(interval);
+  }, []);
+
+  const blocks = Math.floor(progress / 5); // 20 blocks total at 100%
+
+  return (
+    <div style={{ width: "100%" }}>
+      <p
+        style={{
+          ...WIN_FONT,
+          color: "#000",
+          marginBottom: "6px",
+          fontSize: "11px",
+        }}
+      >
+        {label}
+      </p>
+      <div
+        style={{
+          ...sunken,
+          background: "#ffffff",
+          padding: "3px",
+          height: "22px",
+          display: "flex",
+          alignItems: "center",
+          gap: "1px",
+        }}
+      >
+        {Array.from({ length: blocks }, (_, i) => (
+          <div
+            key={i}
+            style={{
+              width: "8px",
+              height: "14px",
+              background: "#000080",
+              flexShrink: 0,
+            }}
+          />
+        ))}
+      </div>
+      <p
+        style={{
+          ...WIN_FONT,
+          color: "#555",
+          marginTop: "4px",
+          fontSize: "11px",
+          textAlign: "center",
+        }}
+      >
+        {Math.round(progress)}% — Generating escape room with AI...
+      </p>
+    </div>
+  );
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 interface Win98IntroProps {
   roomDescription: string;
   onStart: () => void;
+  onGenerate?: () => void;
+  isGenerating?: boolean;
 }
 
-export function Win98Intro({ roomDescription, onStart }: Win98IntroProps) {
+export function Win98Intro({
+  roomDescription,
+  onStart,
+  onGenerate,
+  isGenerating,
+}: Win98IntroProps) {
   const chromBtn: CSSProperties = {
     background: WIN_BG,
     border: "1.5px solid",
@@ -277,7 +361,13 @@ export function Win98Intro({ roomDescription, onStart }: Win98IntroProps) {
               overflowY: "auto",
             }}
           >
-            <p style={{ fontWeight: "bold", marginBottom: "8px", fontSize: "12px" }}>
+            <p
+              style={{
+                fontWeight: "bold",
+                marginBottom: "8px",
+                fontSize: "12px",
+              }}
+            >
               ⚠&nbsp; SYSTEM ALERT — Civilian in danger
             </p>
             <p style={{ marginBottom: "8px" }}>{roomDescription}</p>
@@ -295,19 +385,44 @@ export function Win98Intro({ roomDescription, onStart }: Win98IntroProps) {
             }}
           />
 
+          {/* Progress bar (shown during generation) */}
+          {isGenerating && (
+            <div style={{ marginBottom: "12px" }}>
+              <Win98ProgressBar label="Contacting Game Master..." />
+            </div>
+          )}
+
           {/* Buttons */}
-          <div style={{ display: "flex", justifyContent: "center" }}>
+          <div
+            style={{ display: "flex", justifyContent: "center", gap: "8px" }}
+          >
             <button
               onClick={onStart}
+              disabled={isGenerating}
               style={{
                 ...btn,
                 fontWeight: "bold",
                 outline: "1px solid #000",
                 outlineOffset: "-4px",
+                opacity: isGenerating ? 0.5 : 1,
+                cursor: isGenerating ? "wait" : "pointer",
               }}
             >
               Begin Rescue
             </button>
+            {onGenerate && (
+              <button
+                onClick={onGenerate}
+                disabled={isGenerating}
+                style={{
+                  ...btn,
+                  opacity: isGenerating ? 0.5 : 1,
+                  cursor: isGenerating ? "wait" : "pointer",
+                }}
+              >
+                {isGenerating ? "Generating..." : "Generate New Game"}
+              </button>
+            )}
           </div>
         </div>
 
@@ -323,7 +438,14 @@ export function Win98Intro({ roomDescription, onStart }: Win98IntroProps) {
           <div style={{ ...sunken, padding: "1px 6px", flex: 1 }}>
             Kyle Status: TRAPPED
           </div>
-          <div style={{ ...sunken, padding: "1px 6px", width: "50px", textAlign: "center" }}>
+          <div
+            style={{
+              ...sunken,
+              padding: "1px 6px",
+              width: "50px",
+              textAlign: "center",
+            }}
+          >
             v1.0
           </div>
         </div>
