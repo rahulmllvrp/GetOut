@@ -390,7 +390,11 @@ export default function Home() {
             setShowIntro(false);
             playIntro();
           }}
-          onGenerate={generateNewGame}
+          onGenerate={async () => {
+            await generateNewGame();
+            setShowIntro(false);
+            playIntro();
+          }}
           isGenerating={isGenerating}
         />
       )}
