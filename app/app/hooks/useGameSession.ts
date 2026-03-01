@@ -84,7 +84,7 @@ interface UseGameSessionOptions {
   /** Called when Kyle moves — drives the 3D camera. */
   onMove?: (locationId: string) => void;
   /** Called when a clue is revealed — show hidden POV overlay. */
-  onClueRevealed?: (description: string) => void;
+  onClueRevealed?: (description: string, locationKey: string) => void;
   /** Called when the game ends. */
   onGameOver?: () => void;
 }
@@ -247,7 +247,7 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
           onMoveRef.current?.(data.move_to);
         }
         if (data.clue_revealed && data.hidden_pov_description) {
-          onClueRevealedRef.current?.(data.hidden_pov_description);
+          onClueRevealedRef.current?.(data.hidden_pov_description, data.current_location);
         }
         if (data.game_over) {
           onGameOverRef.current?.();

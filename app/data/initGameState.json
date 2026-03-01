@@ -1,8 +1,8 @@
 {
-  "roomDescription": "Kyle wakes up alone in a dimly lit, industrial-chic workspace, the hum of Edison bulbs casting long shadows across the cluttered table. The air smells of stale coffee and snack food, and the red curtains near the back of the room sway slightly, as if hiding something—or someone—just out of sight. The door is locked, and the only way out is to unravel the clues left behind in this lived-in, creative chaos.",
+  "roomDescription": "Kyle wakes up alone in a dimly lit, industrial-chic workspace, the hum of Edison bulbs casting long shadows across the cluttered table. The air smells of stale coffee and faintly of Doritos, while the distant echo of a drum kit reminds him this room is more than just an office—it’s a place where work and creativity collide. But the door is locked, and the blinds on the window are drawn tight; escape won’t be as simple as walking out.",
   "gameMasterPrompt": "[rebuilt each turn — see buildGameMasterPrompt()]",
-  "winCondition": "Find the hidden key beneath the drum kit and use it to unlock the red curtains, revealing the exit behind them.",
-  "loseCondition": "Kyle panics and collapses after 15 failed attempts to solve the riddles, leaving him trapped in the room indefinitely.",
+  "winCondition": "Find the hidden key beneath the drum kit and use it to unlock the red curtains leading to freedom.",
+  "loseCondition": "Kyle panics after 15 failed attempts to solve the riddles, collapsing into the chair with the jacket and refusing to move.",
   "gameTree": [
     {
       "frame": {
@@ -20,7 +20,7 @@
             "y": 2.055
           }
         },
-        "image_filepath": null
+        "image_filepath": "/enhanced-cache/whiteboard.png"
       },
       "clue": {
         "id": "clue_1",
@@ -29,7 +29,7 @@
         "riddle": "I hang where ideas take flight, yet I’m not the board. Look beside me to find your next reward. What am I?",
         "answer": "picture",
         "hiddenAreaDescription": "Behind the whiteboard, partially obscured by a loose corner of the board, is a small magnetic tray holding a single sticky note with a riddle written in bold marker.",
-        "hiddenPovImagePath": null
+        "hiddenPovImagePath": "/enhanced-cache/pov-whiteboard.png"
       }
     },
     {
@@ -55,8 +55,11 @@
         "discovery": "Kyle tilts the framed picture slightly and hears a faint *click*. The back of the frame is loose, and inside, a small envelope is taped to the backing. It contains a riddle and a tiny, folded note with the word 'STUDIO' scrawled on it.",
         "premature_discovery": "The picture is firmly mounted to the wall, and no matter how Kyle tugs, it won’t budge. The glass is smudged, but there’s nothing unusual about the frame itself.",
         "riddle": "I stand tall where light is made, my head adjusts to cast no shade. Seek me where the shadows fade. What am I?",
+        "discovery": "Kyle notices a small, half-erased equation at the bottom of the whiteboard: '7x + 3 = 31'. Beneath it, in barely legible marker, is the word 'ROOT'. A sticky note nearby reads, 'Check the brightest light in the room.'",
+        "premature_discovery": "The whiteboard is covered in scribbles, but the bottom corner is smudged and unreadable, as if someone tried to erase something in a hurry. Kyle can’t make out any details.",
+        "riddle": "I stand tall but do not walk, I shine bright but do not talk. Solve for x where seven times plus three equals thirty-one, and my name you’ll soon see. What am I?",
         "answer": "studio light",
-        "hiddenAreaDescription": "Inside the back of the framed picture, a small envelope is taped to the backing board. The envelope is slightly yellowed, as if it’s been there for a while, and contains a folded note.",
+        "hiddenAreaDescription": "Behind the whiteboard, partially obscured by a loose corner of the board, is a small gap in the wall where a sticky note is wedged. The note is barely visible, tucked into the crevice where the whiteboard doesn’t quite meet the wall.",
         "hiddenPovImagePath": null
       }
     },
@@ -76,15 +79,15 @@
             "y": -0.285
           }
         },
-        "image_filepath": null
+        "image_filepath": "/enhanced-cache/studio_light.png"
       },
       "clue": {
-        "id": "clue_3",
-        "discovery": "Kyle crouches beside the studio light and notices a small compartment at the base of the tripod. Inside, there’s a keycard with a drumstick symbol etched into it. A note reads: 'Rhythm holds the key.'",
-        "premature_discovery": "The studio light is unplugged, and its head is tilted downward. Kyle fiddles with the knobs, but nothing happens—it’s as if it’s waiting for something to power it on.",
-        "riddle": "I keep the beat but never play, my symbol guards the hidden way. Find where rhythm holds its sway. What am I?",
+        "id": "clue_2",
+        "discovery": "Kyle adjusts the studio light and notices a small, folded note taped to the underside of the tripod. It reads: 'The rhythm of work is the rhythm of play. Find where the beat drops.'",
+        "premature_discovery": "The studio light is unplugged and cold. Kyle fiddles with the switches, but nothing happens—it’s as if it hasn’t been used in a while. The note isn’t visible from this angle.",
+        "riddle": "I sit in the corner, silent and still, until hands bring me to life with a thrill. Where work meets play, my beat you’ll find. What am I?",
         "answer": "drums",
-        "hiddenAreaDescription": "At the base of the studio light’s tripod, a small, hidden compartment is revealed when a panel is slid aside. Inside, a keycard lies on a bed of foam, its surface etched with a drumstick symbol.",
+        "hiddenAreaDescription": "Underneath the tripod of the studio light, taped to the metal leg with clear packing tape, is a small folded note. The tape is slightly yellowed, as if it’s been there for some time.",
         "hiddenPovImagePath": null
       }
     },
@@ -104,15 +107,15 @@
             "y": 7.05
           }
         },
-        "image_filepath": null
+        "image_filepath": "/enhanced-cache/drums.png"
       },
       "clue": {
-        "id": "clue_4",
-        "discovery": "Kyle lifts the snare drum and finds a small, locked compartment beneath it. The keycard from the studio light fits perfectly, and inside is a small brass key. As he picks it up, the red curtains near the back of the room rustle slightly, as if inviting him closer.",
-        "premature_discovery": "The drum kit looks untouched, but the snare drum is oddly heavy. Kyle tries to lift it, but it won’t budge—something is holding it in place.",
-        "riddle": "I part the way when you’re near, my color bold, my purpose clear. Unlock me to disappear. What am I?",
-        "answer": "curtain",
-        "hiddenAreaDescription": "Beneath the snare drum, a small compartment is built into the drum stand. The compartment is lined with black felt, and inside, a brass key gleams under the dim light.",
+        "id": "clue_3",
+        "discovery": "Kyle lifts the snare drum and finds a small, tarnished key tucked into the drum’s rim. Beneath it, a note reads: 'The path to freedom is draped in red.'",
+        "premature_discovery": "The drum kit looks untouched, but the snare drum is slightly out of tune. Kyle taps it, but nothing unusual happens—the key isn’t visible from the surface.",
+        "riddle": "I am draped in color bold and bright, parting only for those who seek the light. Where I hang, your escape awaits. What am I?",
+        "answer": "chair near curtain",
+        "hiddenAreaDescription": "Inside the rim of the snare drum, tucked between the metal hoop and the drumhead, is a small key. It’s wedged tightly, as if placed there deliberately, with a scrap of paper underneath.",
         "hiddenPovImagePath": null
       }
     },
@@ -132,15 +135,15 @@
             "y": 7.42
           }
         },
-        "image_filepath": null
+        "image_filepath": "/enhanced-cache/chair_near_curtain.png"
       },
       "clue": {
-        "id": "clue_5",
-        "discovery": "Kyle approaches the red curtains and notices a small keyhole hidden in the wooden frame. The brass key fits perfectly, and as he turns it, the curtains swing open to reveal a dimly lit hallway beyond. With a deep breath, he steps through and escapes the room.",
-        "premature_discovery": "The chair near the curtains is empty, but the red fabric is drawn tightly shut. Kyle tugs at the curtains, but they won’t budge—something is holding them closed.",
+        "id": "clue_4",
+        "discovery": "Kyle moves the chair aside and notices a small keyhole hidden in the floorboard beneath it. He inserts the key, turns it, and the red curtains part slightly, revealing a narrow passage leading to a dimly lit hallway. With a deep breath, he steps through and escapes the room.",
+        "premature_discovery": "The chair is heavy and doesn’t budge easily. Kyle tries to move it, but it’s as if something is holding it in place—perhaps the keyhole isn’t visible yet.",
         "riddle": null,
         "answer": null,
-        "hiddenAreaDescription": "Behind the red curtains, a small keyhole is concealed in the wooden frame of the doorway. The brass key fits snugly, and when turned, the curtains part to reveal a narrow hallway bathed in faint light.",
+        "hiddenAreaDescription": "Beneath the chair, partially obscured by its legs, is a small keyhole in the floorboard. The keyhole is nearly invisible unless the chair is moved, and the floorboard around it is slightly worn, as if it’s been used before.",
         "hiddenPovImagePath": null
       }
     }
@@ -153,16 +156,16 @@
         "pov": "A head-on view of the tabletop from one end, making the windowed wall central in the background, with the bookshelves still visible on the left.",
         "coordinates": {
           "pos": {
-            "x": 0,
-            "y": 0,
-            "z": 0
+            "x": -5.366,
+            "y": 0.349,
+            "z": -3.671
           },
           "rot": {
-            "x": 0,
-            "y": 0
+            "x": -0.055,
+            "y": 4.52
           }
         },
-        "image_filepath": "/Users/navasfarhan/repos/GetOut/playgrounds/hiddenPOVs/frames_final/frame_1.png"
+        "image_filepath": "/enhanced-cache/frame_1.png"
       },
       "clue": null
     },
@@ -173,16 +176,16 @@
         "pov": "Close to the table and shifted to the right, bringing more of the right-hand wall and less of the left bookshelves into view, with the windowed wall still prominent.",
         "coordinates": {
           "pos": {
-            "x": 0,
-            "y": 0,
-            "z": 0
+            "x": -0.948,
+            "y": 1.577,
+            "z": -7.601
           },
           "rot": {
-            "x": 0,
-            "y": 0
+            "x": 0.275,
+            "y": 3.989
           }
         },
-        "image_filepath": "/Users/navasfarhan/repos/GetOut/playgrounds/hiddenPOVs/frames_final/frame_2.png"
+        "image_filepath": "/enhanced-cache/frame_2.png"
       },
       "clue": null
     },
@@ -193,16 +196,16 @@
         "pov": "Closer to the table and looking towards the far right end of the room, emphasizing the whiteboard and showing a person seated at a desk in the background. The perspective is now less about the full table length and more about the room's depth in this direction.",
         "coordinates": {
           "pos": {
-            "x": 0,
-            "y": 0,
-            "z": 0
+            "x": 1.924,
+            "y": 1.086,
+            "z": -5.821
           },
           "rot": {
-            "x": 0,
-            "y": 0
+            "x": 0.42,
+            "y": 2.19
           }
         },
-        "image_filepath": "/Users/navasfarhan/repos/GetOut/playgrounds/hiddenPOVs/frames_final/frame_3.png"
+        "image_filepath": "/enhanced-cache/frame_3.png"
       },
       "clue": null
     },
@@ -213,16 +216,16 @@
         "pov": "Moved closer to the table's left side, offering a clearer view through the parted red curtains into an adjacent brightly lit area with additional seating and people, making the table's items appear more in the foreground.",
         "coordinates": {
           "pos": {
-            "x": 0,
-            "y": 0,
-            "z": 0
+            "x": 1.865,
+            "y": 0.784,
+            "z": -0.939
           },
           "rot": {
-            "x": 0,
-            "y": 0
+            "x": -0.29,
+            "y": 0.835
           }
         },
-        "image_filepath": "/Users/navasfarhan/repos/GetOut/playgrounds/hiddenPOVs/frames_final/frame_4.png"
+        "image_filepath": "/enhanced-cache/frame_4.png"
       },
       "clue": null
     },
@@ -233,16 +236,16 @@
         "pov": "Rotated further to the left, capturing the full length of the large wooden table from a lower angle and bringing the prominent bookshelves on the right into sharper focus, while the red curtains are now only partially visible on the far left.",
         "coordinates": {
           "pos": {
-            "x": 0,
-            "y": 0,
-            "z": 0
+            "x": -0.541,
+            "y": 0.996,
+            "z": 0.123
           },
           "rot": {
-            "x": 0,
-            "y": 0
+            "x": -0.4,
+            "y": -0.245
           }
         },
-        "image_filepath": "/Users/navasfarhan/repos/GetOut/playgrounds/hiddenPOVs/frames_final/frame_5.png"
+        "image_filepath": "/enhanced-cache/frame_5.png"
       },
       "clue": null
     },
@@ -262,15 +265,15 @@
             "y": 2.055
           }
         },
-        "image_filepath": null
+        "image_filepath": "/enhanced-cache/whiteboard.png"
       },
       "clue": {
         "id": "clue_1",
-        "discovery": "Kyle notices a faint, half-erased diagram on the whiteboard—a series of arrows pointing toward the picture next to it. Beneath the scribbles, a single word stands out in red marker: 'BEGIN'.",
-        "premature_discovery": "The whiteboard is covered in dry-erase scribbles, but nothing seems to stand out. Kyle tries to wipe away some of the marks, but the surface is too smudged to reveal anything useful.",
-        "riddle": "I hang where ideas take flight, yet I’m not the board. Look beside me to find your next reward. What am I?",
-        "answer": "picture",
-        "hiddenAreaDescription": "Behind the whiteboard, partially obscured by a loose corner of the board, is a small magnetic tray holding a single sticky note with a riddle written in bold marker.",
+        "discovery": "Kyle notices a small, half-erased equation at the bottom of the whiteboard: '7x + 3 = 31'. Beneath it, in barely legible marker, is the word 'ROOT'. A sticky note nearby reads, 'Check the brightest light in the room.'",
+        "premature_discovery": "The whiteboard is covered in scribbles, but the bottom corner is smudged and unreadable, as if someone tried to erase something in a hurry. Kyle can’t make out any details.",
+        "riddle": "I stand tall but do not walk, I shine bright but do not talk. Solve for x where seven times plus three equals thirty-one, and my name you’ll soon see. What am I?",
+        "answer": "studio light",
+        "hiddenAreaDescription": "Behind the whiteboard, partially obscured by a loose corner of the board, is a small gap in the wall where a sticky note is wedged. The note is barely visible, tucked into the crevice where the whiteboard doesn’t quite meet the wall.",
         "hiddenPovImagePath": null
       }
     },
@@ -290,17 +293,9 @@
             "y": 3.125
           }
         },
-        "image_filepath": null
+        "image_filepath": "/enhanced-cache/picture.png"
       },
-      "clue": {
-        "id": "clue_2",
-        "discovery": "Kyle tilts the framed picture slightly and hears a faint *click*. The back of the frame is loose, and inside, a small envelope is taped to the backing. It contains a riddle and a tiny, folded note with the word 'STUDIO' scrawled on it.",
-        "premature_discovery": "The picture is firmly mounted to the wall, and no matter how Kyle tugs, it won’t budge. The glass is smudged, but there’s nothing unusual about the frame itself.",
-        "riddle": "I stand tall where light is made, my head adjusts to cast no shade. Seek me where the shadows fade. What am I?",
-        "answer": "studio light",
-        "hiddenAreaDescription": "Inside the back of the framed picture, a small envelope is taped to the backing board. The envelope is slightly yellowed, as if it’s been there for a while, and contains a folded note.",
-        "hiddenPovImagePath": null
-      }
+      "clue": null
     },
     {
       "frame": {
@@ -318,7 +313,7 @@
             "y": 3.775
           }
         },
-        "image_filepath": null
+        "image_filepath": "/enhanced-cache/fire_extinguisher.png"
       },
       "clue": null
     },
@@ -338,7 +333,7 @@
             "y": 0.61
           }
         },
-        "image_filepath": null
+        "image_filepath": "/enhanced-cache/laptop.png"
       },
       "clue": null
     },
@@ -358,7 +353,7 @@
             "y": 0.985
           }
         },
-        "image_filepath": null
+        "image_filepath": "/enhanced-cache/dorrito_packet.png"
       },
       "clue": null
     },
@@ -378,15 +373,15 @@
             "y": -0.285
           }
         },
-        "image_filepath": null
+        "image_filepath": "/enhanced-cache/studio_light.png"
       },
       "clue": {
-        "id": "clue_3",
-        "discovery": "Kyle crouches beside the studio light and notices a small compartment at the base of the tripod. Inside, there’s a keycard with a drumstick symbol etched into it. A note reads: 'Rhythm holds the key.'",
-        "premature_discovery": "The studio light is unplugged, and its head is tilted downward. Kyle fiddles with the knobs, but nothing happens—it’s as if it’s waiting for something to power it on.",
-        "riddle": "I keep the beat but never play, my symbol guards the hidden way. Find where rhythm holds its sway. What am I?",
+        "id": "clue_2",
+        "discovery": "Kyle adjusts the studio light and notices a small, folded note taped to the underside of the tripod. It reads: 'The rhythm of work is the rhythm of play. Find where the beat drops.'",
+        "premature_discovery": "The studio light is unplugged and cold. Kyle fiddles with the switches, but nothing happens—it’s as if it hasn’t been used in a while. The note isn’t visible from this angle.",
+        "riddle": "I sit in the corner, silent and still, until hands bring me to life with a thrill. Where work meets play, my beat you’ll find. What am I?",
         "answer": "drums",
-        "hiddenAreaDescription": "At the base of the studio light’s tripod, a small, hidden compartment is revealed when a panel is slid aside. Inside, a keycard lies on a bed of foam, its surface etched with a drumstick symbol.",
+        "hiddenAreaDescription": "Underneath the tripod of the studio light, taped to the metal leg with clear packing tape, is a small folded note. The tape is slightly yellowed, as if it’s been there for some time.",
         "hiddenPovImagePath": null
       }
     },
@@ -406,7 +401,7 @@
             "y": -0.939
           }
         },
-        "image_filepath": null
+        "image_filepath": "/enhanced-cache/bookshelf.png"
       },
       "clue": null
     },
@@ -426,7 +421,7 @@
             "y": -2.148
           }
         },
-        "image_filepath": null
+        "image_filepath": "/enhanced-cache/window.png"
       },
       "clue": null
     },
@@ -446,15 +441,15 @@
             "y": 7.05
           }
         },
-        "image_filepath": null
+        "image_filepath": "/enhanced-cache/drums.png"
       },
       "clue": {
-        "id": "clue_4",
-        "discovery": "Kyle lifts the snare drum and finds a small, locked compartment beneath it. The keycard from the studio light fits perfectly, and inside is a small brass key. As he picks it up, the red curtains near the back of the room rustle slightly, as if inviting him closer.",
-        "premature_discovery": "The drum kit looks untouched, but the snare drum is oddly heavy. Kyle tries to lift it, but it won’t budge—something is holding it in place.",
-        "riddle": "I part the way when you’re near, my color bold, my purpose clear. Unlock me to disappear. What am I?",
-        "answer": "curtain",
-        "hiddenAreaDescription": "Beneath the snare drum, a small compartment is built into the drum stand. The compartment is lined with black felt, and inside, a brass key gleams under the dim light.",
+        "id": "clue_3",
+        "discovery": "Kyle lifts the snare drum and finds a small, tarnished key tucked into the drum’s rim. Beneath it, a note reads: 'The path to freedom is draped in red.'",
+        "premature_discovery": "The drum kit looks untouched, but the snare drum is slightly out of tune. Kyle taps it, but nothing unusual happens—the key isn’t visible from the surface.",
+        "riddle": "I am draped in color bold and bright, parting only for those who seek the light. Where I hang, your escape awaits. What am I?",
+        "answer": "chair near curtain",
+        "hiddenAreaDescription": "Inside the rim of the snare drum, tucked between the metal hoop and the drumhead, is a small key. It’s wedged tightly, as if placed there deliberately, with a scrap of paper underneath.",
         "hiddenPovImagePath": null
       }
     },
@@ -474,7 +469,7 @@
             "y": 4.245
           }
         },
-        "image_filepath": null
+        "image_filepath": "/enhanced-cache/chair_with_jacket.png"
       },
       "clue": null
     },
@@ -494,15 +489,15 @@
             "y": 7.42
           }
         },
-        "image_filepath": null
+        "image_filepath": "/enhanced-cache/chair_near_curtain.png"
       },
       "clue": {
-        "id": "clue_5",
-        "discovery": "Kyle approaches the red curtains and notices a small keyhole hidden in the wooden frame. The brass key fits perfectly, and as he turns it, the curtains swing open to reveal a dimly lit hallway beyond. With a deep breath, he steps through and escapes the room.",
-        "premature_discovery": "The chair near the curtains is empty, but the red fabric is drawn tightly shut. Kyle tugs at the curtains, but they won’t budge—something is holding them closed.",
+        "id": "clue_4",
+        "discovery": "Kyle moves the chair aside and notices a small keyhole hidden in the floorboard beneath it. He inserts the key, turns it, and the red curtains part slightly, revealing a narrow passage leading to a dimly lit hallway. With a deep breath, he steps through and escapes the room.",
+        "premature_discovery": "The chair is heavy and doesn’t budge easily. Kyle tries to move it, but it’s as if something is holding it in place—perhaps the keyhole isn’t visible yet.",
         "riddle": null,
         "answer": null,
-        "hiddenAreaDescription": "Behind the red curtains, a small keyhole is concealed in the wooden frame of the doorway. The brass key fits snugly, and when turned, the curtains part to reveal a narrow hallway bathed in faint light.",
+        "hiddenAreaDescription": "Beneath the chair, partially obscured by its legs, is a small keyhole in the floorboard. The keyhole is nearly invisible unless the chair is moved, and the floorboard around it is slightly worn, as if it’s been used before.",
         "hiddenPovImagePath": null
       }
     }

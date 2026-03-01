@@ -18,6 +18,7 @@ import { useGameSession, type GameMode } from "./hooks/useGameSession";
 import { Win98Intro } from "./components/Win98Intro";
 import { usePrewarm } from "./hooks/usePrewarm";
 import { ChatSidebar } from "./components/ChatSidebar";
+import { Win98GameOver } from "./components/Win98GameOver";
 
 // easeOutQuart: fast initial burst then dramatically slows — ink hitting paper.
 function easeOutQuart(t: number) {
@@ -97,7 +98,7 @@ function SplotchReveal({
           a: Math.random() * Math.PI * 2,
           len: 0.65 + Math.random() * 1.0,
           w: 0.05 + Math.random() * 0.09,
-        })
+        }),
       ),
     }));
 
@@ -141,7 +142,7 @@ function SplotchReveal({
               s.y + Math.sin(sat.a) * r * sat.d,
               r * sat.r,
               0,
-              Math.PI * 2
+              Math.PI * 2,
             );
             ctx.fill();
           }
@@ -150,11 +151,11 @@ function SplotchReveal({
             ctx.beginPath();
             ctx.moveTo(
               s.x + Math.cos(td.a) * r * 0.25,
-              s.y + Math.sin(td.a) * r * 0.25
+              s.y + Math.sin(td.a) * r * 0.25,
             );
             ctx.lineTo(
               s.x + Math.cos(td.a) * r * td.len,
-              s.y + Math.sin(td.a) * r * td.len
+              s.y + Math.sin(td.a) * r * td.len,
             );
             ctx.lineWidth = r * td.w;
             ctx.stroke();
@@ -186,7 +187,7 @@ function SplotchReveal({
           H * 0.12,
           W / 2,
           H / 2,
-          H * 0.88
+          H * 0.88,
         );
         vg.addColorStop(0, "rgba(0,0,0,0)");
         vg.addColorStop(1, "rgba(0,6,0,0.62)");
@@ -218,6 +219,7 @@ export default function Home() {
   const [showIntro, setShowIntro] = useState(true);
   const [showGameOver, setShowGameOver] = useState(false);
   const [isChatOpen, setChatOpen] = useState(false);
+  const gameOverTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // ---- Three.js scene ----
   const {
@@ -271,7 +273,7 @@ export default function Home() {
       dismissOverlay();
       moveTo(locationId);
     },
-    [moveTo, dismissOverlay]
+    [moveTo, dismissOverlay],
   );
 
   // Track the current clue-reveal description so we can generate the image
@@ -280,11 +282,11 @@ export default function Home() {
   const pendingPovLocationRef = useRef<string | null>(null);
 
   const handleClueRevealed = useCallback(
-    (description: string) => {
+    (description: string, locationKey: string) => {
       // Store description — we'll generate the image after a short delay
       // to let the camera settle at the new location
       pendingPovDescriptionRef.current = description;
-      pendingPovLocationRef.current = description; // use description as cache key
+      pendingPovLocationRef.current = locationKey;
       setTimeout(() => {
         const desc = pendingPovDescriptionRef.current;
         const key = pendingPovLocationRef.current;
@@ -295,11 +297,21 @@ export default function Home() {
         }
       }, 2000); // wait 2s for camera to arrive
     },
-    [showHiddenPov]
+    [showHiddenPov],
   );
 
+  const isSpeakingRef = useRef(false);
+
   const handleGameOver = useCallback(() => {
-    setShowGameOver(true);
+    // Don't show immediately — poll until Kyle's final TTS finishes
+    if (gameOverTimerRef.current) clearInterval(gameOverTimerRef.current);
+    gameOverTimerRef.current = setInterval(() => {
+      if (!isSpeakingRef.current) {
+        if (gameOverTimerRef.current) clearInterval(gameOverTimerRef.current);
+        gameOverTimerRef.current = null;
+        setShowGameOver(true);
+      }
+    }, 200);
   }, []);
 
   const {
@@ -324,6 +336,11 @@ export default function Home() {
     onGameOver: handleGameOver,
   });
 
+  // Keep isSpeaking ref in sync for the game-over polling interval
+  useEffect(() => {
+    isSpeakingRef.current = isSpeaking;
+  }, [isSpeaking]);
+
   // Derive intro visibility from messages
   const shouldShowIntro = showIntro && messages.length === 0;
 
@@ -338,9 +355,20 @@ export default function Home() {
 
   const handleReset = async () => {
     setShowGameOver(false);
+    if (gameOverTimerRef.current) clearInterval(gameOverTimerRef.current);
+    gameOverTimerRef.current = null;
     setShowIntro(true);
     dismissOverlay();
     await resetGame();
+  };
+
+  const handleGenerateNew = async () => {
+    setShowGameOver(false);
+    if (gameOverTimerRef.current) clearInterval(gameOverTimerRef.current);
+    gameOverTimerRef.current = null;
+    setShowIntro(true);
+    dismissOverlay();
+    await generateNewGame();
   };
 
   // Spacebar to speak
@@ -379,14 +407,14 @@ export default function Home() {
   const statusText = isRecording
     ? "🎙️ Recording..."
     : isTranscribing
-    ? "📝 Transcribing..."
-    : isLoading
-    ? "🤔 Kyle is thinking..."
-    : isSpeaking
-    ? "🔊 Kyle is speaking..."
-    : isEnhancing
-    ? "🔍 Generating view..."
-    : null;
+      ? "📝 Transcribing..."
+      : isLoading
+        ? "🤔 Kyle is thinking..."
+        : isSpeaking
+          ? "🔊 Kyle is speaking..."
+          : isEnhancing
+            ? "🔍 Generating view..."
+            : null;
 
   return (
     <main className="relative h-screen w-screen overflow-hidden bg-black">
@@ -421,24 +449,15 @@ export default function Home() {
         />
       )}
 
-      {/* Game Over screen */}
-      {showGameOver && (
-        <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/80">
-          <div className="max-w-md rounded-xl border border-green-500/30 bg-black/90 p-8 text-center">
-            <h1 className="mb-2 text-3xl font-bold text-green-400">
-              🎉 ESCAPED!
-            </h1>
-            <p className="mb-6 text-sm text-white/70">
-              Kyle made it out. You solved all the riddles.
-            </p>
-            <button
-              onClick={handleReset}
-              className="rounded-lg bg-green-600 px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-green-500"
-            >
-              Play Again
-            </button>
-          </div>
-        </div>
+      {/* Game Over screen — Win98 style */}
+      {showGameOver && gameState && (
+        <Win98GameOver
+          riddlesSolved={gameState.riddlesSolved}
+          totalRiddles={gameState.totalRiddles}
+          locationsVisited={gameState.visitHistory.length}
+          onPlayAgain={handleReset}
+          onGenerateNew={handleGenerateNew}
+        />
       )}
 
       {/* HUD: top-left game info */}
