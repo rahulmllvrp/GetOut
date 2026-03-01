@@ -40,6 +40,10 @@ export function useImageEnhancer(captureCanvas: () => string) {
   const enhanceForLocation = async (locationKey: string) => {
     if (isEnhancingRef.current) return;
 
+    // Clear any existing overlay first to prevent wrong location images
+    setOverlayVisible(false);
+    setEnhancedImageUrl(null);
+
     if (imageCache.current.has(locationKey)) {
       setEnhancedImageUrl(imageCache.current.get(locationKey)!);
       requestAnimationFrame(() => setOverlayVisible(true));
@@ -71,6 +75,10 @@ export function useImageEnhancer(captureCanvas: () => string) {
   // Uses the canvas capture as a reference image + the hidden area description.
   const showHiddenPov = async (cacheKey: string, description: string) => {
     if (isEnhancingRef.current) return;
+
+    // Clear any existing overlay first to prevent wrong location images
+    setOverlayVisible(false);
+    setEnhancedImageUrl(null);
 
     // Cache hit
     if (imageCache.current.has(cacheKey)) {
