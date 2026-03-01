@@ -7,13 +7,13 @@
       "pov": "A head-on view of the tabletop from one end, making the windowed wall central in the background, with the bookshelves still visible on the left.",
       "coordinates": {
         "pos": {
-          "x": 0,
-          "y": 0,
-          "z": 0
+          "x": -5.366,
+          "y": 0.349,
+          "z": -3.671
         },
         "rot": {
-          "x": 0,
-          "y": 0
+          "x": -0.055,
+          "y": 4.52
         }
       },
       "image_filepath": "/Users/navasfarhan/repos/GetOut/playgrounds/hiddenPOVs/frames_final/frame_1.png"
@@ -24,13 +24,13 @@
       "pov": "Close to the table and shifted to the right, bringing more of the right-hand wall and less of the left bookshelves into view, with the windowed wall still prominent.",
       "coordinates": {
         "pos": {
-          "x": 0,
-          "y": 0,
-          "z": 0
+          "x": -0.948,
+          "y": 1.577,
+          "z": -7.601
         },
         "rot": {
-          "x": 0,
-          "y": 0
+          "x": 0.275,
+          "y": 3.989
         }
       },
       "image_filepath": "/Users/navasfarhan/repos/GetOut/playgrounds/hiddenPOVs/frames_final/frame_2.png"
@@ -41,13 +41,13 @@
       "pov": "Closer to the table and looking towards the far right end of the room, emphasizing the whiteboard and showing a person seated at a desk in the background. The perspective is now less about the full table length and more about the room's depth in this direction.",
       "coordinates": {
         "pos": {
-          "x": 0,
-          "y": 0,
-          "z": 0
+          "x": 1.924,
+          "y": 1.086,
+          "z": -5.821
         },
         "rot": {
-          "x": 0,
-          "y": 0
+          "x": 0.42,
+          "y": 2.19
         }
       },
       "image_filepath": "/Users/navasfarhan/repos/GetOut/playgrounds/hiddenPOVs/frames_final/frame_3.png"
@@ -58,13 +58,13 @@
       "pov": "Moved closer to the table's left side, offering a clearer view through the parted red curtains into an adjacent brightly lit area with additional seating and people, making the table's items appear more in the foreground.",
       "coordinates": {
         "pos": {
-          "x": 0,
-          "y": 0,
-          "z": 0
+          "x": 1.865,
+          "y": 0.784,
+          "z": -0.939
         },
         "rot": {
-          "x": 0,
-          "y": 0
+          "x": -0.29,
+          "y": 0.835
         }
       },
       "image_filepath": "/Users/navasfarhan/repos/GetOut/playgrounds/hiddenPOVs/frames_final/frame_4.png"
@@ -75,13 +75,13 @@
       "pov": "Rotated further to the left, capturing the full length of the large wooden table from a lower angle and bringing the prominent bookshelves on the right into sharper focus, while the red curtains are now only partially visible on the far left.",
       "coordinates": {
         "pos": {
-          "x": 0,
-          "y": 0,
-          "z": 0
+          "x": -0.541,
+          "y": 0.996,
+          "z": 0.123
         },
         "rot": {
-          "x": 0,
-          "y": 0
+          "x": -0.4,
+          "y": -0.245
         }
       },
       "image_filepath": "/Users/navasfarhan/repos/GetOut/playgrounds/hiddenPOVs/frames_final/frame_5.png"
