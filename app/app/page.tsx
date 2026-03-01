@@ -14,6 +14,7 @@ export default function Home() {
     rot: { x?: number; y: number; z?: number }
   }>>({});
   const cameraRef = useRef<any>(null);
+  const rendererRef = useRef<import("three").WebGLRenderer | null>(null);
   const rotationTargetRef = useRef<any>(null);
   const cameraTargetRef = useRef<{
     set: (x: number, y: number, z: number) => void;
@@ -37,7 +38,8 @@ export default function Home() {
         1000,
       );
 
-      const renderer = new THREE.WebGLRenderer();
+      const renderer = new THREE.WebGLRenderer({ preserveDrawingBuffer: true });
+      rendererRef.current = renderer;
       renderer.setSize(window.innerWidth, window.innerHeight);
 
       const mount = containerRef.current;
@@ -174,6 +176,14 @@ export default function Home() {
     objectTargetRef.current?.set(v.x, v.y, v.z);
   };
 
+  const captureView = () => {
+    if (!rendererRef.current) return;
+    const link = document.createElement('a');
+    link.download = `capture-${Date.now()}.png`;
+    link.href = rendererRef.current.domElement.toDataURL('image/png');
+    link.click();
+  };
+
   // Walking moveTo function
   const moveTo = (key: string) => {
     const location = locations[key];
@@ -237,6 +247,12 @@ export default function Home() {
           className="ml-1.5 rounded border border-white/30 bg-white/10 px-2 py-1"
         >
           Move Object
+        </button>
+        <button
+          onClick={captureView}
+          className="ml-1.5 rounded border border-white/30 bg-green-600/20 px-2 py-1"
+        >
+          Capture 2D View
         </button>
         <div className="mt-2">
           {Object.keys(locations).map((key) => (
