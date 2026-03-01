@@ -1,19 +1,13 @@
 /*
 """
-Purpose: This script asks for a video path, extracts 10 evenly spaced frames with ffmpeg, then sends those overlapping room frames to Google GenAI.
+Purpose: This script reads final.mp4 from the project root, extracts 10 evenly spaced frames with ffmpeg, then sends those overlapping room frames to Google GenAI.
 It generates one shared, detailed room description plus per-frame descriptions that include a POV-specific angle/visibility note, and saves results to frame_descriptions.json.
 """
 */
 
-import { createInterface } from "readline";
 import { GoogleGenAI } from "@google/genai";
 
 const ai = new GoogleGenAI({});
-const rl = createInterface({ input: process.stdin, output: process.stdout });
-
-function ask(q: string): Promise<string> {
-  return new Promise((resolve) => rl.question(q, resolve));
-}
 
 function runCommand(cmd: string[], label: string) {
   const result = Bun.spawnSync(cmd, {
@@ -225,11 +219,8 @@ async function main() {
   console.log("Video → 10 Frames + Scene Descriptions\n");
 
   try {
-    const videoPath = (await ask("→ Path to video: ")).trim();
-    if (!videoPath) {
-      console.log("  [error] no video path provided");
-      return;
-    }
+    const videoPath = `${import.meta.dir}/../../final.mp4`;
+    console.log(`  [input] ${videoPath}`);
 
     console.log("  [extracting 10 frames...]");
     const { framePaths: frames, outputDir } = await extractTenFrames(videoPath);
@@ -251,8 +242,6 @@ async function main() {
     console.log(`   - frame POV descriptions: ${analysis.frames.length}`);
   } catch (error) {
     console.error("  [error]", error);
-  } finally {
-    rl.close();
   }
 }
 
