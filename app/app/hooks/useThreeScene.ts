@@ -108,8 +108,9 @@ export function useThreeScene() {
       splatMesh.position.set(0, 0, -3);
       scene.add(splatMesh as unknown as Object3D);
 
-      // Camera starts at the world origin.
-      camera.position.set(0, 0, 0);
+      // Camera starts at frame 1.
+      camera.rotation.set(-0.055, 4.52, 0)
+      camera.position.set(-5.366, 0.349, -3.671);
 
       // cameraTarget is a separate Vector3 that acts as the destination.
       // Writing to cameraTargetRef.current.set(...) moves this object, and the
