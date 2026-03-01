@@ -24,11 +24,9 @@ export async function POST(req: Request) {
     const result = await chat(message, state);
 
     return NextResponse.json(result);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[/api/game/chat]", error);
-    return NextResponse.json(
-      { error: error.message ?? "Chat failed" },
-      { status: 500 },
-    );
+    const message = error instanceof Error ? error.message : "Chat failed";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
