@@ -1,232 +1,82 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import type { Object3D } from "three";
-import gsap from "gsap";
+/**
+ * Home (page.tsx)
+ *
+ * Thin orchestration layer — wires three focused hooks together and renders
+ * the UI shell. No Three.js, no fetch calls, no image logic lives here.
+ *
+ * Hook responsibilities:
+ *   useThreeScene     – 3D scene, camera, renderer, animation loop
+ *   useImageEnhancer  – capture → Gemini API → overlay image lifecycle
+ *   useLocationNav    – loads locations.json, drives camera to named spots,
+ *                       fires enhanceForLocation when the camera arrives
+ *
+ * Data flow:
+ *   captureCanvas (from useThreeScene) ──► useImageEnhancer
+ *   cameraTargetRef / frameCallbackRef  ──► useLocationNav
+ *   enhanceForLocation                  ──► useLocationNav (onArrival callback)
+ *   dismissOverlay                      ──► useLocationNav (onNavigate callback)
+ */
+
+import { useState } from "react";
+import { useThreeScene } from "./hooks/useThreeScene";
+import { useImageEnhancer } from "./hooks/useImageEnhancer";
+import { useLocationNav } from "./hooks/useLocationNav";
 
 export default function Home() {
-  const containerRef = useRef<HTMLDivElement | null>(null);
+  // X/Y/Z inputs — used by the manual "Move Camera" and "Move Object" buttons.
   const [x, setX] = useState("0");
   const [y, setY] = useState("0");
   const [z, setZ] = useState("-3");
-  const [isEnhancing, setIsEnhancing] = useState(false);
-  const [enhancedImageUrl, setEnhancedImageUrl] = useState<string | null>(null);
-  const [overlayVisible, setOverlayVisible] = useState(false);
-  const [locations, setLocations] = useState<Record<string, {
-    pos: { x: number; y: number; z: number };
-    rot: { x?: number; y: number; z?: number }
-  }>>({});
-  const cameraRef = useRef<any>(null);
-  const rendererRef = useRef<import("three").WebGLRenderer | null>(null);
-  const rotationTargetRef = useRef<any>(null);
-  const cameraTargetRef = useRef<{
-    set: (x: number, y: number, z: number) => void;
-  } | null>(null);
-  const objectTargetRef = useRef<{
-    set: (x: number, y: number, z: number) => void;
-  } | null>(null);
 
-  useEffect(() => {
-    let cleanup: (() => void) | undefined;
+  // Three.js scene management. Exposes stable refs for camera/object targets
+  // so we can write new positions without triggering React re-renders.
+  const {
+    containerRef,      // <div> that Three.js mounts its canvas into
+    captureCanvas,     // () => PNG data URL of the current frame
+    cameraTargetRef,   // write .set(x,y,z) to move camera
+    rotationTargetRef, // write .x/.y/.z to rotate camera
+    objectTargetRef,   // write .set(x,y,z) to move the splat mesh
+    frameCallbackRef,  // runs a function every animation frame (for arrival check)
+    cameraPositionRef, // live read of camera.position (for arrival check)
+  } = useThreeScene();
 
-    const init = async () => {
-      const THREE = await import("three");
-      const { SplatMesh } = await import("@sparkjsdev/spark");
+  // Image enhancement lifecycle. Takes captureCanvas so it can snapshot the
+  // renderer at the right moment without needing a direct renderer reference.
+  const { enhancedImageUrl, overlayVisible, isEnhancing, enhanceForLocation, dismissOverlay } =
+    useImageEnhancer(captureCanvas);
 
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(
-        60,
-        window.innerWidth / window.innerHeight,
-        0.1,
-        1000,
-      );
-
-      const renderer = new THREE.WebGLRenderer({ preserveDrawingBuffer: true });
-      rendererRef.current = renderer;
-      renderer.setSize(window.innerWidth, window.innerHeight);
-
-      const mount = containerRef.current;
-      if (!mount) return;
-      mount.appendChild(renderer.domElement);
-
-      const splatURL = "/room.ply";
-      const splatMesh = new SplatMesh({ url: splatURL }) as {
-        quaternion: {
-          set: (x: number, y: number, z: number, w: number) => void;
-        };
-        position: {
-          clone: () => {
-            set: (x: number, y: number, z: number) => void;
-            lerp: (v: unknown, alpha: number) => void;
-          };
-          set: (x: number, y: number, z: number) => void;
-          lerp: (v: unknown, alpha: number) => void;
-        };
-      };
-
-      splatMesh.quaternion.set(1, 0, 0, 0);
-      splatMesh.position.set(0, 0, -3);
-      scene.add(splatMesh as unknown as Object3D);
-
-      // Start camera at origin
-      camera.position.set(0, 0, 0);
-      cameraRef.current = camera;
-
-      const cameraTarget = camera.position.clone();
-      const rotationTarget = camera.rotation.clone();
-      cameraTargetRef.current = cameraTarget;
-      rotationTargetRef.current = rotationTarget;
-      objectTargetRef.current = splatMesh.position.clone();
-
-      // Raycaster for click-to-identify
-      const raycaster = new THREE.Raycaster();
-      const mouse = new THREE.Vector2();
-
-      const onSplatClick = (event: MouseEvent) => {
-        // Calculate mouse position in normalized device coordinates (-1 to +1)
-        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-        // Update the raycaster with the camera and mouse position
-        raycaster.setFromCamera(mouse, camera);
-
-        // Calculate objects intersecting the picking ray
-        const intersects = raycaster.intersectObject(splatMesh as unknown as Object3D);
-
-        if (intersects.length > 0) {
-          const point = intersects[0].point;
-
-          // Create a dictionary entry with current camera position and rotation
-          const entry = {
-            label: "NEW_OBJECT",
-            pos: {
-              x: parseFloat(camera.position.x.toFixed(3)),
-              y: parseFloat(camera.position.y.toFixed(3)),
-              z: parseFloat(camera.position.z.toFixed(3))
-            },
-            rot: {
-              x: parseFloat(camera.rotation.x.toFixed(3)),
-              y: parseFloat(camera.rotation.y.toFixed(3)),
-              z: parseFloat(camera.rotation.z.toFixed(3))
-            }
-          };
-
-          console.log("Camera Position & Rotation:", JSON.stringify(entry, null, 2));
-        }
-      };
-
-      renderer.domElement.addEventListener('click', onSplatClick);
-
-
-      const animationSpeed = 0.05;
-
-      const onResize = () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-      };
-
-      window.addEventListener("resize", onResize);
-
-      renderer.setAnimationLoop(() => {
-        // Slow smooth camera movement
-        camera.position.lerp(cameraTarget, 0.02);
-        camera.rotation.x = THREE.MathUtils.lerp(camera.rotation.x, rotationTargetRef.current.x, 0.02);
-        camera.rotation.y = THREE.MathUtils.lerp(camera.rotation.y, rotationTargetRef.current.y, 0.02);
-        camera.rotation.z = THREE.MathUtils.lerp(camera.rotation.z, rotationTargetRef.current.z, 0.02);
-
-        splatMesh.position.lerp(objectTargetRef.current, 0.05);
-        renderer.render(scene, camera);
-      });
-
-      cleanup = () => {
-        renderer.setAnimationLoop(null);
-        renderer.domElement.removeEventListener('click', onSplatClick);
-        window.removeEventListener("resize", onResize);
-        renderer.dispose();
-        if (mount.contains(renderer.domElement)) {
-          mount.removeChild(renderer.domElement);
-        }
-      };
-    };
-
-    void init();
-
-    // Load locations.json
-    fetch('/locations.json')
-      .then(res => res.json())
-      .then(data => setLocations(data))
-      .catch(err => console.log('No locations.json found:', err));
-
-    return () => {
-      cleanup?.();
-    };
-  }, []);
-
-  const currentVector = () => ({
-    x: Number.parseFloat(x) || 0,
-    y: Number.parseFloat(y) || 0,
-    z: Number.parseFloat(z) || 0,
+  // Location loading and navigation. Wires the arrival callback so the overlay
+  // appears automatically when the camera reaches a destination.
+  const { locations, moveTo } = useLocationNav({
+    cameraTargetRef,
+    cameraPositionRef,
+    rotationTargetRef,
+    frameCallbackRef,
+    onArrival: enhanceForLocation,  // fires when camera settles at a location
+    onNavigate: dismissOverlay,     // clears overlay when a new journey starts
   });
 
-  const dismissEnhanced = () => {
-    setOverlayVisible(false);
-    setTimeout(() => setEnhancedImageUrl(null), 500);
-  };
-
+  // Manual camera move from the X/Y/Z inputs. Also clears any open overlay.
   const moveCamera = () => {
-    dismissEnhanced();
-    const v = currentVector();
-    cameraTargetRef.current?.set(v.x, v.y, v.z);
+    dismissOverlay();
+    cameraTargetRef.current?.set(parseFloat(x) || 0, parseFloat(y) || 0, parseFloat(z) || 0);
   };
 
+  // Move the splat mesh itself (independent of camera).
   const moveObject = () => {
-    const v = currentVector();
-    objectTargetRef.current?.set(v.x, v.y, v.z);
-  };
-
-  const captureView = async () => {
-    if (!rendererRef.current || isEnhancing) return;
-    setIsEnhancing(true);
-    try {
-      const dataUrl = rendererRef.current.domElement.toDataURL("image/png");
-      const res = await fetch("/api/enhance-image", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageDataUrl: dataUrl }),
-      });
-      const { imageDataUrl } = await res.json();
-      setEnhancedImageUrl(imageDataUrl);
-      // Trigger fade-in on next tick so the transition fires
-      requestAnimationFrame(() => setOverlayVisible(true));
-    } finally {
-      setIsEnhancing(false);
-    }
-  };
-
-  // Walking moveTo function
-  const moveTo = (key: string) => {
-    dismissEnhanced();
-    const location = locations[key];
-    if (!location || !cameraTargetRef.current || !rotationTargetRef.current) return;
-
-    const targetPos = location.pos;
-
-    // Set target position for smooth walking movement
-    cameraTargetRef.current.set(targetPos.x, targetPos.y, targetPos.z);
-
-    // Set target rotation for smooth turning
-    rotationTargetRef.current.x = location.rot.x || 0;
-    rotationTargetRef.current.y = location.rot.y;
-    rotationTargetRef.current.z = location.rot.z || 0;
+    objectTargetRef.current?.set(parseFloat(x) || 0, parseFloat(y) || 0, parseFloat(z) || 0);
   };
 
   return (
     <main className="relative h-screen w-screen overflow-hidden">
+      {/* Debug / navigation controls overlay */}
       <div
         className="absolute left-2.5 top-2.5 z-10 rounded bg-black/70 p-2.5 text-white"
         style={{ fontFamily: "sans-serif" }}
       >
+        {/* Manual position inputs */}
         <label>
           X:
           <input
@@ -257,6 +107,7 @@ export default function Home() {
             className="mx-1.5 w-[60px] rounded border border-white/30 bg-black/40 px-1"
           />
         </label>
+
         <button
           onClick={moveCamera}
           className="ml-1.5 rounded border border-white/30 bg-white/10 px-2 py-1"
@@ -269,13 +120,15 @@ export default function Home() {
         >
           Move Object
         </button>
-        <button
-          onClick={captureView}
-          disabled={isEnhancing}
-          className="ml-1.5 rounded border border-white/30 bg-green-600/20 px-2 py-1 disabled:opacity-50"
+
+        {/* Visible while Gemini API call is in flight */}
+        <span
+          className={`ml-1.5 rounded border border-white/30 px-2 py-1 text-sm transition-opacity duration-300 ${isEnhancing ? "bg-green-600/40 opacity-100" : "opacity-0"}`}
         >
-          {isEnhancing ? "Enhancing..." : "Capture 2D View"}
-        </button>
+          Enhancing...
+        </span>
+
+        {/* One button per location from locations.json */}
         <div className="mt-2">
           {Object.keys(locations).map((key) => (
             <button
@@ -288,7 +141,13 @@ export default function Home() {
           ))}
         </div>
       </div>
+
+      {/* Three.js mounts its <canvas> into this div */}
       <div ref={containerRef} className="h-full w-full" />
+
+      {/* Enhanced image overlay — fades in/out via CSS transition on opacity.
+          The <img> is only in the DOM while enhancedImageUrl is set, which
+          prevents a flash of the previous image during navigation. */}
       {enhancedImageUrl && (
         <img
           src={enhancedImageUrl}
