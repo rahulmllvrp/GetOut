@@ -358,6 +358,8 @@ ${treeLines}
 - Discovery: "${currentNode?.clue?.discovery ?? "N/A"}"
 - Riddle: ${currentNode?.clue?.riddle ?? "none — exit node"}
 - Answer keyword: ${currentNode?.clue?.answer ?? "none"}
+${currentNode?.frame.description ? `- Frame Description: "${currentNode.frame.description}"` : ""}
+${currentNode?.clue?.hiddenAreaDescription ? `- Hidden Area Description: "${currentNode.clue.hiddenAreaDescription}"` : ""}
 
 ## Instructions
 1. Speak ONLY as Kyle in first person. Never break character.

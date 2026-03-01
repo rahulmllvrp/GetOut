@@ -17,6 +17,7 @@ import { useLocationNav } from "./hooks/useLocationNav";
 import { useGameSession, type GameMode } from "./hooks/useGameSession";
 import { Win98Intro } from "./components/Win98Intro";
 import { usePrewarm } from "./hooks/usePrewarm";
+import { ChatSidebar } from "./components/ChatSidebar";
 
 // easeOutQuart: fast initial burst then dramatically slows — ink hitting paper.
 function easeOutQuart(t: number) {
@@ -216,7 +217,7 @@ export default function Home() {
   const [textInput, setTextInput] = useState("");
   const [showIntro, setShowIntro] = useState(true);
   const [showGameOver, setShowGameOver] = useState(false);
-  const chatEndRef = useRef<HTMLDivElement>(null);
+  const [isChatOpen, setChatOpen] = useState(false);
 
   // ---- Three.js scene ----
   const {
@@ -323,11 +324,6 @@ export default function Home() {
     onGameOver: handleGameOver,
   });
 
-  // Auto-scroll chat to bottom
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
   // Derive intro visibility from messages
   const shouldShowIntro = showIntro && messages.length === 0;
 
@@ -340,20 +336,42 @@ export default function Home() {
     }
   };
 
-  // Handle voice button (press to start, release to stop)
-  const handleVoiceDown = () => {
-    startRecording();
-  };
-  const handleVoiceUp = () => {
-    stopRecording();
-  };
-
   const handleReset = async () => {
     setShowGameOver(false);
     setShowIntro(true);
     dismissOverlay();
     await resetGame();
   };
+
+  // Spacebar to speak
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === 'Space' && !e.repeat) {
+        // Prevent spacebar from scrolling or clicking buttons
+        e.preventDefault();
+        // Check if an input field is focused
+        const activeElement = document.activeElement;
+        if (activeElement?.tagName !== 'INPUT' && activeElement?.tagName !== 'TEXTAREA') {
+          startRecording();
+        }
+      }
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.code === 'Space') {
+        stopRecording();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, [startRecording, stopRecording]);
+
 
   // Status text for the badge
   const statusText = isRecording
@@ -392,7 +410,11 @@ export default function Home() {
               playIntro();
             });
           }}
-          onGenerate={(mode: GameMode) => generateNewGame(mode)}
+          onGenerate={async () => {
+            await generateNewGame();
+            setShowIntro(false);
+            playIntro();
+          }}
           isGenerating={isGenerating}
         />
       )}
@@ -451,96 +473,31 @@ export default function Home() {
         </div>
       )}
 
-      {/* Chat panel + input */}
+      {/* Chat sidebar */}
       {!shouldShowIntro && (
-        <div className="absolute bottom-0 left-0 right-0 z-10 flex flex-col">
-          {/* Chat messages */}
-          <div className="mx-auto w-full max-w-2xl">
-            <div className="max-h-[40vh] overflow-y-auto px-4 pb-2 scrollbar-thin">
-              {messages.map((msg, i) => (
-                <div
-                  key={i}
-                  className={`mb-2 flex ${
-                    msg.role === "user" ? "justify-end" : "justify-start"
-                  }`}
-                >
-                  <div
-                    className={`max-w-[80%] rounded-xl px-3 py-2 text-sm ${
-                      msg.role === "user"
-                        ? "bg-blue-600/80 text-white"
-                        : "bg-white/10 text-white/90 backdrop-blur-sm"
-                    }`}
-                  >
-                    {msg.role === "assistant" && (
-                      <span className="mr-1 text-xs font-semibold text-red-400">
-                        Kyle:
-                      </span>
-                    )}
-                    {msg.content}
-                  </div>
-                </div>
-              ))}
-              <div ref={chatEndRef} />
-            </div>
-          </div>
-
-          {/* Input bar */}
-          <div className="bg-black/80 px-4 py-3 backdrop-blur-md">
-            <div className="mx-auto flex max-w-2xl items-center gap-2">
-              {/* Voice button */}
-              <button
-                onMouseDown={handleVoiceDown}
-                onMouseUp={handleVoiceUp}
-                onTouchStart={handleVoiceDown}
-                onTouchEnd={handleVoiceUp}
-                disabled={isLoading || isTranscribing}
-                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-lg transition-colors ${
-                  isRecording
-                    ? "animate-pulse bg-red-600 text-white"
-                    : "bg-white/10 text-white/60 hover:bg-white/20"
-                } disabled:opacity-40`}
-                title="Hold to speak"
-              >
-                🎤
-              </button>
-
-              {/* Text input */}
-              <form onSubmit={handleSubmit} className="flex flex-1 gap-2">
-                <input
-                  type="text"
-                  value={textInput}
-                  onChange={(e) => setTextInput(e.target.value)}
-                  placeholder="Tell Kyle what to do..."
-                  disabled={isLoading || isRecording || isTranscribing}
-                  className="flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-white/30 outline-none focus:border-white/30 disabled:opacity-40"
-                />
-                <button
-                  type="submit"
-                  disabled={
-                    isLoading ||
-                    !textInput.trim() ||
-                    isRecording ||
-                    isTranscribing
-                  }
-                  className="rounded-lg bg-white/10 px-4 py-2 text-sm text-white/80 transition-colors hover:bg-white/20 disabled:opacity-40"
-                >
-                  Send
-                </button>
-              </form>
-
-              {/* Stop speaking button */}
-              {isSpeaking && (
-                <button
-                  onClick={stopSpeaking}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/10 text-lg text-white/60 transition-colors hover:bg-white/20"
-                  title="Stop speaking"
-                >
-                  ⏹️
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
+         <>
+          <button
+            onClick={() => setChatOpen(true)}
+            className="absolute top-3 right-3 z-10 rounded-lg bg-black/70 px-3 py-2 text-xs text-white/70 backdrop-blur-sm transition-colors hover:bg-black/80 hover:text-white/80"
+          >
+            💬 Chat
+          </button>
+          <ChatSidebar
+            isOpen={isChatOpen}
+            onClose={() => setChatOpen(false)}
+            messages={messages}
+            textInput={textInput}
+            setTextInput={setTextInput}
+            handleSubmit={handleSubmit}
+            isLoading={isLoading}
+            isRecording={isRecording}
+            isTranscribing={isTranscribing}
+            isSpeaking={isSpeaking}
+            startRecording={startRecording}
+            stopRecording={stopRecording}
+            stopSpeaking={stopSpeaking}
+          />
+        </>
       )}
     </main>
   );

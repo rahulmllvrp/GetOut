@@ -162,22 +162,18 @@ function Win98ProgressBar({ label }: { label: string }) {
           background: "#ffffff",
           padding: "3px",
           height: "22px",
-          display: "flex",
-          alignItems: "center",
-          gap: "1px",
+          position: "relative",
         }}
       >
-        {Array.from({ length: blocks }, (_, i) => (
-          <div
-            key={i}
-            style={{
-              width: "8px",
-              height: "14px",
-              background: "#000080",
-              flexShrink: 0,
-            }}
-          />
-        ))}
+        <div
+          style={{
+            width: `${progress}%`,
+            height: "100%",
+            background:
+              "repeating-linear-gradient(90deg, #000080 0px, #000080 8px, #ffffff 8px, #ffffff 10px)",
+            transition: "width 0.2s linear",
+          }}
+        />
       </div>
       <p
         style={{
