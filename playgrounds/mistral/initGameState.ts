@@ -32,11 +32,14 @@ const GEMINI_IMAGE_MODEL = "gemini-2.5-flash-image";
 // ---------------------------------------------------------------------------
 
 export type FrameNode = {
-  frame: string; // "frame_1.png"
+  frame: string; // e.g. "frame_1" or "whiteboard"
   description: string;
   pov: string;
-  coordinates: [number, number, number];
-  image_filepath: string;
+  coordinates: {
+    pos: { x: number; y: number; z: number };
+    rot: { x: number; y: number };
+  };
+  image_filepath: string | null; // null for object-only locations without a reference image
 };
 
 export type ClueNode = {
@@ -85,7 +88,10 @@ type FrameDescriptionsFile = {
     frame: string;
     description: string;
     pov: string;
-    coordinates: [number, number, number];
+    coordinates: {
+      pos: { x: number; y: number; z: number };
+      rot: { x: number; y: number };
+    };
     image_filepath: string;
   }>;
 };
@@ -108,8 +114,11 @@ async function loadFrameDescriptions(): Promise<{
     frame: f.frame,
     description: f.description,
     pov: f.pov,
-    coordinates: f.coordinates ?? [0, 0, 0],
-    image_filepath: f.image_filepath ?? `${descriptionsDir}/${f.frame}`,
+    coordinates: f.coordinates ?? {
+      pos: { x: 0, y: 0, z: 0 },
+      rot: { x: 0, y: 0 },
+    },
+    image_filepath: f.image_filepath ?? null, // null for object-only locations
   }));
 
   return { commonRoomDescription: file.commonRoomDescription, frames };
@@ -142,7 +151,7 @@ const MistralGameTreeSchema = z.object({
         frameId: z
           .string()
           .describe(
-            "The frame filename this clue is attached to (e.g. 'frame_3.png'). Must be one of the provided frames.",
+            "The object location ID this clue is attached to (e.g. 'whiteboard', 'bookshelf', 'laptop'). Must be one of the provided object locations — NOT a panoramic frame (frame_*).",
           ),
         clueId: z.string().describe("A unique short ID for this clue node."),
         discovery: z
@@ -185,10 +194,20 @@ function buildInitPrompt(
   commonRoomDescription: string,
   frames: FrameNode[],
 ): string {
-  const frameDescriptions = frames
+  const objectFrames = frames.filter((f) => !f.frame.startsWith("frame_"));
+  const panoramicFrames = frames.filter((f) => f.frame.startsWith("frame_"));
+
+  const objectDescriptions = objectFrames
     .map(
       (f, i) =>
-        `Frame ${i + 1} — ${f.frame}:\n  Description: ${f.description}\n  POV: ${f.pov}`,
+        `Object ${i + 1} — "${f.frame}":\n  Description: ${f.description}\n  POV: ${f.pov}`,
+    )
+    .join("\n\n");
+
+  const panoramicDescriptions = panoramicFrames
+    .map(
+      (f, i) =>
+        `Viewpoint ${i + 1} — "${f.frame}":\n  Description: ${f.description}\n  POV: ${f.pov}`,
     )
     .join("\n\n");
 
@@ -198,11 +217,14 @@ You are a Game Master designing an escape room puzzle set in the following room.
 ## Room Overview
 ${commonRoomDescription}
 
-## Available Viewpoints (10 frames from different angles)
-${frameDescriptions}
+## Interactable Objects (${objectFrames.length} — clue nodes MUST use these)
+${objectDescriptions}
+
+## Panoramic Viewpoints (${panoramicFrames.length} — for context only, do NOT attach clues to these)
+${panoramicDescriptions}
 
 ## Your Task
-Design a compelling escape room scenario using these viewpoints. You must:
+Design a compelling escape room scenario using these locations. You must:
 
 1. **Room Description**: Write a concise 2-3 sentence atmospheric summary of the room from the perspective of someone trapped inside.
 
@@ -214,77 +236,102 @@ Design a compelling escape room scenario using these viewpoints. You must:
 
 3. **Lose Condition**: Optionally define a lose condition (e.g. Kyle panics after too many wrong answers), or set null.
 
-4. **Game Tree**: Select 3-5 of the 10 frames as puzzle locations and create an ordered chain of clue nodes:
-   - Each node is attached to a specific frame (by filename, e.g. "frame_3.png").
+4. **Game Tree**: Select 3-5 of the ${objectFrames.length} object locations as puzzle locations and create an ordered chain of clue nodes:
+   - **IMPORTANT: You MUST only use object locations** (${objectFrames.map((f) => `"${f.frame}"`).join(", ")}). Do NOT use panoramic viewpoints (frame_*).
+   - Each node is attached to a specific object by its ID (e.g. "whiteboard", "bookshelf", "laptop").
    - Each node has a discovery (what Kyle finds), a premature_discovery (what he finds if he goes too early), a riddle, an answer keyword, and a hiddenAreaDescription for generating a visual.
    - **The riddles must be solvable.** Each riddle answer should be a single word or short phrase that can be spoken aloud.
-   - **The riddle answers should guide the player to the next location.** For example, if the answer is "fireplace", the player should naturally think to go to the fireplace next.
+   - **The riddle answers should guide the player to the next location.** For example, if the answer is "bookshelf", the player should naturally think to go to the bookshelf next.
    - **The last node must be the exit node** with riddle: null and answer: null. Its discovery should describe Kyle escaping.
    - Make the premature discoveries feel natural — something is locked, stuck, sealed, or incomplete.
    - The hiddenAreaDescription should be vivid and specific enough to generate a realistic first-person POV image of that hidden spot.
-   - Use frames that correspond to visually interesting or distinct areas of the room.
 
-5. **Consistency**: All clue text must be consistent with the room's visual descriptions. Don't reference objects that aren't described in the frames.
+5. **Consistency**: All clue text must be consistent with the room's visual descriptions. Don't reference objects that aren't described in the locations.
 
 Return ONLY the structured JSON output matching the required schema.
 `.trim();
 }
 
 // ---------------------------------------------------------------------------
-// Normalize Mistral's raw JSON to match our Zod schema
+// Explicit JSON schema for Mistral's server-side constrained decoding
 // ---------------------------------------------------------------------------
 
-function normalizeMistralResponse(raw: any): any {
-  // Normalize loseCondition: Mistral sometimes returns an object instead of string
-  let loseCondition: string | null = null;
-  if (typeof raw.loseCondition === "string") {
-    loseCondition = raw.loseCondition;
-  } else if (raw.loseCondition && typeof raw.loseCondition === "object") {
-    // Mistral returned {trigger, description} — flatten to a single string
-    loseCondition =
-      raw.loseCondition.description ??
-      raw.loseCondition.trigger ??
-      JSON.stringify(raw.loseCondition);
-  }
-
-  // Normalize gameTree nodes
-  const gameTree = (raw.gameTree ?? []).map((node: any, index: number) => ({
-    // frameId: Mistral sometimes uses "frame" instead of "frameId"
-    frameId: node.frameId ?? node.frame ?? `frame_${index + 1}.png`,
-
-    // clueId: Mistral sometimes omits this
-    clueId:
-      node.clueId ??
-      node.id ??
-      (node.frameId ?? node.frame ?? `clue_${index + 1}`).replace(".png", ""),
-
-    // discovery: direct mapping
-    discovery: node.discovery ?? "",
-
-    // premature_discovery: Mistral uses camelCase "prematureDiscovery"
-    premature_discovery:
-      node.premature_discovery ??
-      node.prematureDiscovery ??
-      node.premature ??
-      "",
-
-    // riddle, answer, hiddenAreaDescription: direct mapping
-    riddle: node.riddle ?? null,
-    answer: node.answer ?? null,
-    hiddenAreaDescription:
-      node.hiddenAreaDescription ??
-      node.hidden_area_description ??
-      node.hiddenDescription ??
-      "",
-  }));
-
-  return {
-    roomDescription: raw.roomDescription ?? "",
-    winCondition: raw.winCondition ?? "",
-    loseCondition,
-    gameTree,
-  };
-}
+const GAME_TREE_JSON_SCHEMA = {
+  type: "object",
+  required: ["roomDescription", "winCondition", "loseCondition", "gameTree"],
+  additionalProperties: false,
+  properties: {
+    roomDescription: {
+      type: "string",
+      description:
+        "A concise 2-3 sentence summary of the room, suitable as a game intro.",
+    },
+    winCondition: {
+      type: "string",
+      description:
+        "A description of what the player must do to win, e.g. 'Find the hidden key behind the fireplace and use it on the locked archway to escape.'",
+    },
+    loseCondition: {
+      type: ["string", "null"],
+      description:
+        "Optional lose condition, e.g. 'Kyle panics and collapses after 20 failed attempts.' or null if no lose state.",
+    },
+    gameTree: {
+      type: "array",
+      description:
+        "Ordered array of 3-5 clue nodes forming the puzzle chain. The last node must be the exit (riddle: null, answer: null).",
+      items: {
+        type: "object",
+        required: [
+          "frameId",
+          "clueId",
+          "discovery",
+          "premature_discovery",
+          "riddle",
+          "answer",
+          "hiddenAreaDescription",
+        ],
+        additionalProperties: false,
+        properties: {
+          frameId: {
+            type: "string",
+            description:
+              "The object location ID this clue is attached to (e.g. 'whiteboard', 'bookshelf', 'laptop'). Must be one of the provided object locations — NOT a panoramic frame (frame_*).",
+          },
+          clueId: {
+            type: "string",
+            description: "A unique short ID for this clue node.",
+          },
+          discovery: {
+            type: "string",
+            description:
+              "What Kyle finds when the player arrives at this location at the right time. Written in third person as narration.",
+          },
+          premature_discovery: {
+            type: "string",
+            description:
+              "What Kyle finds if the player visits this location before solving the previous clue. Should feel natural — something is locked, stuck, or incomplete.",
+          },
+          riddle: {
+            type: ["string", "null"],
+            description:
+              "The riddle the player must solve. null for the final exit node.",
+          },
+          answer: {
+            type: ["string", "null"],
+            description:
+              "The keyword answer to the riddle. null for the final exit node.",
+          },
+          hiddenAreaDescription: {
+            type: "string",
+            description:
+              "A vivid description of the hidden area that Kyle discovers (e.g. 'inside a dusty drawer with a crumpled note among old quills'). Used to generate a POV image later.",
+          },
+        },
+      },
+    },
+  },
+} as const;
 
 async function generateGameTree(
   commonRoomDescription: string,
@@ -293,7 +340,7 @@ async function generateGameTree(
   const prompt = buildInitPrompt(commonRoomDescription, frames);
 
   console.log("  [mistral] Generating game tree...");
-  const response = await mistral.chat.parse({
+  const response = await mistral.chat.complete({
     model: MISTRAL_MODEL,
     messages: [
       {
@@ -303,60 +350,47 @@ async function generateGameTree(
       },
       { role: "user", content: prompt },
     ],
-    responseFormat: MistralGameTreeSchema,
+    responseFormat: {
+      type: "json_schema",
+      jsonSchema: {
+        name: "game_tree",
+        schemaDefinition: GAME_TREE_JSON_SCHEMA,
+        strict: true,
+      },
+    },
     temperature: 0.7,
     maxTokens: 4096,
   });
   console.log("  [mistral] Done.");
 
-  const raw = response.choices?.[0]?.message;
-  if (!raw) {
-    throw new Error("Mistral returned no choices in the response.");
+  const rawContent = response.choices?.[0]?.message?.content;
+  if (!rawContent || typeof rawContent !== "string") {
+    throw new Error("Mistral returned no content in the response.");
   }
 
-  let parsed = raw.parsed as MistralGameTreeResponse | null;
+  console.log(
+    `  [debug] Raw content (first 300 chars): ${rawContent.slice(0, 300)}`,
+  );
 
-  // Fallback: manually extract JSON if structured output parsing failed
-  const rawContent = typeof raw.content === "string" ? raw.content : null;
+  // Parse — the JSON schema enforcement means this should just work
+  const rawObj = JSON.parse(rawContent);
+  const parsed = MistralGameTreeSchema.parse(rawObj);
+  console.log("  [mistral] Parsed successfully.");
 
-  if (parsed) {
-    console.log("  [mistral] Structured parse succeeded.");
-  } else if (rawContent) {
-    console.log(
-      "  [warn] Structured parse failed, falling back to manual extraction",
-    );
-    console.log(
-      `  [debug] Raw content (first 500 chars): ${rawContent.slice(0, 500)}`,
-    );
-
-    // Find the outermost JSON object that contains "roomDescription"
-    const jsonMatch = rawContent.match(/\{[\s\S]*"roomDescription"[\s\S]*\}/);
-    if (jsonMatch) {
-      try {
-        const rawObj = JSON.parse(jsonMatch[0]);
-        const normalized = normalizeMistralResponse(rawObj);
-        parsed = MistralGameTreeSchema.parse(normalized);
-        console.log("  [warn] Fallback parse succeeded (after normalization)");
-      } catch (e) {
-        throw new Error(
-          `Failed to parse Mistral response:\n${rawContent}\nError: ${e}`,
-        );
-      }
-    } else {
-      throw new Error(`Mistral returned no valid JSON:\n${rawContent}`);
-    }
-  }
-
-  if (!parsed) {
-    throw new Error("Mistral returned null parsed response with no content.");
-  }
-
-  // Validate that all frameIds reference actual frames
+  // Validate that all frameIds reference actual object locations
   const validFrameIds = new Set(frames.map((f) => f.frame));
+  const objectOnlyIds = new Set(
+    frames.filter((f) => !f.frame.startsWith("frame_")).map((f) => f.frame),
+  );
   for (const node of parsed.gameTree) {
     if (!validFrameIds.has(node.frameId)) {
       throw new Error(
-        `Game tree references unknown frame "${node.frameId}". Valid frames: ${[...validFrameIds].join(", ")}`,
+        `Game tree references unknown location "${node.frameId}". Valid locations: ${[...validFrameIds].join(", ")}`,
+      );
+    }
+    if (node.frameId.startsWith("frame_")) {
+      throw new Error(
+        `Game tree node "${node.clueId}" is attached to panoramic viewpoint "${node.frameId}", but clues can only be attached to object locations: ${[...objectOnlyIds].join(", ")}`,
       );
     }
   }
@@ -539,7 +573,7 @@ export async function initGameState(): Promise<GameState> {
     clue: clueNodes[i] ?? null,
   }));
 
-  // ── Build allLocations (all 10 frames, with clue attached if applicable) ──
+  // ── Build allLocations (all frames/objects, with clue attached if applicable) ──
   const clueFrameIds = new Set(mistralResult.gameTree.map((n) => n.frameId));
   const clueByFrameId = new Map(
     mistralResult.gameTree.map((n, i) => [n.frameId, clueNodes[i]]),
@@ -549,35 +583,6 @@ export async function initGameState(): Promise<GameState> {
     frame,
     clue: clueByFrameId.get(frame.frame) ?? null,
   }));
-
-  // ── Stage 3: Generate hidden POV images with Gemini ──
-  console.log("[Stage 3] Generating hidden POV images with Gemini...");
-  const hiddenPovDir = `${import.meta.dir}/../hiddenPOVs/generated_povs`;
-  await Bun.$`mkdir -p ${hiddenPovDir}`;
-
-  for (const node of gameTree) {
-    const clue = node.clue!;
-    if (!clue.hiddenAreaDescription) continue;
-
-    const outputPath = `${hiddenPovDir}/${clue.id}_pov.png`;
-    console.log(
-      `  [gemini] Generating POV for "${clue.id}" @ ${node.frame.frame}...`,
-    );
-
-    try {
-      const savedPath = await generateHiddenPovImage(
-        node.frame.image_filepath,
-        clue.hiddenAreaDescription,
-        outputPath,
-      );
-      clue.hiddenPovImagePath = savedPath;
-      console.log(`  [gemini] Saved: ${savedPath}`);
-    } catch (e) {
-      console.error(`  [gemini] Failed to generate POV for "${clue.id}": ${e}`);
-      // Continue without the image — game can still run with text-only
-    }
-  }
-  console.log();
 
   // ── Assemble GameState ──
   const state: GameState = {
@@ -590,7 +595,7 @@ export async function initGameState(): Promise<GameState> {
     allLocations,
 
     // Mutable
-    currentLocation: frames[0]?.frame ?? "frame_1.png", // start at frame_1
+    currentLocation: frames[0]?.frame ?? "frame_1", // start at first location
     currentClueIndex: 0,
     visitHistory: [],
     riddlesSolved: 0,

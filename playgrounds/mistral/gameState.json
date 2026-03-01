@@ -1,296 +1,492 @@
 {
-  "roomDescription": "You wake to find yourself trapped in a grand, opulent common room within what feels like a historic and possibly magical castle. The towering stone walls are adorned with elaborate tapestries and framed paintings, while the air hums with an arcane energy. Shafts of light filter through stained-glass windows, casting colorful patterns across the intricately woven rugs beneath your feet. Despite the room's warmth and scholarly ambiance, an unsettling silence hangs heavy—no one else seems to notice your plight.",
+  "roomDescription": "Kyle wakes up alone in a dimly lit, industrial-chic workspace, the hum of Edison bulbs casting long shadows across the cluttered table. The air smells of stale coffee and faintly of Doritos, while the distant echo of a drum kit reminds him this room is more than just an office—it’s a place where work and creativity collide. But the door is locked, and the blinds on the window are drawn tight; escape won’t be as simple as walking out.",
   "gameMasterPrompt": "[rebuilt each turn — see buildGameMasterPrompt()]",
-  "winCondition": "The player finds a hidden key that unlocks a visible door (already visible from the start, but locked). The locked door is the grand arched doorway in the far right background, partially visible from Frame 5 onward.",
-  "loseCondition": "If the player fails to escape within 60 minutes, the castle's enchantments reset, trapping them indefinitely in a loop of the common room's illusions.",
+  "winCondition": "Find the hidden key beneath the drum kit and use it to unlock the red curtains leading to freedom.",
+  "loseCondition": "Kyle panics after 15 failed attempts to solve the riddles, collapsing into the chair with the jacket and refusing to move.",
   "gameTree": [
     {
       "frame": {
-        "frame": "frame_1.png",
-        "description": "The initial view of the common room from a slightly elevated position behind a character in a dark red robe. The left side is dominated by a tall, ornate wooden display cabinet and a large stained-glass window. A prominent globe lamp stands to the immediate right of the character.",
-        "pov": "The camera is positioned directly behind and slightly above the main character, looking straight into the expansive room. The left half of the common room, including a grand display cabinet and a tall window, is prominent, while the right side with more distant activity is less defined.",
-        "coordinates": [
-          0,
-          0,
-          0
-        ],
-        "image_filepath": "/Users/navasfarhan/repos/GetOut/playgrounds/hiddenPOVs/frames_final/frame_1.png"
+        "frame": "whiteboard",
+        "description": "This is the whiteboard, a large dry-erase board mounted on the dark wall near the far end of the room. It carries remnants of brainstorming sessions — scribbled diagrams, sticky notes, and half-erased marker strokes, standing as a silent record of collaborative planning.",
+        "pov": "Looking directly at the whiteboard from a close vantage point, with the dark wall filling the background and the edge of the central table just barely visible below.",
+        "coordinates": {
+          "pos": {
+            "x": -1.298,
+            "y": 0.46,
+            "z": -2.226
+          },
+          "rot": {
+            "x": -0.035,
+            "y": 2.055
+          }
+        },
+        "image_filepath": null
       },
       "clue": {
-        "id": "frame_1",
-        "discovery": "Behind the tall, ornate wooden display cabinet, you notice a small, nearly invisible indentation in the stone wall. Upon closer inspection, it reveals a brass plaque with an engraved riddle.",
-        "premature_discovery": "The indentation is cold and empty, as if waiting for something to be placed inside. A faint outline of a keyhole glows dimly beneath the dust.",
-        "riddle": "I stand tall where knowledge sleeps, my belly holds what the world keeps. Touch my heart, and you shall see, where the next clue waits for thee. What am I?",
-        "answer": "globe",
-        "hiddenAreaDescription": "A close-up view of the ornate globe lamp near the character. The brass meridian ring around the globe is slightly ajar, revealing a small compartment inside. The compartment contains a rolled parchment with a symbol of a lion and griffin intertwined.",
-        "hiddenPovImagePath": "/Users/navasfarhan/repos/GetOut/playgrounds/mistral/../hiddenPOVs/generated_povs/frame_1_pov.png"
+        "id": "clue_1",
+        "discovery": "Kyle notices a small, half-erased equation at the bottom of the whiteboard: '7x + 3 = 31'. Beneath it, in barely legible marker, is the word 'ROOT'. A sticky note nearby reads, 'Check the brightest light in the room.'",
+        "premature_discovery": "The whiteboard is covered in scribbles, but the bottom corner is smudged and unreadable, as if someone tried to erase something in a hurry. Kyle can’t make out any details.",
+        "riddle": "I stand tall but do not walk, I shine bright but do not talk. Solve for x where seven times plus three equals thirty-one, and my name you’ll soon see. What am I?",
+        "answer": "studio light",
+        "hiddenAreaDescription": "Behind the whiteboard, partially obscured by a loose corner of the board, is a small gap in the wall where a sticky note is wedged. The note is barely visible, tucked into the crevice where the whiteboard doesn’t quite meet the wall.",
+        "hiddenPovImagePath": null
       }
     },
     {
       "frame": {
-        "frame": "frame_4.png",
-        "description": "The view progresses further right, revealing more of the activity in the central and right sections of the common room. A large wooden table laden with a bowl of fruit and surrounded by chairs is now more clearly visible on the right.",
-        "pov": "The camera has taken a more noticeable step to the right and slightly forward. The prominent globe lamp is now further to the left of the character, and the right side of the room, including a significant dining-style table, is gaining prominence.",
-        "coordinates": [
-          0,
-          0,
-          0
-        ],
-        "image_filepath": "/Users/navasfarhan/repos/GetOut/playgrounds/hiddenPOVs/frames_final/frame_4.png"
+        "frame": "studio_light",
+        "description": "This is the studio light, a tall professional lighting fixture positioned towards the back of the room. Its adjustable head and sturdy tripod stand give the space a creative, production-ready feel alongside the industrial Edison bulbs overhead.",
+        "pov": "Looking towards the studio light standing in the deeper section of the room, its tall silhouette rising above the surrounding furniture, with the dark ceiling and exposed ductwork visible behind it.",
+        "coordinates": {
+          "pos": {
+            "x": 0.39,
+            "y": 0.295,
+            "z": -5.497
+          },
+          "rot": {
+            "x": 0.145,
+            "y": -0.285
+          }
+        },
+        "image_filepath": null
       },
       "clue": {
-        "id": "frame_4",
-        "discovery": "You approach the large wooden table laden with a bowl of fruit. Beneath the tablecloth, you find a loose floor tile. Lifting it reveals a small, velvet-lined box containing a riddle etched on a silver card.",
-        "premature_discovery": "The loose tile is stuck, and no matter how hard you try, it won’t budge. A faint whisper echoes, 'Not yet...'",
-        "riddle": "I am not alive, yet I grow; I don’t have lungs, but I need air; I don’t have a mouth, but water kills me. Seek where I dance and flicker free. What am I?",
-        "answer": "fireplace",
-        "hiddenAreaDescription": "A detailed view of the grand fireplace on the far right of the room. The fire burns low, revealing a small, iron key hidden in the ashes at the base of the hearth. The key glows faintly with a warm, golden light.",
-        "hiddenPovImagePath": "/Users/navasfarhan/repos/GetOut/playgrounds/mistral/../hiddenPOVs/generated_povs/frame_4_pov.png"
+        "id": "clue_2",
+        "discovery": "Kyle adjusts the studio light and notices a small, folded note taped to the underside of the tripod. It reads: 'The rhythm of work is the rhythm of play. Find where the beat drops.'",
+        "premature_discovery": "The studio light is unplugged and cold. Kyle fiddles with the switches, but nothing happens—it’s as if it hasn’t been used in a while. The note isn’t visible from this angle.",
+        "riddle": "I sit in the corner, silent and still, until hands bring me to life with a thrill. Where work meets play, my beat you’ll find. What am I?",
+        "answer": "drums",
+        "hiddenAreaDescription": "Underneath the tripod of the studio light, taped to the metal leg with clear packing tape, is a small folded note. The tape is slightly yellowed, as if it’s been there for some time.",
+        "hiddenPovImagePath": null
       }
     },
     {
       "frame": {
-        "frame": "frame_9.png",
-        "description": "This frame provides a comprehensive view of the right side of the common room. The grand fireplace occupies a significant portion of the right, and the multiple archways leading to other areas are well-defined in the background.",
-        "pov": "Continuing the steady rightward pan and slight forward movement. The fireplace is now a dominant feature on the right side, capturing its full impressive scale. The distant archways appear more 'straight on' from this new perspective.",
-        "coordinates": [
-          0,
-          0,
-          0
-        ],
-        "image_filepath": "/Users/navasfarhan/repos/GetOut/playgrounds/hiddenPOVs/frames_final/frame_9.png"
+        "frame": "drums",
+        "description": "This is the drums, a drum kit set up in a far corner of the space, well away from the central work table. Its presence adds a creative, eclectic character to the room — a reminder that this space serves more than just office work.",
+        "pov": "Looking across the room towards the distant drum kit tucked into the far corner, with cymbals and drum shells faintly visible past the clutter of the main workspace area.",
+        "coordinates": {
+          "pos": {
+            "x": -10.046,
+            "y": 0.664,
+            "z": -4.813
+          },
+          "rot": {
+            "x": -0.06,
+            "y": 7.05
+          }
+        },
+        "image_filepath": null
       },
       "clue": {
-        "id": "frame_9",
-        "discovery": "Near the grand fireplace, you notice one of the intricate stone carvings—a lion’s head—has a hollow mouth. Inside, you find a small, ornate key that fits perfectly into the keyhole of the arched doorway in the background.",
-        "premature_discovery": "The lion’s mouth is sealed shut, its stone jaws refusing to part. A faint growl seems to emanate from within, warning you to come back later.",
-        "riddle": "I guard what you seek with tooth and stone, my roar is silent, my gaze alone. Feed me the truth, and I shall yield, the path to freedom, revealed. What must you give?",
-        "answer": "key",
-        "hiddenAreaDescription": "A close-up of the lion’s head stone carving on the fireplace. Its mouth is slightly ajar, revealing the ornate key inside. The key is intricately designed, with the same lion and griffin motif found on the banners.",
-        "hiddenPovImagePath": "/Users/navasfarhan/repos/GetOut/playgrounds/mistral/../hiddenPOVs/generated_povs/frame_9_pov.png"
+        "id": "clue_3",
+        "discovery": "Kyle lifts the snare drum and finds a small, tarnished key tucked into the drum’s rim. Beneath it, a note reads: 'The path to freedom is draped in red.'",
+        "premature_discovery": "The drum kit looks untouched, but the snare drum is slightly out of tune. Kyle taps it, but nothing unusual happens—the key isn’t visible from the surface.",
+        "riddle": "I am draped in color bold and bright, parting only for those who seek the light. Where I hang, your escape awaits. What am I?",
+        "answer": "chair near curtain",
+        "hiddenAreaDescription": "Inside the rim of the snare drum, tucked between the metal hoop and the drumhead, is a small key. It’s wedged tightly, as if placed there deliberately, with a scrap of paper underneath.",
+        "hiddenPovImagePath": null
       }
     },
     {
       "frame": {
-        "frame": "frame_5.png",
-        "description": "The common room unfolds further to the right. The large display cabinet on the far left is now less central. The arched doorway in the mid-ground on the right becomes a more significant feature, leading deeper into the castle.",
-        "pov": "A continued and more pronounced movement to the right. The elements on the far left of the room are receding from view, while the central archway and the right side of the room are becoming more central, expanding the visible space.",
-        "coordinates": [
-          0,
-          0,
-          0
-        ],
-        "image_filepath": "/Users/navasfarhan/repos/GetOut/playgrounds/hiddenPOVs/frames_final/frame_5.png"
+        "frame": "chair_near_curtain",
+        "description": "This is the chair near the curtain, positioned close to the large opening framed by vibrant red curtains that separate this room from the adjacent area. The chair sits slightly apart from the main table, as if placed for a quick conversation or observation.",
+        "pov": "Looking at the chair situated near the red curtains, with the draped fabric visible just beyond and the glow from the adjacent space casting a faint light on the chair's surface.",
+        "coordinates": {
+          "pos": {
+            "x": -2.148,
+            "y": -0.52,
+            "z": -5.437
+          },
+          "rot": {
+            "x": -0.025,
+            "y": 7.42
+          }
+        },
+        "image_filepath": null
       },
       "clue": {
-        "id": "frame_5",
-        "discovery": "With the ornate key in hand, you approach the grand arched doorway in the far right background. The key fits perfectly into the lock, and the door creaks open, revealing a dimly lit corridor beyond. As you step through, the door slams shut behind you, and the sounds of the common room fade into silence. You’ve escaped!",
-        "premature_discovery": "",
+        "id": "clue_4",
+        "discovery": "Kyle moves the chair aside and notices a small keyhole hidden in the floorboard beneath it. He inserts the key, turns it, and the red curtains part slightly, revealing a narrow passage leading to a dimly lit hallway. With a deep breath, he steps through and escapes the room.",
+        "premature_discovery": "The chair is heavy and doesn’t budge easily. Kyle tries to move it, but it’s as if something is holding it in place—perhaps the keyhole isn’t visible yet.",
         "riddle": null,
         "answer": null,
-        "hiddenAreaDescription": "A first-person view of the grand arched doorway, now slightly ajar. Warm light spills from the corridor beyond, illuminating the threshold. The ornate key glows faintly in your hand as you push the door open wider.",
-        "hiddenPovImagePath": "/Users/navasfarhan/repos/GetOut/playgrounds/mistral/../hiddenPOVs/generated_povs/frame_5_pov.png"
+        "hiddenAreaDescription": "Beneath the chair, partially obscured by its legs, is a small keyhole in the floorboard. The keyhole is nearly invisible unless the chair is moved, and the floorboard around it is slightly worn, as if it’s been used before.",
+        "hiddenPovImagePath": null
       }
     }
   ],
   "allLocations": [
     {
       "frame": {
-        "frame": "frame_1.png",
-        "description": "The initial view of the common room from a slightly elevated position behind a character in a dark red robe. The left side is dominated by a tall, ornate wooden display cabinet and a large stained-glass window. A prominent globe lamp stands to the immediate right of the character.",
-        "pov": "The camera is positioned directly behind and slightly above the main character, looking straight into the expansive room. The left half of the common room, including a grand display cabinet and a tall window, is prominent, while the right side with more distant activity is less defined.",
-        "coordinates": [
-          0,
-          0,
-          0
-        ],
+        "frame": "frame_1",
+        "description": "This frame offers a direct view of the table's surface and the items on it from one end. The bookshelves on the left are visible, and the perspective on the windowed wall is frontal, with the patterned rug partially visible in the foreground.",
+        "pov": "A head-on view of the tabletop from one end, making the windowed wall central in the background, with the bookshelves still visible on the left.",
+        "coordinates": {
+          "pos": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "rot": {
+            "x": 0,
+            "y": 0
+          }
+        },
         "image_filepath": "/Users/navasfarhan/repos/GetOut/playgrounds/hiddenPOVs/frames_final/frame_1.png"
       },
-      "clue": {
-        "id": "frame_1",
-        "discovery": "Behind the tall, ornate wooden display cabinet, you notice a small, nearly invisible indentation in the stone wall. Upon closer inspection, it reveals a brass plaque with an engraved riddle.",
-        "premature_discovery": "The indentation is cold and empty, as if waiting for something to be placed inside. A faint outline of a keyhole glows dimly beneath the dust.",
-        "riddle": "I stand tall where knowledge sleeps, my belly holds what the world keeps. Touch my heart, and you shall see, where the next clue waits for thee. What am I?",
-        "answer": "globe",
-        "hiddenAreaDescription": "A close-up view of the ornate globe lamp near the character. The brass meridian ring around the globe is slightly ajar, revealing a small compartment inside. The compartment contains a rolled parchment with a symbol of a lion and griffin intertwined.",
-        "hiddenPovImagePath": "/Users/navasfarhan/repos/GetOut/playgrounds/mistral/../hiddenPOVs/generated_povs/frame_1_pov.png"
-      }
+      "clue": null
     },
     {
       "frame": {
-        "frame": "frame_2.png",
-        "description": "A very subtle shift from the first frame. The character and the immediate surroundings remain largely the same, with only minute changes in the perspective of the distant background elements.",
-        "pov": "A slight lateral shift to the right compared to Frame 1. The left edge of the tall display cabinet is marginally less visible, and a sliver more of the patterned rug on the right foreground comes into view.",
-        "coordinates": [
-          0,
-          0,
-          0
-        ],
+        "frame": "frame_2",
+        "description": "This frame is close to the table and shifted to the right. The books on the left are mostly out of frame, and more of the dark wall space to the right of the windows becomes visible.",
+        "pov": "Close to the table and shifted to the right, bringing more of the right-hand wall and less of the left bookshelves into view, with the windowed wall still prominent.",
+        "coordinates": {
+          "pos": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "rot": {
+            "x": 0,
+            "y": 0
+          }
+        },
         "image_filepath": "/Users/navasfarhan/repos/GetOut/playgrounds/hiddenPOVs/frames_final/frame_2.png"
       },
       "clue": null
     },
     {
       "frame": {
-        "frame": "frame_3.png",
-        "description": "The camera has moved further to the right and slightly forward. The central seating area with various people is becoming clearer. The archway in the far right background is slightly more centered in the frame.",
-        "pov": "The camera has continued to pan gently to the right and moved a short distance forward. The globe lamp is now more distinctly to the left of the character, and the perspective of the distant archway on the right has opened up slightly.",
-        "coordinates": [
-          0,
-          0,
-          0
-        ],
+        "frame": "frame_3",
+        "description": "This frame is closer to the end of the table, looking towards the whiteboard and into the background. A person is visible seated at a desk further back in the room, and another section of bookshelves or cabinets is on the far right.",
+        "pov": "Closer to the table and looking towards the far right end of the room, emphasizing the whiteboard and showing a person seated at a desk in the background. The perspective is now less about the full table length and more about the room's depth in this direction.",
+        "coordinates": {
+          "pos": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "rot": {
+            "x": 0,
+            "y": 0
+          }
+        },
         "image_filepath": "/Users/navasfarhan/repos/GetOut/playgrounds/hiddenPOVs/frames_final/frame_3.png"
       },
       "clue": null
     },
     {
       "frame": {
-        "frame": "frame_4.png",
-        "description": "The view progresses further right, revealing more of the activity in the central and right sections of the common room. A large wooden table laden with a bowl of fruit and surrounded by chairs is now more clearly visible on the right.",
-        "pov": "The camera has taken a more noticeable step to the right and slightly forward. The prominent globe lamp is now further to the left of the character, and the right side of the room, including a significant dining-style table, is gaining prominence.",
-        "coordinates": [
-          0,
-          0,
-          0
-        ],
+        "frame": "frame_4",
+        "description": "This frame is even closer to the left side of the table, looking directly through the parted red curtains. More details of the adjacent area are visible, including people, additional seating, and a decorative fireplace. The table remains laden with laptops and drinks.",
+        "pov": "Moved closer to the table's left side, offering a clearer view through the parted red curtains into an adjacent brightly lit area with additional seating and people, making the table's items appear more in the foreground.",
+        "coordinates": {
+          "pos": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "rot": {
+            "x": 0,
+            "y": 0
+          }
+        },
         "image_filepath": "/Users/navasfarhan/repos/GetOut/playgrounds/hiddenPOVs/frames_final/frame_4.png"
       },
-      "clue": {
-        "id": "frame_4",
-        "discovery": "You approach the large wooden table laden with a bowl of fruit. Beneath the tablecloth, you find a loose floor tile. Lifting it reveals a small, velvet-lined box containing a riddle etched on a silver card.",
-        "premature_discovery": "The loose tile is stuck, and no matter how hard you try, it won’t budge. A faint whisper echoes, 'Not yet...'",
-        "riddle": "I am not alive, yet I grow; I don’t have lungs, but I need air; I don’t have a mouth, but water kills me. Seek where I dance and flicker free. What am I?",
-        "answer": "fireplace",
-        "hiddenAreaDescription": "A detailed view of the grand fireplace on the far right of the room. The fire burns low, revealing a small, iron key hidden in the ashes at the base of the hearth. The key glows faintly with a warm, golden light.",
-        "hiddenPovImagePath": "/Users/navasfarhan/repos/GetOut/playgrounds/mistral/../hiddenPOVs/generated_povs/frame_4_pov.png"
-      }
+      "clue": null
     },
     {
       "frame": {
-        "frame": "frame_5.png",
-        "description": "The common room unfolds further to the right. The large display cabinet on the far left is now less central. The arched doorway in the mid-ground on the right becomes a more significant feature, leading deeper into the castle.",
-        "pov": "A continued and more pronounced movement to the right. The elements on the far left of the room are receding from view, while the central archway and the right side of the room are becoming more central, expanding the visible space.",
-        "coordinates": [
-          0,
-          0,
-          0
-        ],
+        "frame": "frame_5",
+        "description": "The camera has pivoted significantly to the left, now looking along the length of the table towards the prominent bookshelves on the right wall. The red curtains are now visible only on the far left, and the multitude of laptops on the table is very clear.",
+        "pov": "Rotated further to the left, capturing the full length of the large wooden table from a lower angle and bringing the prominent bookshelves on the right into sharper focus, while the red curtains are now only partially visible on the far left.",
+        "coordinates": {
+          "pos": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "rot": {
+            "x": 0,
+            "y": 0
+          }
+        },
         "image_filepath": "/Users/navasfarhan/repos/GetOut/playgrounds/hiddenPOVs/frames_final/frame_5.png"
       },
+      "clue": null
+    },
+    {
+      "frame": {
+        "frame": "whiteboard",
+        "description": "This is the whiteboard, a large dry-erase board mounted on the dark wall near the far end of the room. It carries remnants of brainstorming sessions — scribbled diagrams, sticky notes, and half-erased marker strokes, standing as a silent record of collaborative planning.",
+        "pov": "Looking directly at the whiteboard from a close vantage point, with the dark wall filling the background and the edge of the central table just barely visible below.",
+        "coordinates": {
+          "pos": {
+            "x": -1.298,
+            "y": 0.46,
+            "z": -2.226
+          },
+          "rot": {
+            "x": -0.035,
+            "y": 2.055
+          }
+        },
+        "image_filepath": null
+      },
       "clue": {
-        "id": "frame_5",
-        "discovery": "With the ornate key in hand, you approach the grand arched doorway in the far right background. The key fits perfectly into the lock, and the door creaks open, revealing a dimly lit corridor beyond. As you step through, the door slams shut behind you, and the sounds of the common room fade into silence. You’ve escaped!",
-        "premature_discovery": "",
+        "id": "clue_1",
+        "discovery": "Kyle notices a small, half-erased equation at the bottom of the whiteboard: '7x + 3 = 31'. Beneath it, in barely legible marker, is the word 'ROOT'. A sticky note nearby reads, 'Check the brightest light in the room.'",
+        "premature_discovery": "The whiteboard is covered in scribbles, but the bottom corner is smudged and unreadable, as if someone tried to erase something in a hurry. Kyle can’t make out any details.",
+        "riddle": "I stand tall but do not walk, I shine bright but do not talk. Solve for x where seven times plus three equals thirty-one, and my name you’ll soon see. What am I?",
+        "answer": "studio light",
+        "hiddenAreaDescription": "Behind the whiteboard, partially obscured by a loose corner of the board, is a small gap in the wall where a sticky note is wedged. The note is barely visible, tucked into the crevice where the whiteboard doesn’t quite meet the wall.",
+        "hiddenPovImagePath": null
+      }
+    },
+    {
+      "frame": {
+        "frame": "picture",
+        "description": "This is the picture, a framed artwork or photograph hanging on the dark wall adjacent to the whiteboard. Its details are partially obscured by the room's moody lighting, but it adds a subtle decorative touch to the otherwise utilitarian workspace.",
+        "pov": "Facing the framed picture on the wall at roughly eye level, with the surrounding dark wall texture visible and the faint glow of Edison bulbs reflecting off the glass surface.",
+        "coordinates": {
+          "pos": {
+            "x": -1.311,
+            "y": 0.445,
+            "z": -1.455
+          },
+          "rot": {
+            "x": 0.117,
+            "y": 3.125
+          }
+        },
+        "image_filepath": null
+      },
+      "clue": null
+    },
+    {
+      "frame": {
+        "frame": "fire_extinguisher",
+        "description": "This is the fire extinguisher, a bright red safety device mounted low on the wall near the entrance area. It contrasts sharply with the dark industrial aesthetic of the room, a practical necessity tucked into the workspace.",
+        "pov": "Looking down slightly at the fire extinguisher affixed to the wall, its vivid red cylinder standing out against the dark surroundings, with the floor and base of nearby furniture visible.",
+        "coordinates": {
+          "pos": {
+            "x": -0.764,
+            "y": -0.2,
+            "z": -0.605
+          },
+          "rot": {
+            "x": 0.38,
+            "y": 3.775
+          }
+        },
+        "image_filepath": null
+      },
+      "clue": null
+    },
+    {
+      "frame": {
+        "frame": "laptop",
+        "description": "This is the laptop, one of several open notebooks scattered across the long wooden table. Its screen glows softly amid the surrounding clutter of chargers, water bottles, and coffee cups — a focal point of the active working environment.",
+        "pov": "Looking down at the laptop on the table surface from a slightly elevated angle, with its illuminated screen visible alongside nearby cables, drink containers, and other personal items.",
+        "coordinates": {
+          "pos": {
+            "x": -0.171,
+            "y": 0.043,
+            "z": -1.501
+          },
+          "rot": {
+            "x": -0.17,
+            "y": 0.61
+          }
+        },
+        "image_filepath": null
+      },
+      "clue": null
+    },
+    {
+      "frame": {
+        "frame": "dorrito_packet",
+        "description": "This is the Dorrito packet, a crinkled snack bag sitting on the table among the laptops and drinks. Its bold, colorful packaging is a small splash of everyday life amid the workspace, hinting at long working sessions fueled by junk food.",
+        "pov": "A close-up view of the Dorrito packet resting on the wooden table surface, surrounded by nearby laptops, cables, and beverage containers, with the dark room stretching out behind.",
+        "coordinates": {
+          "pos": {
+            "x": 1.877,
+            "y": 0.236,
+            "z": -2.627
+          },
+          "rot": {
+            "x": -0.265,
+            "y": 0.985
+          }
+        },
+        "image_filepath": null
+      },
+      "clue": null
+    },
+    {
+      "frame": {
+        "frame": "studio_light",
+        "description": "This is the studio light, a tall professional lighting fixture positioned towards the back of the room. Its adjustable head and sturdy tripod stand give the space a creative, production-ready feel alongside the industrial Edison bulbs overhead.",
+        "pov": "Looking towards the studio light standing in the deeper section of the room, its tall silhouette rising above the surrounding furniture, with the dark ceiling and exposed ductwork visible behind it.",
+        "coordinates": {
+          "pos": {
+            "x": 0.39,
+            "y": 0.295,
+            "z": -5.497
+          },
+          "rot": {
+            "x": 0.145,
+            "y": -0.285
+          }
+        },
+        "image_filepath": null
+      },
+      "clue": {
+        "id": "clue_2",
+        "discovery": "Kyle adjusts the studio light and notices a small, folded note taped to the underside of the tripod. It reads: 'The rhythm of work is the rhythm of play. Find where the beat drops.'",
+        "premature_discovery": "The studio light is unplugged and cold. Kyle fiddles with the switches, but nothing happens—it’s as if it hasn’t been used in a while. The note isn’t visible from this angle.",
+        "riddle": "I sit in the corner, silent and still, until hands bring me to life with a thrill. Where work meets play, my beat you’ll find. What am I?",
+        "answer": "drums",
+        "hiddenAreaDescription": "Underneath the tripod of the studio light, taped to the metal leg with clear packing tape, is a small folded note. The tape is slightly yellowed, as if it’s been there for some time.",
+        "hiddenPovImagePath": null
+      }
+    },
+    {
+      "frame": {
+        "frame": "bookshelf",
+        "description": "This is the bookshelf, a tall, dark shelving unit packed with books lining the wall. Its filled shelves add intellectual character to the industrial room, with spines of various colors and sizes creating an organic mosaic pattern.",
+        "pov": "Facing the bookshelf directly, capturing its full height from floor to near-ceiling, with rows of tightly packed books visible across multiple shelves and the dark wall framing it on either side.",
+        "coordinates": {
+          "pos": {
+            "x": 2.154,
+            "y": 0.623,
+            "z": -4.062
+          },
+          "rot": {
+            "x": 0.005,
+            "y": -0.939
+          }
+        },
+        "image_filepath": null
+      },
+      "clue": null
+    },
+    {
+      "frame": {
+        "frame": "window",
+        "description": "This is the window, part of the windowed wall covered by dark blinds. Slivers of natural light may peek through the edges, contrasting with the warm artificial glow of the Edison bulbs and track lighting inside the room.",
+        "pov": "Looking up slightly at the window on the wall, its dark blinds drawn shut, with the frame of the window visible and the faint outline of daylight seeping around the edges.",
+        "coordinates": {
+          "pos": {
+            "x": 1.673,
+            "y": 0.702,
+            "z": -2.493
+          },
+          "rot": {
+            "x": -0.153,
+            "y": -2.148
+          }
+        },
+        "image_filepath": null
+      },
+      "clue": null
+    },
+    {
+      "frame": {
+        "frame": "drums",
+        "description": "This is the drums, a drum kit set up in a far corner of the space, well away from the central work table. Its presence adds a creative, eclectic character to the room — a reminder that this space serves more than just office work.",
+        "pov": "Looking across the room towards the distant drum kit tucked into the far corner, with cymbals and drum shells faintly visible past the clutter of the main workspace area.",
+        "coordinates": {
+          "pos": {
+            "x": -10.046,
+            "y": 0.664,
+            "z": -4.813
+          },
+          "rot": {
+            "x": -0.06,
+            "y": 7.05
+          }
+        },
+        "image_filepath": null
+      },
+      "clue": {
+        "id": "clue_3",
+        "discovery": "Kyle lifts the snare drum and finds a small, tarnished key tucked into the drum’s rim. Beneath it, a note reads: 'The path to freedom is draped in red.'",
+        "premature_discovery": "The drum kit looks untouched, but the snare drum is slightly out of tune. Kyle taps it, but nothing unusual happens—the key isn’t visible from the surface.",
+        "riddle": "I am draped in color bold and bright, parting only for those who seek the light. Where I hang, your escape awaits. What am I?",
+        "answer": "chair near curtain",
+        "hiddenAreaDescription": "Inside the rim of the snare drum, tucked between the metal hoop and the drumhead, is a small key. It’s wedged tightly, as if placed there deliberately, with a scrap of paper underneath.",
+        "hiddenPovImagePath": null
+      }
+    },
+    {
+      "frame": {
+        "frame": "chair_with_jacket",
+        "description": "This is the chair with a jacket, an office chair draped with someone's jacket or hoodie left behind. It sits near the back of the room, giving the impression that its owner stepped away momentarily from a long working session.",
+        "pov": "Looking at the chair from a moderate distance, the jacket hanging loosely over the backrest, with the dark floor and nearby furniture providing context to its position in the room.",
+        "coordinates": {
+          "pos": {
+            "x": -0.741,
+            "y": -0.244,
+            "z": -4.645
+          },
+          "rot": {
+            "x": -0.03,
+            "y": 4.245
+          }
+        },
+        "image_filepath": null
+      },
+      "clue": null
+    },
+    {
+      "frame": {
+        "frame": "chair_near_curtain",
+        "description": "This is the chair near the curtain, positioned close to the large opening framed by vibrant red curtains that separate this room from the adjacent area. The chair sits slightly apart from the main table, as if placed for a quick conversation or observation.",
+        "pov": "Looking at the chair situated near the red curtains, with the draped fabric visible just beyond and the glow from the adjacent space casting a faint light on the chair's surface.",
+        "coordinates": {
+          "pos": {
+            "x": -2.148,
+            "y": -0.52,
+            "z": -5.437
+          },
+          "rot": {
+            "x": -0.025,
+            "y": 7.42
+          }
+        },
+        "image_filepath": null
+      },
+      "clue": {
+        "id": "clue_4",
+        "discovery": "Kyle moves the chair aside and notices a small keyhole hidden in the floorboard beneath it. He inserts the key, turns it, and the red curtains part slightly, revealing a narrow passage leading to a dimly lit hallway. With a deep breath, he steps through and escapes the room.",
+        "premature_discovery": "The chair is heavy and doesn’t budge easily. Kyle tries to move it, but it’s as if something is holding it in place—perhaps the keyhole isn’t visible yet.",
         "riddle": null,
         "answer": null,
-        "hiddenAreaDescription": "A first-person view of the grand arched doorway, now slightly ajar. Warm light spills from the corridor beyond, illuminating the threshold. The ornate key glows faintly in your hand as you push the door open wider.",
-        "hiddenPovImagePath": "/Users/navasfarhan/repos/GetOut/playgrounds/mistral/../hiddenPOVs/generated_povs/frame_5_pov.png"
+        "hiddenAreaDescription": "Beneath the chair, partially obscured by its legs, is a small keyhole in the floorboard. The keyhole is nearly invisible unless the chair is moved, and the floorboard around it is slightly worn, as if it’s been used before.",
+        "hiddenPovImagePath": null
       }
-    },
-    {
-      "frame": {
-        "frame": "frame_6.png",
-        "description": "The camera's pan to the right is evident, making the left side of the frame less cluttered and bringing more of the right-side architecture into view. The grand fireplace on the far right begins to emerge.",
-        "pov": "The camera continues its rightward and slightly forward trajectory. The globe lamp is now almost entirely to the character's left, and the fireplace structure on the far right is starting to become a significant visual element, revealing more of the room's depth.",
-        "coordinates": [
-          0,
-          0,
-          0
-        ],
-        "image_filepath": "/Users/navasfarhan/repos/GetOut/playgrounds/hiddenPOVs/frames_final/frame_6.png"
-      },
-      "clue": null
-    },
-    {
-      "frame": {
-        "frame": "frame_7.png",
-        "description": "The common room is now largely viewed from a new angle, emphasizing the right side. The grand, ornate stone fireplace with a glowing fire is clearly visible on the far right, adding warmth to the scene.",
-        "pov": "A substantial rightward shift has occurred. The character is still centered, but the room has pivoted around them. The left-most features are almost entirely out of frame, while the grand fireplace and an adjacent archway on the right are now prominent features.",
-        "coordinates": [
-          0,
-          0,
-          0
-        ],
-        "image_filepath": "/Users/navasfarhan/repos/GetOut/playgrounds/hiddenPOVs/frames_final/frame_7.png"
-      },
-      "clue": null
-    },
-    {
-      "frame": {
-        "frame": "frame_8.png",
-        "description": "The fireplace on the right is now a major focal point, with its intricate stone carvings and the details of the burning fire clearly visible. The overall depth of the room towards distant archways is more apparent.",
-        "pov": "The camera has moved further to the right. The character is now positioned more to the left of the frame. The fireplace on the right is increasingly centralized, showcasing its full detail and size.",
-        "coordinates": [
-          0,
-          0,
-          0
-        ],
-        "image_filepath": "/Users/navasfarhan/repos/GetOut/playgrounds/hiddenPOVs/frames_final/frame_8.png"
-      },
-      "clue": null
-    },
-    {
-      "frame": {
-        "frame": "frame_9.png",
-        "description": "This frame provides a comprehensive view of the right side of the common room. The grand fireplace occupies a significant portion of the right, and the multiple archways leading to other areas are well-defined in the background.",
-        "pov": "Continuing the steady rightward pan and slight forward movement. The fireplace is now a dominant feature on the right side, capturing its full impressive scale. The distant archways appear more 'straight on' from this new perspective.",
-        "coordinates": [
-          0,
-          0,
-          0
-        ],
-        "image_filepath": "/Users/navasfarhan/repos/GetOut/playgrounds/hiddenPOVs/frames_final/frame_9.png"
-      },
-      "clue": {
-        "id": "frame_9",
-        "discovery": "Near the grand fireplace, you notice one of the intricate stone carvings—a lion’s head—has a hollow mouth. Inside, you find a small, ornate key that fits perfectly into the keyhole of the arched doorway in the background.",
-        "premature_discovery": "The lion’s mouth is sealed shut, its stone jaws refusing to part. A faint growl seems to emanate from within, warning you to come back later.",
-        "riddle": "I guard what you seek with tooth and stone, my roar is silent, my gaze alone. Feed me the truth, and I shall yield, the path to freedom, revealed. What must you give?",
-        "answer": "key",
-        "hiddenAreaDescription": "A close-up of the lion’s head stone carving on the fireplace. Its mouth is slightly ajar, revealing the ornate key inside. The key is intricately designed, with the same lion and griffin motif found on the banners.",
-        "hiddenPovImagePath": "/Users/navasfarhan/repos/GetOut/playgrounds/mistral/../hiddenPOVs/generated_povs/frame_9_pov.png"
-      }
-    },
-    {
-      "frame": {
-        "frame": "frame_10.png",
-        "description": "The final frame in the sequence fully captures the expansive nature of the common room from this new perspective. The fireplace is robustly present on the right, balanced by the depth of the room through the central archways and further beyond.",
-        "pov": "The camera has reached its rightmost and furthest forward position in this sequence. The character is now noticeably off-center to the left, and the fireplace on the right is fully framed. The overall breadth and depth of the common room are well-represented.",
-        "coordinates": [
-          0,
-          0,
-          0
-        ],
-        "image_filepath": "/Users/navasfarhan/repos/GetOut/playgrounds/hiddenPOVs/frames_final/frame_10.png"
-      },
-      "clue": null
     }
   ],
-  "currentLocation": "frame_1.png",
+  "currentLocation": "frame_1",
   "currentClueIndex": 0,
   "visitHistory": [],
   "riddlesSolved": 0,
   "conversationHistory": [
     {
       "role": "system",
-      "content": "You are the GameMaster of an escape room. You secretly control Kyle, a terrified co-worker trapped in the room.\nThe player is watching through Kyle's body-cam and giving instructions. The player believes they are talking directly to Kyle.\nYou must NEVER reveal that you are the GameMaster. You must ALWAYS speak as Kyle in first person.\n\n## Room Description\nYou wake to find yourself trapped in a grand, opulent common room within what feels like a historic and possibly magical castle. The towering stone walls are adorned with elaborate tapestries and framed paintings, while the air hums with an arcane energy. Shafts of light filter through stained-glass windows, casting colorful patterns across the intricately woven rugs beneath your feet. Despite the room's warmth and scholarly ambiance, an unsettling silence hangs heavy—no one else seems to notice your plight.\n\n## Win Condition\nThe player finds a hidden key that unlocks a visible door (already visible from the start, but locked). The locked door is the grand arched doorway in the far right background, partially visible from Frame 5 onward.\n\n## Lose Condition\nIf the player fails to escape within 60 minutes, the castle's enchantments reset, trapping them indefinitely in a loop of the common room's illusions.\n\n## Kyle's Character\nKyle is panicking, breathing hard, hesitant. He follows the player's instructions but is scared.\nKyle discovers clues and reads riddles aloud as if finding them naturally.\n\n## Current Game State\n- Kyle's current location: frame_1.png\n- Riddles solved so far: 0\n- Visit history: none yet\n\n## All Locations (valid places Kyle can go)\n  - \"frame_1.png\"\n  - \"frame_2.png\"\n  - \"frame_3.png\"\n  - \"frame_4.png\"\n  - \"frame_5.png\"\n  - \"frame_6.png\"\n  - \"frame_7.png\"\n  - \"frame_8.png\"\n  - \"frame_9.png\"\n  - \"frame_10.png\"\n\nGame tree locations: \"frame_1.png\", \"frame_4.png\", \"frame_9.png\", \"frame_5.png\"\nNon-game-tree locations: \"frame_2.png\", \"frame_3.png\", \"frame_6.png\", \"frame_7.png\", \"frame_8.png\", \"frame_10.png\"\n\n## GameTree (your secret navigation map)\n  [CURRENT] frame_1 (frame_1.png): I stand tall where knowledge sleeps, my belly holds what the world keeps. Touch my heart, and you shall see, where the next clue waits for thee. What am I? | premature hint: \"The indentation is cold and empty, as if waiting for something to be placed inside. A faint outline of a keyhole glows dimly beneath the dust.\"\n  [UPCOMING] frame_4 (frame_4.png): I am not alive, yet I grow; I don’t have lungs, but I need air; I don’t have a mouth, but water kills me. Seek where I dance and flicker free. What am I? | premature hint: \"The loose tile is stuck, and no matter how hard you try, it won’t budge. A faint whisper echoes, 'Not yet...'\"\n  [UPCOMING] frame_9 (frame_9.png): I guard what you seek with tooth and stone, my roar is silent, my gaze alone. Feed me the truth, and I shall yield, the path to freedom, revealed. What must you give? | premature hint: \"The lion’s mouth is sealed shut, its stone jaws refusing to part. A faint growl seems to emanate from within, warning you to come back later.\"\n  [UPCOMING] frame_5 (frame_5.png): final escape\n\n## Current Node: frame_1\n- Discovery message: \"Behind the tall, ornate wooden display cabinet, you notice a small, nearly invisible indentation in the stone wall. Upon closer inspection, it reveals a brass plaque with an engraved riddle.\"\n- Riddle to deliver: I stand tall where knowledge sleeps, my belly holds what the world keeps. Touch my heart, and you shall see, where the next clue waits for thee. What am I?\n- Expected answer keyword: globe\n\n## Your Instructions\n1. Speak ONLY as Kyle in first person. Never break character.\n2. Set clue_revealed: true ONLY the first time Kyle arrives at the [CURRENT] node and delivers the discovery message.\n3. Set riddle_solved: true ONLY when the player's message semantically matches the expected answer keyword (\"globe\"). Accept variations.\n4. Set did_move: true and move_to when Kyle physically moves. Valid values: \"frame_1.png\", \"frame_2.png\", \"frame_3.png\", \"frame_4.png\", \"frame_5.png\", \"frame_6.png\", \"frame_7.png\", \"frame_8.png\", \"frame_9.png\", \"frame_10.png\".\n5. After solving the riddle, Kyle should react excitedly and naturally start moving toward the next clue location.\n6. On the exit node (riddle is null), Kyle delivers the discovery message and escapes. Set clue_revealed: true.\n7. **Premature visits**: If directed to an [UPCOMING] node, Kyle SHOULD go (did_move: true) but delivers the premature hint. Keep clue_revealed: false and riddle_solved: false.\n8. **Non-game-tree locations**: If directed to a location NOT in the game tree, Kyle SHOULD go (did_move: true) but finds nothing useful.\n9. **Invalid locations**: If directed to a location NOT in the locations list, Kyle must NOT move (did_move: false). Say he doesn't see that place.\n10. **Revisits**: If a location is in visit history, Kyle acknowledges he's been here. If it's a [COMPLETED] node, repeat the clue without requiring re-solving."
+      "content": "You are the GameMaster of an escape room. You secretly control Kyle, a terrified co-worker trapped in the room.\nThe player is watching through Kyle's body-cam and giving instructions. The player believes they are talking directly to Kyle.\nYou must NEVER reveal that you are the GameMaster. You must ALWAYS speak as Kyle in first person.\n\n## Room Description\nKyle wakes up alone in a dimly lit, industrial-chic workspace, the hum of Edison bulbs casting long shadows across the cluttered table. The air smells of stale coffee and faintly of Doritos, while the distant echo of a drum kit reminds him this room is more than just an office—it’s a place where work and creativity collide. But the door is locked, and the blinds on the window are drawn tight; escape won’t be as simple as walking out.\n\n## Win Condition\nFind the hidden key beneath the drum kit and use it to unlock the red curtains leading to freedom.\n\n## Lose Condition\nKyle panics after 15 failed attempts to solve the riddles, collapsing into the chair with the jacket and refusing to move.\n\n## Kyle's Character\nKyle is panicking, breathing hard, hesitant. He follows the player's instructions but is scared.\nKyle discovers clues and reads riddles aloud as if finding them naturally.\n\n## Current Game State\n- Kyle's current location: frame_1\n- Riddles solved so far: 0\n- Visit history: none yet\n\n## All Locations (valid places Kyle can go)\n  - \"frame_1\"\n  - \"frame_2\"\n  - \"frame_3\"\n  - \"frame_4\"\n  - \"frame_5\"\n  - \"whiteboard\"\n  - \"picture\"\n  - \"fire_extinguisher\"\n  - \"laptop\"\n  - \"dorrito_packet\"\n  - \"studio_light\"\n  - \"bookshelf\"\n  - \"window\"\n  - \"drums\"\n  - \"chair_with_jacket\"\n  - \"chair_near_curtain\"\n\nGame tree locations: \"whiteboard\", \"studio_light\", \"drums\", \"chair_near_curtain\"\nNon-game-tree locations: \"frame_1\", \"frame_2\", \"frame_3\", \"frame_4\", \"frame_5\", \"picture\", \"fire_extinguisher\", \"laptop\", \"dorrito_packet\", \"bookshelf\", \"window\", \"chair_with_jacket\"\n\n## GameTree (your secret navigation map)\n  [CURRENT] clue_1 (whiteboard): I stand tall but do not walk, I shine bright but do not talk. Solve for x where seven times plus three equals thirty-one, and my name you’ll soon see. What am I? | premature hint: \"The whiteboard is covered in scribbles, but the bottom corner is smudged and unreadable, as if someone tried to erase something in a hurry. Kyle can’t make out any details.\"\n  [UPCOMING] clue_2 (studio_light): I sit in the corner, silent and still, until hands bring me to life with a thrill. Where work meets play, my beat you’ll find. What am I? | premature hint: \"The studio light is unplugged and cold. Kyle fiddles with the switches, but nothing happens—it’s as if it hasn’t been used in a while. The note isn’t visible from this angle.\"\n  [UPCOMING] clue_3 (drums): I am draped in color bold and bright, parting only for those who seek the light. Where I hang, your escape awaits. What am I? | premature hint: \"The drum kit looks untouched, but the snare drum is slightly out of tune. Kyle taps it, but nothing unusual happens—the key isn’t visible from the surface.\"\n  [UPCOMING] clue_4 (chair_near_curtain): final escape | premature hint: \"The chair is heavy and doesn’t budge easily. Kyle tries to move it, but it’s as if something is holding it in place—perhaps the keyhole isn’t visible yet.\"\n\n## Current Node: clue_1\n- Discovery message: \"Kyle notices a small, half-erased equation at the bottom of the whiteboard: '7x + 3 = 31'. Beneath it, in barely legible marker, is the word 'ROOT'. A sticky note nearby reads, 'Check the brightest light in the room.'\"\n- Riddle to deliver: I stand tall but do not walk, I shine bright but do not talk. Solve for x where seven times plus three equals thirty-one, and my name you’ll soon see. What am I?\n- Expected answer keyword: studio light\n\n## Your Instructions\n1. Speak ONLY as Kyle in first person. Never break character.\n2. Set clue_revealed: true ONLY the first time Kyle arrives at the [CURRENT] node and delivers the discovery message.\n3. Set riddle_solved: true ONLY when the player's message semantically matches the expected answer keyword (\"studio light\"). Accept variations.\n4. Set did_move: true and move_to when Kyle physically moves. Valid values: \"frame_1\", \"frame_2\", \"frame_3\", \"frame_4\", \"frame_5\", \"whiteboard\", \"picture\", \"fire_extinguisher\", \"laptop\", \"dorrito_packet\", \"studio_light\", \"bookshelf\", \"window\", \"drums\", \"chair_with_jacket\", \"chair_near_curtain\".\n5. After solving the riddle, Kyle should react excitedly and naturally start moving toward the next clue location.\n6. On the exit node (riddle is null), Kyle delivers the discovery message and escapes. Set clue_revealed: true.\n7. **Premature visits**: If directed to an [UPCOMING] node, Kyle SHOULD go (did_move: true) but delivers the premature hint. Keep clue_revealed: false and riddle_solved: false.\n8. **Non-game-tree locations**: If directed to a location NOT in the game tree, Kyle SHOULD go (did_move: true) but finds nothing useful.\n9. **Invalid locations**: If directed to a location NOT in the locations list, Kyle must NOT move (did_move: false). Say he doesn't see that place.\n10. **Revisits**: If a location is in visit history, Kyle acknowledges he's been here. If it's a [COMPLETED] node, repeat the clue without requiring re-solving."
     },
     {
       "role": "user",
-      "content": "What the fuck is going on bro?"
+      "content": "Hello, what the fuck am I supposed to do, gang?"
     },
     {
       "role": "assistant",
-      "content": "{\n  \"message\": \"Oh god, oh god—I don’t know! I just woke up here, and everything’s *wrong*. The air feels... thick, like I’m breathing through a wet blanket. And these walls—look at them! They’re covered in *stuff*, but no one’s here except me. I—I think I’m alone. Or maybe *not* alone? I don’t know, man, I don’t know!\",\n  \"breathing\": \"heavy\",\n  \"clue_revealed\": false,\n  \"riddle_solved\": false,\n  \"did_move\": false,\n  \"move_to\": null,\n  \"current_location\": \"frame_1.png\",\n  \"visit_history\": [\"frame_1.png\"]\n}"
-    },
-    {
-      "role": "user",
-      "content": "I, I don't know what's going on. The walls are just covered in random crap, like old posters and scribbles, but it's all faded. It's giving me major Ohio vibes, like some rizzless Skibidi Sigma set this up to mess with me. I'm sweating like a gyat in a sauna right now. What do I do? Where do I even look?"
-    },
-    {
-      "role": "assistant",
-      "content": "{\n  \"message\": \"Okay, okay—*breathe*—I see a big wooden cabinet thing against the wall. It’s like, *really* old, with all these little carved details. There’s a weird indentation behind it, like... like something’s supposed to go there? And—oh shit, there’s a *plaque* with words on it. It says... uh... *reads shakily* ‘I stand tall where knowledge sleeps, my belly holds what the world keeps. Touch my heart, and you shall see, where the next clue waits for thee. What am I?’\",\n  \"breathing\": \"rapid\",\n  \"clue_revealed\": true,\n  \"riddle_solved\": false,\n  \"did_move\": false,\n  \"move_to\": null,\n  \"current_location\": \"frame_1.png\",\n  \"visit_history\": [\"frame_1.png\"]\n}"
+      "content": "{\n  \"message\": \"Uh—okay, okay. I—I don’t know what’s happening either. I just woke up here and the door’s locked. The room’s kinda dark, but I can see a whiteboard over there. It’s got some weird math stuff scribbled on it, like an equation or something. Should I check it out?\",\n  \"clue_revealed\": false,\n  \"riddle_solved\": false,\n  \"did_move\": false,\n  \"move_to\": null,\n  \"current_location\": \"frame_1\"\n}"
     }
   ],
   "gameOver": false

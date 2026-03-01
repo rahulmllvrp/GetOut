@@ -13,7 +13,10 @@ type FrameNode = {
   frame: string;
   description: string;
   pov: string;
-  coordinates: [number, number, number];
+  coordinates: {
+    pos: { x: number; y: number; z: number };
+    rot: { x: number; y: number };
+  };
   image_filepath: string;
 };
 
@@ -117,7 +120,7 @@ function normalizeFrameNodes(
       frame: node.frame,
       description: node.description,
       pov: node.pov,
-      coordinates: [0, 0, 0],
+      coordinates: { pos: { x: 0, y: 0, z: 0 }, rot: { x: 0, y: 0 } },
       image_filepath: framePaths[index]!,
     };
   });
