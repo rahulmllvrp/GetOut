@@ -10,6 +10,11 @@ export async function POST(req: NextRequest) {
     ? `Generate a first-person POV image of what someone would see when they discover this hidden area in the room shown above. The hidden area is: ${hiddenPovDescription}. The image should feel like a close-up, intimate view of the discovery — as if someone is crouching down or reaching into the hidden spot. Keep the art style and lighting consistent with the reference image. Do NOT include any text or UI elements in the image.`
     : "This image is blurry. Can you please clear it up? Make it feel a bit darker and gloomier.";
 
+  const t0 = performance.now();
   const result = await generateImageFromBase64(base64, prompt);
-  return NextResponse.json({ imageDataUrl: result.imageDataUrl });
+  const geminiMs = Math.round(performance.now() - t0);
+
+  return NextResponse.json({ imageDataUrl: result.imageDataUrl }, {
+    headers: { "Server-Timing": `gemini-image;dur=${geminiMs}` },
+  });
 }

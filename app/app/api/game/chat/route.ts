@@ -21,9 +21,13 @@ export async function POST(req: Request) {
       );
     }
 
+    const t0 = performance.now();
     const result = await chat(message, state);
+    const chatMs = Math.round(performance.now() - t0);
 
-    return NextResponse.json(result);
+    return NextResponse.json(result, {
+      headers: { "Server-Timing": `mistral-chat;dur=${chatMs}` },
+    });
   } catch (error: any) {
     console.error("[/api/game/chat]", error);
     return NextResponse.json(

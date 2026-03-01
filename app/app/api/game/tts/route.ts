@@ -18,6 +18,7 @@ export async function POST(req: Request) {
       );
     }
 
+    const t0 = performance.now();
     const audioStream = await elevenlabs.textToSpeech.convert(VOICE_ID, {
       text,
       modelId: "eleven_v3",
@@ -33,11 +34,13 @@ export async function POST(req: Request) {
       if (value) chunks.push(value);
     }
     const audioBuffer = Buffer.concat(chunks);
+    const ttsMs = Math.round(performance.now() - t0);
 
     return new NextResponse(audioBuffer, {
       headers: {
         "Content-Type": "audio/mpeg",
         "Content-Length": audioBuffer.length.toString(),
+        "Server-Timing": `elevenlabs-tts;dur=${ttsMs}`,
       },
     });
   } catch (error: unknown) {

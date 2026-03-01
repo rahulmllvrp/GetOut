@@ -22,12 +22,16 @@ export async function POST(req: Request) {
       type: audioFile.type || "audio/webm",
     });
 
+    const t0 = performance.now();
     const result = await elevenlabs.speechToText.convert({
       file,
       modelId: "scribe_v2",
     });
+    const sttMs = Math.round(performance.now() - t0);
 
-    return NextResponse.json({ text: result.text });
+    return NextResponse.json({ text: result.text }, {
+      headers: { "Server-Timing": `elevenlabs-stt;dur=${sttMs}` },
+    });
   } catch (error: any) {
     console.error("[/api/game/stt]", error);
     return NextResponse.json(

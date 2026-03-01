@@ -67,6 +67,12 @@ interface UseGameSessionOptions {
 export function useGameSession(options: UseGameSessionOptions = {}) {
   const { onMove, onClueRevealed, onGameOver } = options;
 
+  // ---- Kyle intro line (hardcoded — warms up TTS route on game start) ----
+  const KYLE_INTRO =
+    "Hello? Can anyone hear me? I... I think I'm locked in some kind of room. " +
+    "It's dark in here, smells like stale coffee and there's this weird ticking sound. " +
+    "Please, if you can hear me, what do i do!";
+
   // ---- Game state ----
   const [gameState, setGameState] = useState<ClientGameState | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -83,6 +89,33 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
+  const fillerAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  // ---- Filler audio (pre-recorded static files in /public/fillers/) ----
+  const FILLER_COUNT = 5;
+
+  const fillerTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const playFiller = useCallback(() => {
+    fillerTimeoutRef.current = setTimeout(() => {
+      const index = Math.floor(Math.random() * FILLER_COUNT);
+      const audio = new Audio(`/fillers/filler_${index}.mp3`);
+      fillerAudioRef.current = audio;
+      audio.play().catch(() => {});
+      fillerTimeoutRef.current = null;
+    }, 1500);
+  }, []);
+
+  const stopFiller = useCallback(() => {
+    if (fillerTimeoutRef.current) {
+      clearTimeout(fillerTimeoutRef.current);
+      fillerTimeoutRef.current = null;
+    }
+    if (fillerAudioRef.current) {
+      fillerAudioRef.current.pause();
+      fillerAudioRef.current = null;
+    }
+  }, []);
 
   // Keep latest callbacks in refs to avoid stale closures
   const onMoveRef = useRef(onMove);
@@ -113,11 +146,17 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
       setGameState(data);
       setMessages(data.conversationHistory);
       setLastResponse(null);
+
+      // Play Kyle's intro line (ambient — warms up TTS route + sets the mood)
+      if (data.conversationHistory.length === 0) {
+        playTTS(KYLE_INTRO);
+      }
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Unknown error");
     } finally {
       setIsLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Load game on mount
@@ -139,7 +178,10 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
       setIsLoading(true);
       setError(null);
 
+      const timing: Record<string, number> = {};
+
       try {
+        const t0 = performance.now();
         const res = await fetch("/api/game/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -149,6 +191,14 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
           const err = await res.json();
           throw new Error(err.error ?? "Chat failed");
         }
+        timing.chat = Math.round(performance.now() - t0);
+        // Extract server-side timing from header
+        const serverTiming = res.headers.get("Server-Timing");
+        if (serverTiming) {
+          const match = serverTiming.match(/dur=(\d+)/);
+          if (match) timing.chat_server = Number(match[1]);
+        }
+
         const data: ChatResponse = await res.json();
         setLastResponse(data);
 
@@ -190,7 +240,12 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
         }
 
         // Play Kyle's voice
-        await playTTS(data.kyle_response);
+        const ttsTimings = await playTTS(data.kyle_response);
+        timing.tts_fetch = ttsTimings.fetch;
+        timing.tts_playback = ttsTimings.playback;
+
+        // Log timing breakdown
+        console.table(timing);
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : "Unknown error");
       } finally {
@@ -205,40 +260,63 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
   // TTS playback
   // ------------------------------------------------------------------
 
-  const playTTS = useCallback(async (text: string) => {
-    setIsSpeaking(true);
-    try {
-      const res = await fetch("/api/game/tts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
-      });
-      if (!res.ok) {
-        console.error("[TTS] failed:", res.statusText);
-        return;
-      }
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const audio = new Audio(url);
-      audioElementRef.current = audio;
+  const playTTS = useCallback(
+    async (text: string): Promise<{ fetch: number; playback: number }> => {
+      // Stop any filler audio before playing the real response
+      stopFiller();
+      setIsSpeaking(true);
+      try {
+        const t0 = performance.now();
+        const res = await fetch("/api/game/tts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text }),
+        });
+        if (!res.ok) {
+          console.error("[TTS] failed:", res.statusText);
+          return { fetch: Math.round(performance.now() - t0), playback: 0 };
+        }
+        const blob = await res.blob();
+        const fetchMs = Math.round(performance.now() - t0);
 
-      await new Promise<void>((resolve) => {
-        audio.onended = () => {
-          URL.revokeObjectURL(url);
-          resolve();
-        };
-        audio.onerror = () => {
-          URL.revokeObjectURL(url);
-          resolve();
-        };
-        audio.play().catch(() => resolve());
-      });
-    } catch (e) {
-      console.error("[TTS] error:", e);
-    } finally {
-      setIsSpeaking(false);
-    }
-  }, []);
+        // Log server-side timing if available
+        const serverTiming = res.headers.get("Server-Timing");
+        if (serverTiming) {
+          const match = serverTiming.match(/dur=(\d+)/);
+          if (match)
+            console.log(
+              `[TTS] server: ${match[1]}ms, fetch round-trip: ${fetchMs}ms`,
+            );
+        }
+
+        const url = URL.createObjectURL(blob);
+        const audio = new Audio(url);
+        audioElementRef.current = audio;
+
+        const t1 = performance.now();
+        await new Promise<void>((resolve) => {
+          audio.onended = () => {
+            URL.revokeObjectURL(url);
+            resolve();
+          };
+          audio.onerror = () => {
+            URL.revokeObjectURL(url);
+            resolve();
+          };
+          audio.play().catch(() => resolve());
+        });
+        const playbackMs = Math.round(performance.now() - t1);
+
+        return { fetch: fetchMs, playback: playbackMs };
+      } catch (e) {
+        console.error("[TTS] error:", e);
+        return { fetch: 0, playback: 0 };
+      } finally {
+        setIsSpeaking(false);
+      }
+    },
+    [stopFiller],
+  );
 
   // ------------------------------------------------------------------
   // Stop TTS playback
@@ -257,6 +335,10 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
   // ------------------------------------------------------------------
 
   const startRecording = useCallback(async () => {
+    // Stop Kyle if he's still talking — player is interrupting
+    stopSpeaking();
+    stopFiller();
+
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const recorder = new MediaRecorder(stream, {
@@ -277,7 +359,7 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
       console.error("[Recording] error:", e);
       setError("Microphone access denied");
     }
-  }, []);
+  }, [stopSpeaking, stopFiller]);
 
   const stopRecording = useCallback(async () => {
     const recorder = mediaRecorderRef.current;
@@ -295,12 +377,17 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
         });
         audioChunksRef.current = [];
 
+        // Play a filler line while we wait for STT → chat → TTS
+        playFiller();
+
         // Transcribe
         setIsTranscribing(true);
+        const timing: Record<string, number> = {};
         try {
           const formData = new FormData();
           formData.append("audio", audioBlob, "recording.webm");
 
+          const t0 = performance.now();
           const res = await fetch("/api/game/stt", {
             method: "POST",
             body: formData,
@@ -309,8 +396,19 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
             const err = await res.json();
             throw new Error(err.error ?? "STT failed");
           }
+          timing.stt = Math.round(performance.now() - t0);
+          // Extract server-side timing from header
+          const serverTiming = res.headers.get("Server-Timing");
+          if (serverTiming) {
+            const match = serverTiming.match(/dur=(\d+)/);
+            if (match) timing.stt_server = Number(match[1]);
+          }
+
           const { text } = await res.json();
           if (text) {
+            console.log(
+              `[STT] "${text}" (${timing.stt}ms, server: ${timing.stt_server ?? "?"}ms)`,
+            );
             await sendMessage(text);
           }
         } catch (e: unknown) {
@@ -324,7 +422,7 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
 
       recorder.stop();
     });
-  }, [sendMessage]);
+  }, [sendMessage, playFiller]);
 
   // ------------------------------------------------------------------
   // Reset game
