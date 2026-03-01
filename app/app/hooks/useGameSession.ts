@@ -16,6 +16,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
+export type GameMode = "normal" | "brainrot" | "nsfw";
+
 // ---------------------------------------------------------------------------
 // Types (mirror server-side ClientGameState / ChatResponse)
 // ---------------------------------------------------------------------------
@@ -133,14 +135,14 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
   // Init game
   // ------------------------------------------------------------------
 
-  const initGame = useCallback(async (reset = false) => {
+  const initGame = useCallback(async (reset = false, mode?: GameMode) => {
     setIsLoading(true);
     setError(null);
     try {
       const res = await fetch("/api/game/init", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reset }),
+        body: JSON.stringify({ reset, mode }),
       });
       if (!res.ok) {
         const err = await res.json();
@@ -223,7 +225,7 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
                       : [...prev.visitHistory, data.move_to]
                     : prev.visitHistory,
               }
-            : prev,
+            : prev
         );
 
         // Fire callbacks
@@ -251,7 +253,7 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [isLoading],
+    [isLoading]
   );
 
   // ------------------------------------------------------------------
@@ -283,7 +285,7 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
           const match = serverTiming.match(/dur=(\d+)/);
           if (match)
             console.log(
-              `[TTS] server: ${match[1]}ms, fetch round-trip: ${fetchMs}ms`,
+              `[TTS] server: ${match[1]}ms, fetch round-trip: ${fetchMs}ms`
             );
         }
 
@@ -317,7 +319,7 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
         setIsSpeaking(false);
       }
     },
-    [stopFiller],
+    [stopFiller]
   );
 
   // ------------------------------------------------------------------
@@ -417,7 +419,9 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
           const { text } = await res.json();
           if (text) {
             console.log(
-              `[STT] "${text}" (${timing.stt}ms, server: ${timing.stt_server ?? "?"}ms)`,
+              `[STT] "${text}" (${timing.stt}ms, server: ${
+                timing.stt_server ?? "?"
+              }ms)`
             );
             await sendMessage(text);
           }
@@ -438,42 +442,49 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
   // Generate a brand-new game (calls Mistral to create new puzzles)
   // ------------------------------------------------------------------
 
-  const generateNewGame = useCallback(async () => {
-    stopSpeaking();
-    setIsGenerating(true);
-    setError(null);
-    setMessages([]);
-    setLastResponse(null);
-    try {
-      const res = await fetch("/api/game/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error ?? "Game generation failed");
-      }
-      const data: ClientGameState = await res.json();
-      setGameState(data);
-      setMessages(data.conversationHistory);
+  const generateNewGame = useCallback(
+    async (mode?: GameMode) => {
+      stopSpeaking();
+      setIsGenerating(true);
+      setError(null);
+      setMessages([]);
       setLastResponse(null);
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Unknown error");
-    } finally {
-      setIsGenerating(false);
-    }
-  }, [stopSpeaking]);
+      try {
+        const res = await fetch("/api/game/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ mode }),
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.error ?? "Game generation failed");
+        }
+        const data: ClientGameState = await res.json();
+        setGameState(data);
+        setMessages(data.conversationHistory);
+        setLastResponse(null);
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : "Unknown error");
+      } finally {
+        setIsGenerating(false);
+      }
+    },
+    [stopSpeaking]
+  );
 
   // ------------------------------------------------------------------
   // Reset game
   // ------------------------------------------------------------------
 
-  const resetGame = useCallback(async () => {
-    stopSpeaking();
-    setMessages([]);
-    setLastResponse(null);
-    await initGame(true);
-  }, [initGame, stopSpeaking]);
+  const resetGame = useCallback(
+    async (mode?: GameMode) => {
+      stopSpeaking();
+      setMessages([]);
+      setLastResponse(null);
+      await initGame(true, mode);
+    },
+    [initGame, stopSpeaking]
+  );
 
   return {
     // State

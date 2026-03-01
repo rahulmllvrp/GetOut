@@ -113,7 +113,7 @@ function Clock() {
         new Date().toLocaleTimeString("en-US", {
           hour: "2-digit",
           minute: "2-digit",
-        }),
+        })
       );
     tick();
     const id = setInterval(tick, 1000);
@@ -194,12 +194,145 @@ function Win98ProgressBar({ label }: { label: string }) {
   );
 }
 
+// ─── Game mode type ──────────────────────────────────────────────────────────
+
+type GameMode = "normal" | "brainrot" | "nsfw";
+
+const MODE_LABELS: { value: GameMode; label: string }[] = [
+  { value: "normal", label: "Normal" },
+  { value: "brainrot", label: "Brainrot" },
+  { value: "nsfw", label: "NSFW" },
+];
+
+// ─── Win98 3-position slider ─────────────────────────────────────────────────
+
+function ModeSlider({
+  value,
+  onChange,
+  disabled,
+}: {
+  value: GameMode;
+  onChange: (mode: GameMode) => void;
+  disabled?: boolean;
+}) {
+  const idx = MODE_LABELS.findIndex((m) => m.value === value);
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: "4px",
+        opacity: disabled ? 0.5 : 1,
+        pointerEvents: disabled ? "none" : "auto",
+      }}
+    >
+      <p
+        style={{
+          ...WIN_FONT,
+          color: "#000",
+          fontWeight: "bold",
+          fontSize: "11px",
+          marginBottom: "2px",
+        }}
+      >
+        Game Mode
+      </p>
+      <div style={{ display: "flex", alignItems: "center", gap: "0px" }}>
+        {/* Track with sunken style */}
+        <div
+          style={{
+            position: "relative",
+            ...sunken,
+            background: "#ffffff",
+            height: "20px",
+            width: "180px",
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          {/* Thumb */}
+          <div
+            style={{
+              position: "absolute",
+              left: `${(idx / 2) * 100}%`,
+              transform: "translateX(-50%)",
+              ...raised,
+              background: WIN_BG,
+              width: "16px",
+              height: "18px",
+              cursor: "pointer",
+              transition: "left 0.15s ease",
+              zIndex: 2,
+            }}
+          />
+          {/* Clickable zones */}
+          {MODE_LABELS.map((m, i) => (
+            <div
+              key={m.value}
+              onClick={() => onChange(m.value)}
+              style={{
+                flex: 1,
+                height: "100%",
+                cursor: "pointer",
+                zIndex: 3,
+                position: "relative",
+              }}
+              title={m.label}
+            >
+              {/* Tick mark */}
+              <div
+                style={{
+                  position: "absolute",
+                  left: "50%",
+                  top: "0",
+                  bottom: "0",
+                  width: "1px",
+                  background: i === 0 || i === 2 ? "transparent" : "#808080",
+                }}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* Labels under the track */}
+      <div
+        style={{
+          display: "flex",
+          width: "180px",
+          justifyContent: "space-between",
+        }}
+      >
+        {MODE_LABELS.map((m) => (
+          <span
+            key={m.value}
+            onClick={() => onChange(m.value)}
+            style={{
+              ...WIN_FONT,
+              fontSize: "10px",
+              color: m.value === value ? "#000080" : "#555",
+              fontWeight: m.value === value ? "bold" : "normal",
+              cursor: "pointer",
+              userSelect: "none",
+              textAlign: "center",
+              width: "60px",
+            }}
+          >
+            {m.label}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 interface Win98IntroProps {
   roomDescription: string;
-  onStart: () => void;
-  onGenerate?: () => void;
+  onStart: (mode: GameMode) => void;
+  onGenerate?: (mode: GameMode) => void;
   isGenerating?: boolean;
 }
 
@@ -209,6 +342,7 @@ export function Win98Intro({
   onGenerate,
   isGenerating,
 }: Win98IntroProps) {
+  const [mode, setMode] = useState<GameMode>("normal");
   const chromBtn: CSSProperties = {
     background: WIN_BG,
     border: "1.5px solid",
@@ -392,12 +526,27 @@ export function Win98Intro({
             </div>
           )}
 
+          {/* Mode slider */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              marginBottom: "12px",
+            }}
+          >
+            <ModeSlider
+              value={mode}
+              onChange={setMode}
+              disabled={isGenerating}
+            />
+          </div>
+
           {/* Buttons */}
           <div
             style={{ display: "flex", justifyContent: "center", gap: "8px" }}
           >
             <button
-              onClick={onStart}
+              onClick={() => onStart(mode)}
               disabled={isGenerating}
               style={{
                 ...btn,
@@ -412,7 +561,7 @@ export function Win98Intro({
             </button>
             {onGenerate && (
               <button
-                onClick={onGenerate}
+                onClick={() => onGenerate(mode)}
                 disabled={isGenerating}
                 style={{
                   ...btn,
