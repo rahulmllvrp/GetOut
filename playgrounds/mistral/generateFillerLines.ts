@@ -1,12 +1,12 @@
 /**
  * generateFillerLines.ts
  *
- * Generates 5 short Kyle filler voice lines using ElevenLabs TTS.
+ * Generates 5 short Kyle filler voice lines per game mode using ElevenLabs TTS.
  * Uses the exact same voice, model, and output format as the app's
  * /api/game/tts route.
  *
  * Usage:  cd playgrounds && bun run mistral/generateFillerLines.ts
- * Output: ../app/public/fillers/filler_0.mp3 … filler_4.mp3
+ * Output: ../app/public/fillers/{normal,brainrot,nsfw}/filler_0.mp3 … filler_4.mp3
  */
 
 import { ElevenLabsClient } from "@elevenlabs/elevenlabs-js";
@@ -22,19 +22,46 @@ const VOICE_ID = "8xUIoXhbwVdLFdpsGXe6";
 const MODEL_ID = "eleven_v3";
 const OUTPUT_FORMAT = "mp3_44100_128";
 
-// ---- Filler lines (short, panicky, in-character for Kyle) ----
-const FILLER_LINES = [
-  "Uhh... hold on, let me look around...",
-  "Wait wait wait, give me a second...",
-  "Okay okay, I'm checking...",
-  "Hmm, let me see here...",
-  "One sec, one sec...",
-];
+// ---- Game modes ----
+type GameMode = "normal" | "brainrot" | "nsfw";
+const ALL_MODES: GameMode[] = ["normal", "brainrot", "nsfw"];
 
-const OUTPUT_DIR = path.resolve(import.meta.dir, "../../app/public/fillers");
+// ---- Filler lines per mode (short, panicky, in-character for Kyle) ----
+const FILLER_LINES: Record<GameMode, string[]> = {
+  normal: [
+    "Uhh... hold on, let me look around...",
+    "Wait wait wait, give me a second...",
+    "Okay okay, I'm checking...",
+    "Hmm, let me see here...",
+    "One sec, one sec...",
+  ],
+  brainrot: [
+    "Yooo hold up, let me rizz around real quick...",
+    "Bruh wait wait, one sec fr fr...",
+    "Okay okay lowkey checking no cap...",
+    "Hmm let me sigma grindset this real quick...",
+    "Aight aight give me a sec on god...",
+  ],
+  nsfw: [
+    "Hold the fuck on, let me look around...",
+    "Shit shit shit, gimme a damn second...",
+    "Okay okay, I'm fucking checking...",
+    "Hmm, let me see what the hell is here...",
+    "One goddamn sec, one sec...",
+  ],
+};
 
-async function generateFiller(text: string, index: number): Promise<void> {
-  console.log(`  [${index}] Generating: "${text}"`);
+const BASE_OUTPUT_DIR = path.resolve(
+  import.meta.dir,
+  "../../app/public/fillers",
+);
+
+async function generateFiller(
+  text: string,
+  index: number,
+  mode: GameMode,
+): Promise<void> {
+  console.log(`  [${mode}/${index}] Generating: "${text}"`);
 
   const audioStream = await elevenlabs.textToSpeech.convert(VOICE_ID, {
     text,
@@ -52,23 +79,35 @@ async function generateFiller(text: string, index: number): Promise<void> {
   }
   const buffer = Buffer.concat(chunks);
 
-  const outputPath = path.join(OUTPUT_DIR, `filler_${index}.mp3`);
+  const modeDir = path.join(BASE_OUTPUT_DIR, mode);
+  const outputPath = path.join(modeDir, `filler_${index}.mp3`);
   await Bun.write(outputPath, buffer);
-  console.log(`  [${index}] Saved: ${outputPath} (${buffer.length} bytes)`);
+  console.log(
+    `  [${mode}/${index}] Saved: ${outputPath} (${buffer.length} bytes)`,
+  );
 }
 
 async function main() {
-  console.log("Kyle Filler Line Generator");
-  console.log(`Output: ${OUTPUT_DIR}\n`);
+  console.log("Kyle Filler Line Generator (all modes)");
+  console.log(`Output: ${BASE_OUTPUT_DIR}/{normal,brainrot,nsfw}/\n`);
 
-  if (!existsSync(OUTPUT_DIR)) {
-    await mkdir(OUTPUT_DIR, { recursive: true });
+  // Ensure output dirs exist for each mode
+  for (const mode of ALL_MODES) {
+    const modeDir = path.join(BASE_OUTPUT_DIR, mode);
+    if (!existsSync(modeDir)) {
+      await mkdir(modeDir, { recursive: true });
+    }
   }
 
-  // Generate all 5 in parallel
-  await Promise.all(FILLER_LINES.map((line, i) => generateFiller(line, i)));
+  // Generate all modes × 5 lines in parallel
+  const jobs = ALL_MODES.flatMap((mode) =>
+    FILLER_LINES[mode].map((line, i) => generateFiller(line, i, mode)),
+  );
+  await Promise.all(jobs);
 
-  console.log("\nDone! Generated 5 filler lines.");
+  console.log(
+    `\nDone! Generated ${jobs.length} filler lines across ${ALL_MODES.length} modes.`,
+  );
 }
 
 main().catch(console.error);

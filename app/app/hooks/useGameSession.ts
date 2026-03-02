@@ -23,6 +23,7 @@ export type GameMode = "normal" | "brainrot" | "nsfw";
 // ---------------------------------------------------------------------------
 
 export type ClientGameState = {
+  gameMode: GameMode;
   roomDescription: string;
   winCondition: string;
   currentLocation: string;
@@ -96,6 +97,7 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
   const [gameState, setGameState] = useState<ClientGameState | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [lastResponse, setLastResponse] = useState<ChatResponse | null>(null);
+  const [currentMode, setCurrentMode] = useState<GameMode>("normal");
 
   // ---- Loading / status flags ----
   const [isLoading, setIsLoading] = useState(false); // waiting for Mistral
@@ -119,12 +121,12 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
   const playFiller = useCallback(() => {
     fillerTimeoutRef.current = setTimeout(() => {
       const index = Math.floor(Math.random() * FILLER_COUNT);
-      const audio = new Audio(`/fillers/filler_${index}.mp3`);
+      const audio = new Audio(`/fillers/${currentMode}/filler_${index}.mp3`);
       fillerAudioRef.current = audio;
       audio.play().catch(() => {});
       fillerTimeoutRef.current = null;
     }, 500);
-  }, []);
+  }, [currentMode]);
 
   const stopFiller = useCallback(() => {
     if (fillerTimeoutRef.current) {
@@ -166,6 +168,7 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
       setGameState(data);
       setMessages(data.conversationHistory);
       setLastResponse(null);
+      if (data.gameMode) setCurrentMode(data.gameMode);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Unknown error");
     } finally {
@@ -239,7 +242,7 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
                       : [...prev.visitHistory, data.move_to]
                     : prev.visitHistory,
               }
-            : prev
+            : prev,
         );
 
         // Fire callbacks
@@ -247,7 +250,10 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
           onMoveRef.current?.(data.move_to);
         }
         if (data.clue_revealed && data.hidden_pov_description) {
-          onClueRevealedRef.current?.(data.hidden_pov_description, data.current_location);
+          onClueRevealedRef.current?.(
+            data.hidden_pov_description,
+            data.current_location,
+          );
         }
         if (data.game_over) {
           onGameOverRef.current?.();
@@ -267,7 +273,7 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [isLoading]
+    [isLoading],
   );
 
   // ------------------------------------------------------------------
@@ -299,7 +305,7 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
           const match = serverTiming.match(/dur=(\d+)/);
           if (match)
             console.log(
-              `[TTS] server: ${match[1]}ms, fetch round-trip: ${fetchMs}ms`
+              `[TTS] server: ${match[1]}ms, fetch round-trip: ${fetchMs}ms`,
             );
         }
 
@@ -333,7 +339,7 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
         setIsSpeaking(false);
       }
     },
-    [stopFiller]
+    [stopFiller],
   );
 
   // ------------------------------------------------------------------
@@ -344,7 +350,7 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
     (mode: GameMode = "normal") => {
       playTTS(KYLE_INTROS[mode]);
     },
-    [playTTS]
+    [playTTS],
   );
 
   // ------------------------------------------------------------------
@@ -438,7 +444,7 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
             console.log(
               `[STT] "${text}" (${timing.stt}ms, server: ${
                 timing.stt_server ?? "?"
-              }ms)`
+              }ms)`,
             );
             await sendMessage(text);
           }
@@ -480,13 +486,14 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
         setGameState(data);
         setMessages(data.conversationHistory);
         setLastResponse(null);
+        if (data.gameMode) setCurrentMode(data.gameMode);
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : "Unknown error");
       } finally {
         setIsGenerating(false);
       }
     },
-    [stopSpeaking]
+    [stopSpeaking],
   );
 
   // ------------------------------------------------------------------
@@ -498,9 +505,10 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
       stopSpeaking();
       setMessages([]);
       setLastResponse(null);
+      if (mode) setCurrentMode(mode);
       await initGame(true, mode);
     },
-    [initGame, stopSpeaking]
+    [initGame, stopSpeaking],
   );
 
   return {
@@ -508,6 +516,7 @@ export function useGameSession(options: UseGameSessionOptions = {}) {
     gameState,
     messages,
     lastResponse,
+    currentMode,
 
     // Status
     isLoading,

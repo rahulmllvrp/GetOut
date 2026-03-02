@@ -67,6 +67,7 @@ export type GameState = {
 
 /** What the client receives — no secret data (answers, upcoming clues stripped) */
 export type ClientGameState = {
+  gameMode: GameMode;
   roomDescription: string;
   winCondition: string;
   currentLocation: string;
@@ -133,7 +134,7 @@ export async function loadGameState(): Promise<GameState> {
 
   if (!existsSync(filePath)) {
     throw new Error(
-      "No initGameState.json found. Run the init pipeline first (playgrounds/mistral/initGameState.ts)."
+      "No initGameState.json found. Run the init pipeline first (playgrounds/mistral/initGameState.ts).",
     );
   }
   const raw = await readFile(filePath, "utf-8");
@@ -167,7 +168,7 @@ export async function saveGameState(state: GameState): Promise<void> {
 export async function logGameStateSnapshot(
   state: GameState,
   playerMessage: string,
-  aiResponse: any
+  aiResponse: any,
 ): Promise<void> {
   try {
     const logDir = path.join(process.cwd(), "game-logs");
@@ -216,7 +217,7 @@ export async function logGameStateSnapshot(
     }
 
     console.log(
-      `[GameLog] Turn ${state.conversationHistory.length} logged to ${logFile}`
+      `[GameLog] Turn ${state.conversationHistory.length} logged to ${logFile}`,
     );
   } catch (error) {
     console.error("[GameLog] Failed to log game state:", error);
@@ -240,7 +241,7 @@ async function logGameFlow(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   rawResponse: any,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  parsed: any
+  parsed: any,
 ): Promise<void> {
   try {
     const dataDir = path.join(process.cwd(), "data");
@@ -270,7 +271,7 @@ async function logGameFlow(
     entries.push(entry);
     await writeFile(GAME_FLOW_PATH, JSON.stringify(entries, null, 2));
     console.log(
-      `[GameFlow] Logged turn ${entries.length} to ${GAME_FLOW_PATH}`
+      `[GameFlow] Logged turn ${entries.length} to ${GAME_FLOW_PATH}`,
     );
   } catch (error) {
     console.error("[GameFlow] Failed to log game flow:", error);
@@ -394,7 +395,7 @@ Example response:
  *  The system message (index 0) is always preserved.
  */
 function compressContext(
-  messages: Array<{ role: string; content: string }>
+  messages: Array<{ role: string; content: string }>,
 ): Array<{ role: string; content: string }> {
   const system = messages[0];
   const history = messages.slice(1);
@@ -438,7 +439,7 @@ type GameMasterResponse = z.infer<ReturnType<typeof buildResponseSchema>>;
 
 export async function chat(
   playerMessage: string,
-  state: GameState
+  state: GameState,
 ): Promise<ChatResponse> {
   // Rebuild conversation messages array from state
   const messages: Array<{ role: string; content: string }> =
@@ -491,7 +492,7 @@ export async function chat(
         maxTokens: 1024,
       },
       response,
-      parsedResult
+      parsedResult,
     );
 
   // Fallback: manually extract JSON if structured output parsing failed
@@ -614,6 +615,7 @@ export async function chat(
 
 export function toClientState(state: GameState): ClientGameState {
   return {
+    gameMode: state.gameMode ?? "normal",
     roomDescription: state.roomDescription,
     winCondition: state.winCondition,
     currentLocation: state.currentLocation,
@@ -656,7 +658,7 @@ export async function resetGameState(mode?: GameMode): Promise<GameState> {
   const initPath = getInitGameStatePath();
   if (!existsSync(initPath)) {
     throw new Error(
-      "No initGameState.json found. Run the init pipeline first."
+      "No initGameState.json found. Run the init pipeline first.",
     );
   }
   const raw = await readFile(initPath, "utf-8");
