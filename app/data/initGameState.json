@@ -1,122 +1,92 @@
 {
-  "roomDescription": "Kyle wakes up alone in a dimly lit, industrial-chic workspace, the hum of Edison bulbs casting long shadows across the cluttered table. The air smells of stale coffee and faintly of Doritos, while the distant echo of a drum kit reminds him this room is more than just an office—it’s a place where work and creativity collide. But the door is locked, and the blinds on the window are drawn tight; escape won’t be as simple as walking out.",
+  "gameMode": "brainrot",
+  "roomDescription": "Yo, you’re trapped in this skibidi sigma workspace—dark walls, Edison bulbs hanging like they’re flexing their rizz, and a table so cluttered with laptops and snacks it’s giving main character energy. The vibe? Highkey sus, like someone forgot to fanum tax the Doritos and now the whole room’s stuck in a vibe check gone wrong. The air’s thick with the aura of a thousand brainstorming sessions, but lowkey, it’s just you, Kyle, and the crushing weight of your L if you don’t escape.",
   "gameMasterPrompt": "[rebuilt each turn — see buildGameMasterPrompt()]",
-  "winCondition": "Find the hidden key beneath the drum kit and use it to unlock the red curtains leading to freedom.",
-  "loseCondition": "Kyle panics after 15 failed attempts to solve the riddles, collapsing into the chair with the jacket and refusing to move.",
+  "winCondition": "Find the hidden Ohio key (yes, Ohio) tucked in the last clue’s hidden spot, then use it to unlock the red curtains like it’s the final boss of a TikTok trend. Slay the escape or get ratio’d by the room’s sigma energy.",
+  "loseCondition": "Kyle starts mewing uncontrollably after 5 wrong answers, his aura crumbling like a beta male’s confidence. The room’s vibe check fails, and you’re stuck here rent-free forever, forced to listen to the drums in the corner on loop. No cap, that’s a W for the escape room gods.",
   "gameTree": [
     {
       "frame": {
-        "frame": "whiteboard",
-        "description": "This is the whiteboard, a large dry-erase board mounted on the dark wall near the far end of the room. It carries remnants of brainstorming sessions — scribbled diagrams, sticky notes, and half-erased marker strokes, standing as a silent record of collaborative planning.",
-        "pov": "Looking directly at the whiteboard from a close vantage point, with the dark wall filling the background and the edge of the central table just barely visible below.",
+        "frame": "dorrito_packet",
+        "description": "This is the Dorrito packet, a crinkled snack bag sitting on the table among the laptops and drinks. Its bold, colorful packaging is a small splash of everyday life amid the workspace, hinting at long working sessions fueled by junk food.",
+        "pov": "A close-up view of the Dorrito packet resting on the wooden table surface, surrounded by nearby laptops, cables, and beverage containers, with the dark room stretching out behind.",
         "coordinates": {
           "pos": {
-            "x": -1.298,
-            "y": 0.46,
-            "z": -2.226
+            "x": 1.877,
+            "y": 0.236,
+            "z": -2.627
           },
           "rot": {
-            "x": -0.035,
-            "y": 2.055
+            "x": -0.265,
+            "y": 0.985
           }
         },
-        "image_filepath": "/enhanced-cache/whiteboard.png"
+        "image_filepath": "/enhanced-cache/dorrito_packet.png"
       },
       "clue": {
         "id": "clue_1",
-        "discovery": "Kyle notices a faint, half-erased diagram on the whiteboard—a series of arrows pointing toward the picture next to it. Beneath the scribbles, a single word stands out in red marker: 'BEGIN'.",
-        "premature_discovery": "The whiteboard is covered in dry-erase scribbles, but nothing seems to stand out. Kyle tries to wipe away some of the marks, but the surface is too smudged to reveal anything useful.",
-        "riddle": "I hang where ideas take flight, yet I’m not the board. Look beside me to find your next reward. What am I?",
-        "answer": "picture",
-        "hiddenAreaDescription": "Behind the whiteboard, partially obscured by a loose corner of the board, is a small magnetic tray holding a single sticky note with a riddle written in bold marker.",
-        "hiddenPovImagePath": "/enhanced-cache/pov-whiteboard.png"
+        "discovery": "Kyle flips the Dorrito packet like it’s a sigma grindset move, and bam—underneath it’s a crumpled sticky note with ‘gyatt’ scribbled in marker. But the real rizz? A tiny, sus-looking keyhole on the bottom of the bag. It’s giving ‘fanum tax’ energy, like the room’s demanding a snack sacrifice.",
+        "premature_discovery": "Kyle picks up the Dorrito packet, but it’s just… empty. No crumbs, no rizz, no hidden messages. The bag’s sealed tighter than a sigma’s wallet, and the table’s vibe is suddenly lowkey hostile. Maybe he needs to find the *real* snack first?",
+        "riddle": "I’m orange, I’m crunchy, I’m bussin’ no cap—but to unlock my secrets, you gotta pay the fanum tax. What’s the one word that’s always on my bag, but never in my heart?",
+        "answer": "doritos",
+        "hiddenAreaDescription": "A close-up of the bottom seam of the Dorrito packet, where a tiny keyhole glints under the Edison bulb light. The bag’s crinkled texture is visible, with the word ‘DORITOS’ printed in bold letters nearby, but the keyhole’s the main character here—small, metallic, and giving ‘unlock me’ vibes.",
+        "hiddenPovImagePath": "/enhanced-cache/pov-dorrito_packet.png"
       }
     },
     {
       "frame": {
-        "frame": "picture",
-        "description": "This is the picture, a framed artwork or photograph hanging on the dark wall adjacent to the whiteboard. Its details are partially obscured by the room's moody lighting, but it adds a subtle decorative touch to the otherwise utilitarian workspace.",
-        "pov": "Facing the framed picture on the wall at roughly eye level, with the surrounding dark wall texture visible and the faint glow of Edison bulbs reflecting off the glass surface.",
+        "frame": "laptop",
+        "description": "This is the laptop, one of several open notebooks scattered across the long wooden table. Its screen glows softly amid the surrounding clutter of chargers, water bottles, and coffee cups — a focal point of the active working environment.",
+        "pov": "Looking down at the laptop on the table surface from a slightly elevated angle, with its illuminated screen visible alongside nearby cables, drink containers, and other personal items.",
         "coordinates": {
           "pos": {
-            "x": -1.311,
-            "y": 0.445,
-            "z": -1.455
+            "x": -0.171,
+            "y": 0.043,
+            "z": -1.501
           },
           "rot": {
-            "x": 0.117,
-            "y": 3.125
+            "x": -0.17,
+            "y": 0.61
           }
         },
-        "image_filepath": null
+        "image_filepath": "/enhanced-cache/laptop.png"
       },
       "clue": {
         "id": "clue_2",
-        "discovery": "Kyle tilts the framed picture slightly and hears a faint *click*. The back of the frame is loose, and inside, a small envelope is taped to the backing. It contains a riddle and a tiny, folded note with the word 'STUDIO' scrawled on it.",
-        "premature_discovery": "The picture is firmly mounted to the wall, and no matter how Kyle tugs, it won’t budge. The glass is smudged, but there’s nothing unusual about the frame itself.",
-        "riddle": "I stand tall where light is made, my head adjusts to cast no shade. Seek me where the shadows fade. What am I?",
-        "discovery": "Kyle notices a small, half-erased equation at the bottom of the whiteboard: '7x + 3 = 31'. Beneath it, in barely legible marker, is the word 'ROOT'. A sticky note nearby reads, 'Check the brightest light in the room.'",
-        "premature_discovery": "The whiteboard is covered in scribbles, but the bottom corner is smudged and unreadable, as if someone tried to erase something in a hurry. Kyle can’t make out any details.",
-        "riddle": "I stand tall but do not walk, I shine bright but do not talk. Solve for x where seven times plus three equals thirty-one, and my name you’ll soon see. What am I?",
-        "answer": "studio light",
-        "hiddenAreaDescription": "Behind the whiteboard, partially obscured by a loose corner of the board, is a small gap in the wall where a sticky note is wedged. The note is barely visible, tucked into the crevice where the whiteboard doesn’t quite meet the wall.",
-        "hiddenPovImagePath": null
+        "discovery": "Kyle opens the laptop like he’s about to drop a viral TikTok, but the screen’s just a black background with a single line of text: ‘Sigma rule #1: The password is the last thing you’d expect.’ The keyboard’s got a sticky note under the spacebar that says ‘ohio’ in tiny letters. The room’s vibe? Highkey sus, like the laptop’s judging his life choices.",
+        "premature_discovery": "Kyle taps the laptop, but the screen’s locked. The password prompt glows ominously, and the keyboard’s sticky keys feel like a vibe check. The room’s energy? Lowkey giving ‘try again, beta’—maybe he needs to find the password first.",
+        "riddle": "I glow, I type, I hold your W’s and L’s—but to wake me up, you gotta say the state that’s not a state. What’s the word that’s always trending but never makes sense?",
+        "answer": "ohio",
+        "hiddenAreaDescription": "A POV shot of the laptop’s keyboard, zoomed in on the spacebar where a tiny sticky note peeks out. The note’s scrawled with ‘ohio’ in messy handwriting, and the screen’s reflection shows a single line of text: ‘Sigma rule #1.’ The Edison bulbs cast a warm glow on the keys, making the note look like a hidden gem.",
+        "hiddenPovImagePath": "/enhanced-cache/pov-laptop.png"
       }
     },
     {
       "frame": {
-        "frame": "studio_light",
-        "description": "This is the studio light, a tall professional lighting fixture positioned towards the back of the room. Its adjustable head and sturdy tripod stand give the space a creative, production-ready feel alongside the industrial Edison bulbs overhead.",
-        "pov": "Looking towards the studio light standing in the deeper section of the room, its tall silhouette rising above the surrounding furniture, with the dark ceiling and exposed ductwork visible behind it.",
+        "frame": "bookshelf",
+        "description": "This is the bookshelf, a tall, dark shelving unit packed with books lining the wall. Its filled shelves add intellectual character to the industrial room, with spines of various colors and sizes creating an organic mosaic pattern.",
+        "pov": "Facing the bookshelf directly, capturing its full height from floor to near-ceiling, with rows of tightly packed books visible across multiple shelves and the dark wall framing it on either side.",
         "coordinates": {
           "pos": {
-            "x": 0.39,
-            "y": 0.295,
-            "z": -5.497
+            "x": 2.154,
+            "y": 0.623,
+            "z": -4.062
           },
           "rot": {
-            "x": 0.145,
-            "y": -0.285
+            "x": 0.005,
+            "y": -0.939
           }
         },
-        "image_filepath": "/enhanced-cache/studio_light.png"
-      },
-      "clue": {
-        "id": "clue_2",
-        "discovery": "Kyle adjusts the studio light and notices a small, folded note taped to the underside of the tripod. It reads: 'The rhythm of work is the rhythm of play. Find where the beat drops.'",
-        "premature_discovery": "The studio light is unplugged and cold. Kyle fiddles with the switches, but nothing happens—it’s as if it hasn’t been used in a while. The note isn’t visible from this angle.",
-        "riddle": "I sit in the corner, silent and still, until hands bring me to life with a thrill. Where work meets play, my beat you’ll find. What am I?",
-        "answer": "drums",
-        "hiddenAreaDescription": "Underneath the tripod of the studio light, taped to the metal leg with clear packing tape, is a small folded note. The tape is slightly yellowed, as if it’s been there for some time.",
-        "hiddenPovImagePath": null
-      }
-    },
-    {
-      "frame": {
-        "frame": "drums",
-        "description": "This is the drums, a drum kit set up in a far corner of the space, well away from the central work table. Its presence adds a creative, eclectic character to the room — a reminder that this space serves more than just office work.",
-        "pov": "Looking across the room towards the distant drum kit tucked into the far corner, with cymbals and drum shells faintly visible past the clutter of the main workspace area.",
-        "coordinates": {
-          "pos": {
-            "x": -10.046,
-            "y": 0.664,
-            "z": -4.813
-          },
-          "rot": {
-            "x": -0.06,
-            "y": 7.05
-          }
-        },
-        "image_filepath": "/enhanced-cache/drums.png"
+        "image_filepath": "/enhanced-cache/bookshelf.png"
       },
       "clue": {
         "id": "clue_3",
-        "discovery": "Kyle lifts the snare drum and finds a small, tarnished key tucked into the drum’s rim. Beneath it, a note reads: 'The path to freedom is draped in red.'",
-        "premature_discovery": "The drum kit looks untouched, but the snare drum is slightly out of tune. Kyle taps it, but nothing unusual happens—the key isn’t visible from the surface.",
-        "riddle": "I am draped in color bold and bright, parting only for those who seek the light. Where I hang, your escape awaits. What am I?",
-        "answer": "chair near curtain",
-        "hiddenAreaDescription": "Inside the rim of the snare drum, tucked between the metal hoop and the drumhead, is a small key. It’s wedged tightly, as if placed there deliberately, with a scrap of paper underneath.",
-        "hiddenPovImagePath": null
+        "discovery": "Kyle pulls out a book titled *‘How to Rizz: A Sigma’s Guide’* (no cap, it’s real), and inside the back cover, there’s a hollowed-out compartment. Nestled inside? A single Ohio-shaped key, glowing like it’s flexing its aura. The book’s spine has ‘slay’ written in gold letters, and the room’s vibe shifts—this is the final boss of the escape.",
+        "premature_discovery": "Kyle scans the bookshelf, but every book he pulls is just… normal. No hidden notes, no keys, no rizz. The shelf’s vibe is giving ‘try harder, alpha’—maybe he needs to find the *right* book first. The room’s energy? Lowkey mocking him.",
+        "riddle": "I’m tall, I’m wise, I hold the keys to your W—but only one of my children hides the shape of a meme. What’s the word that’s always ratio’d but never wrong?",
+        "answer": "slay",
+        "hiddenAreaDescription": "A close-up of the *‘How to Rizz: A Sigma’s Guide’* book’s hollowed-out back cover, where the Ohio-shaped key rests on a bed of red velvet. The key’s metallic surface reflects the Edison bulbs, and the word ‘slay’ is embossed on the book’s spine in gold foil. The vibe? Pure main character energy.",
+        "hiddenPovImagePath": "/enhanced-cache/pov-bookshelf.png"
       }
     },
     {
@@ -139,12 +109,12 @@
       },
       "clue": {
         "id": "clue_4",
-        "discovery": "Kyle moves the chair aside and notices a small keyhole hidden in the floorboard beneath it. He inserts the key, turns it, and the red curtains part slightly, revealing a narrow passage leading to a dimly lit hallway. With a deep breath, he steps through and escapes the room.",
-        "premature_discovery": "The chair is heavy and doesn’t budge easily. Kyle tries to move it, but it’s as if something is holding it in place—perhaps the keyhole isn’t visible yet.",
+        "discovery": "Kyle slides the Ohio key into the tiny keyhole hidden in the armrest of the chair—*click*—and the red curtains part like they’re revealing the final level of a game. Behind them? A door with a sign that says ‘ESCAPE: NO RATIO.’ The room’s vibe? Pure W energy. Kyle walks through, and the door slams shut behind him like a mic drop.",
+        "premature_discovery": "Kyle approaches the chair, but the armrest’s keyhole is empty. The red curtains stay shut, and the room’s energy is giving ‘you’re not ready, beta.’ Maybe he needs to find the *real* key first. The vibe? Lowkey embarrassing.",
         "riddle": null,
         "answer": null,
-        "hiddenAreaDescription": "Beneath the chair, partially obscured by its legs, is a small keyhole in the floorboard. The keyhole is nearly invisible unless the chair is moved, and the floorboard around it is slightly worn, as if it’s been used before.",
-        "hiddenPovImagePath": null
+        "hiddenAreaDescription": "A first-person view of the chair’s armrest, where a tiny keyhole glints under the studio light. The red curtains loom in the background, their fabric slightly parted like they’re waiting for the key. The keyhole’s metallic edges are worn, giving ‘ancient escape room’ vibes, and the room’s dark walls make it look like the final boss battle.",
+        "hiddenPovImagePath": "/enhanced-cache/pov-chair_near_curtain.png"
       }
     }
   ],
@@ -267,15 +237,7 @@
         },
         "image_filepath": "/enhanced-cache/whiteboard.png"
       },
-      "clue": {
-        "id": "clue_1",
-        "discovery": "Kyle notices a small, half-erased equation at the bottom of the whiteboard: '7x + 3 = 31'. Beneath it, in barely legible marker, is the word 'ROOT'. A sticky note nearby reads, 'Check the brightest light in the room.'",
-        "premature_discovery": "The whiteboard is covered in scribbles, but the bottom corner is smudged and unreadable, as if someone tried to erase something in a hurry. Kyle can’t make out any details.",
-        "riddle": "I stand tall but do not walk, I shine bright but do not talk. Solve for x where seven times plus three equals thirty-one, and my name you’ll soon see. What am I?",
-        "answer": "studio light",
-        "hiddenAreaDescription": "Behind the whiteboard, partially obscured by a loose corner of the board, is a small gap in the wall where a sticky note is wedged. The note is barely visible, tucked into the crevice where the whiteboard doesn’t quite meet the wall.",
-        "hiddenPovImagePath": null
-      }
+      "clue": null
     },
     {
       "frame": {
@@ -335,7 +297,15 @@
         },
         "image_filepath": "/enhanced-cache/laptop.png"
       },
-      "clue": null
+      "clue": {
+        "id": "clue_2",
+        "discovery": "Kyle opens the laptop like he’s about to drop a viral TikTok, but the screen’s just a black background with a single line of text: ‘Sigma rule #1: The password is the last thing you’d expect.’ The keyboard’s got a sticky note under the spacebar that says ‘ohio’ in tiny letters. The room’s vibe? Highkey sus, like the laptop’s judging his life choices.",
+        "premature_discovery": "Kyle taps the laptop, but the screen’s locked. The password prompt glows ominously, and the keyboard’s sticky keys feel like a vibe check. The room’s energy? Lowkey giving ‘try again, beta’—maybe he needs to find the password first.",
+        "riddle": "I glow, I type, I hold your W’s and L’s—but to wake me up, you gotta say the state that’s not a state. What’s the word that’s always trending but never makes sense?",
+        "answer": "ohio",
+        "hiddenAreaDescription": "A POV shot of the laptop’s keyboard, zoomed in on the spacebar where a tiny sticky note peeks out. The note’s scrawled with ‘ohio’ in messy handwriting, and the screen’s reflection shows a single line of text: ‘Sigma rule #1.’ The Edison bulbs cast a warm glow on the keys, making the note look like a hidden gem.",
+        "hiddenPovImagePath": "/enhanced-cache/pov-laptop.png"
+      }
     },
     {
       "frame": {
@@ -355,7 +325,15 @@
         },
         "image_filepath": "/enhanced-cache/dorrito_packet.png"
       },
-      "clue": null
+      "clue": {
+        "id": "clue_1",
+        "discovery": "Kyle flips the Dorrito packet like it’s a sigma grindset move, and bam—underneath it’s a crumpled sticky note with ‘gyatt’ scribbled in marker. But the real rizz? A tiny, sus-looking keyhole on the bottom of the bag. It’s giving ‘fanum tax’ energy, like the room’s demanding a snack sacrifice.",
+        "premature_discovery": "Kyle picks up the Dorrito packet, but it’s just… empty. No crumbs, no rizz, no hidden messages. The bag’s sealed tighter than a sigma’s wallet, and the table’s vibe is suddenly lowkey hostile. Maybe he needs to find the *real* snack first?",
+        "riddle": "I’m orange, I’m crunchy, I’m bussin’ no cap—but to unlock my secrets, you gotta pay the fanum tax. What’s the one word that’s always on my bag, but never in my heart?",
+        "answer": "doritos",
+        "hiddenAreaDescription": "A close-up of the bottom seam of the Dorrito packet, where a tiny keyhole glints under the Edison bulb light. The bag’s crinkled texture is visible, with the word ‘DORITOS’ printed in bold letters nearby, but the keyhole’s the main character here—small, metallic, and giving ‘unlock me’ vibes.",
+        "hiddenPovImagePath": "/enhanced-cache/pov-dorrito_packet.png"
+      }
     },
     {
       "frame": {
@@ -375,15 +353,7 @@
         },
         "image_filepath": "/enhanced-cache/studio_light.png"
       },
-      "clue": {
-        "id": "clue_2",
-        "discovery": "Kyle adjusts the studio light and notices a small, folded note taped to the underside of the tripod. It reads: 'The rhythm of work is the rhythm of play. Find where the beat drops.'",
-        "premature_discovery": "The studio light is unplugged and cold. Kyle fiddles with the switches, but nothing happens—it’s as if it hasn’t been used in a while. The note isn’t visible from this angle.",
-        "riddle": "I sit in the corner, silent and still, until hands bring me to life with a thrill. Where work meets play, my beat you’ll find. What am I?",
-        "answer": "drums",
-        "hiddenAreaDescription": "Underneath the tripod of the studio light, taped to the metal leg with clear packing tape, is a small folded note. The tape is slightly yellowed, as if it’s been there for some time.",
-        "hiddenPovImagePath": null
-      }
+      "clue": null
     },
     {
       "frame": {
@@ -403,7 +373,15 @@
         },
         "image_filepath": "/enhanced-cache/bookshelf.png"
       },
-      "clue": null
+      "clue": {
+        "id": "clue_3",
+        "discovery": "Kyle pulls out a book titled *‘How to Rizz: A Sigma’s Guide’* (no cap, it’s real), and inside the back cover, there’s a hollowed-out compartment. Nestled inside? A single Ohio-shaped key, glowing like it’s flexing its aura. The book’s spine has ‘slay’ written in gold letters, and the room’s vibe shifts—this is the final boss of the escape.",
+        "premature_discovery": "Kyle scans the bookshelf, but every book he pulls is just… normal. No hidden notes, no keys, no rizz. The shelf’s vibe is giving ‘try harder, alpha’—maybe he needs to find the *right* book first. The room’s energy? Lowkey mocking him.",
+        "riddle": "I’m tall, I’m wise, I hold the keys to your W—but only one of my children hides the shape of a meme. What’s the word that’s always ratio’d but never wrong?",
+        "answer": "slay",
+        "hiddenAreaDescription": "A close-up of the *‘How to Rizz: A Sigma’s Guide’* book’s hollowed-out back cover, where the Ohio-shaped key rests on a bed of red velvet. The key’s metallic surface reflects the Edison bulbs, and the word ‘slay’ is embossed on the book’s spine in gold foil. The vibe? Pure main character energy.",
+        "hiddenPovImagePath": "/enhanced-cache/pov-bookshelf.png"
+      }
     },
     {
       "frame": {
@@ -443,15 +421,7 @@
         },
         "image_filepath": "/enhanced-cache/drums.png"
       },
-      "clue": {
-        "id": "clue_3",
-        "discovery": "Kyle lifts the snare drum and finds a small, tarnished key tucked into the drum’s rim. Beneath it, a note reads: 'The path to freedom is draped in red.'",
-        "premature_discovery": "The drum kit looks untouched, but the snare drum is slightly out of tune. Kyle taps it, but nothing unusual happens—the key isn’t visible from the surface.",
-        "riddle": "I am draped in color bold and bright, parting only for those who seek the light. Where I hang, your escape awaits. What am I?",
-        "answer": "chair near curtain",
-        "hiddenAreaDescription": "Inside the rim of the snare drum, tucked between the metal hoop and the drumhead, is a small key. It’s wedged tightly, as if placed there deliberately, with a scrap of paper underneath.",
-        "hiddenPovImagePath": null
-      }
+      "clue": null
     },
     {
       "frame": {
@@ -493,12 +463,12 @@
       },
       "clue": {
         "id": "clue_4",
-        "discovery": "Kyle moves the chair aside and notices a small keyhole hidden in the floorboard beneath it. He inserts the key, turns it, and the red curtains part slightly, revealing a narrow passage leading to a dimly lit hallway. With a deep breath, he steps through and escapes the room.",
-        "premature_discovery": "The chair is heavy and doesn’t budge easily. Kyle tries to move it, but it’s as if something is holding it in place—perhaps the keyhole isn’t visible yet.",
+        "discovery": "Kyle slides the Ohio key into the tiny keyhole hidden in the armrest of the chair—*click*—and the red curtains part like they’re revealing the final level of a game. Behind them? A door with a sign that says ‘ESCAPE: NO RATIO.’ The room’s vibe? Pure W energy. Kyle walks through, and the door slams shut behind him like a mic drop.",
+        "premature_discovery": "Kyle approaches the chair, but the armrest’s keyhole is empty. The red curtains stay shut, and the room’s energy is giving ‘you’re not ready, beta.’ Maybe he needs to find the *real* key first. The vibe? Lowkey embarrassing.",
         "riddle": null,
         "answer": null,
-        "hiddenAreaDescription": "Beneath the chair, partially obscured by its legs, is a small keyhole in the floorboard. The keyhole is nearly invisible unless the chair is moved, and the floorboard around it is slightly worn, as if it’s been used before.",
-        "hiddenPovImagePath": null
+        "hiddenAreaDescription": "A first-person view of the chair’s armrest, where a tiny keyhole glints under the studio light. The red curtains loom in the background, their fabric slightly parted like they’re waiting for the key. The keyhole’s metallic edges are worn, giving ‘ancient escape room’ vibes, and the room’s dark walls make it look like the final boss battle.",
+        "hiddenPovImagePath": "/enhanced-cache/pov-chair_near_curtain.png"
       }
     }
   ],
